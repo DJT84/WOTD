@@ -121,10 +121,14 @@ var _geo_tiles:     Array          = []   # cached PlanetTile array — used by 
 
 var _putty_mat:     ShaderMaterial = null
 var _putty_mi:      MeshInstance3D = null
-var _putty_craters: Array          = []   # [{pos, radius, damage}] — up to 4
+var _putty_craters: Array          = []   # [{pos, radius, damage}] — gameplay only
 var _atmos_mi:      MeshInstance3D = null
 var _terrain_image:  Image = null   # blurred — drives the shader
 var _terrain_binary: Image = null   # pre-blur binary — drives is_position_sea
+var _crater_image:   Image         = null
+var _crater_tex:     ImageTexture  = null
+const CRATER_W: int = 512
+const CRATER_H: int = 256
 
 var _hovered_tile_id:    int   = -1
 var _selected_tile_id:   int   = -1
@@ -153,10 +157,12 @@ var _age_cfg: Array = [
 # in the tropics. No life on land. Almost all life in shallow marine shelf seas.
 {
 	"name": "Cambrian", "ma": 541,
-	"noise_seed": 100, "coast_roughness": 5.5, "shallow_sea_depth": 3, "land_expand_deg": 5.0,
+	"noise_seed": 100, "coast_roughness": 5.5, "shallow_sea_depth": 3, "land_expand_deg": 9.0,
 	"blur_passes": 2, "thresh_shallow": 0.04,
-	"shader_land":      Color("#7A6A55"),  # cool dark exposed rock at coast
-	"shader_highlands": Color("#7A6A55"),  # same — no interior/exterior distinction on small cratons
+	"shader_land":      Color("#9A8870"),  # light warm tan — exposed coastal rock
+	"shader_highlands": Color("#7A6A55"),  # mid brown — barren interior
+	"shader_midland":   Color("#5C4E3C"),  # dark brown — shadow hollows
+	"midland_mix":      0.20,
 	"ice_y_abs": 1.01,
 	"atmosphere_color": Color(0.36, 0.61, 0.71, 0.72),
 	"palette": {
@@ -197,12 +203,12 @@ var _age_cfg: Array = [
 # the south. Vast inland seas flood the continental interiors.
 {
 	"name": "Carboniferous", "ma": 310,
-	"noise_seed": 200, "coast_roughness": 4.5, "shallow_sea_depth": 3, "land_expand_deg": 4.0,
+	"noise_seed": 200, "coast_roughness": 4.5, "shallow_sea_depth": 3, "land_expand_deg": 8.0,
 	"blur_passes": 2, "thresh_shallow": 0.10,
-	"shader_land":      Color("#2D5E20"),  # coal forest at coastal fringe
-	"shader_highlands": Color("#1A3A15"),  # dark swamp — dominant interior
-	"shader_midland":   Color("#4A3520"),  # mudflat patches in interior (~20%)
-	"midland_mix":      0.08,
+	"shader_land":      Color("#3E7228"),  # lighter forest green — coastal fringe
+	"shader_highlands": Color("#2D5E20"),  # mid coal-forest green — dominant interior
+	"shader_midland":   Color("#1A3A12"),  # very dark swamp — deep interior patches
+	"midland_mix":      0.20,
 	"ice_y_abs": 1.01,
 	"atmosphere_color": Color(0.10, 0.42, 0.35, 0.65),
 	"palette": {
@@ -255,10 +261,10 @@ var _age_cfg: Array = [
 # The most orange/rust globe in the game — almost no green anywhere.
 {
 	"name": "Permian", "ma": 270,
-	"noise_seed": 300, "coast_roughness": 4.0, "shallow_sea_depth": 3, "land_expand_deg": 7.0,
-	"blur_passes": 1, "thresh_shallow": 0.40,
-	"shader_land":      Color("#5A2A1A"),  # dark exposed rock at coast
-	"shader_highlands": Color("#8B3A2A"),  # rust-red — dominant arid interior
+	"noise_seed": 300, "coast_roughness": 4.0, "shallow_sea_depth": 3, "land_expand_deg": 11.0,
+	"blur_passes": 2, "thresh_shallow": 0.40,
+	"shader_land":      Color("#B04A35"),  # light rust-red — coastal fringe
+	"shader_highlands": Color("#8B3A2A"),  # mid rust — dominant arid interior
 	"ice_y_abs": 0.97,   # tiny polar ice remnant (~3% each pole)
 	"atmosphere_color": Color(0.92, 0.60, 0.18, 0.55),  # amber-orange haze
 	"palette": {
@@ -287,8 +293,8 @@ var _age_cfg: Array = [
 			[40,25],[50,50],[40,80],[20,90],[0,80],[5,50],[20,30],[35,25],[40,25]
 		]},
 	],
-	"shader_midland": Color("#5A2A1A"),  # dark rock — 10% interior patches
-	"midland_mix":    0.10,
+	"shader_midland": Color("#5A2010"),  # dark rust-brown — shadow patches
+	"midland_mix":    0.20,
 	"land_rules": [
 		{"type": "ICE_SHEET",    "lat_south_of": -70},
 		{"type": "VOLCANIC",     "lat_north_of": 58, "lon_between": [80, 130]},
@@ -318,10 +324,10 @@ var _age_cfg: Array = [
 # Earth. Even the poles have temperate conifer forest. Tethys Ocean wide and warm.
 {
 	"name": "Jurassic", "ma": 150,
-	"noise_seed": 400, "coast_roughness": 4.0, "shallow_sea_depth": 3, "land_expand_deg": 4.0,
+	"noise_seed": 400, "coast_roughness": 4.0, "shallow_sea_depth": 3, "land_expand_deg": 8.0,
 	"blur_passes": 2, "thresh_shallow": 0.08,
-	"shader_land":      Color("#3A8C2A"),  # mid green canopy at coastal fringe
-	"shader_highlands": Color("#1E5C15"),  # dark jungle — dominant interior
+	"shader_land":      Color("#52A03A"),  # bright jungle green — coastal fringe
+	"shader_highlands": Color("#3A7828"),  # mid green — dominant interior
 	"ice_y_abs": 1.01,
 	"atmosphere_color": Color(0.18, 0.55, 0.72, 0.65),  # steel blue — slate ocean + dark jungle
 	"palette": {
@@ -364,8 +370,8 @@ var _age_cfg: Array = [
 			[35,20],[20,10],[15,90],[35,45],[35,20]
 		]},
 	],
-	"shader_midland": Color("#6A5A3A"),  # bare rock at coastal edges (~5%)
-	"midland_mix":    0.05,
+	"shader_midland": Color("#265A18"),  # dark canopy — deep interior patches
+	"midland_mix":    0.22,
 	"land_rules": [
 		# Tiny bare rock clusters at immediate coastline only
 		{"type": "BARE_ROCK",    "coast": true, "noise_above": 0.55},
@@ -391,12 +397,12 @@ var _age_cfg: Array = [
 # North America in two. Europe barely exists — a chain of tropical islands. No ice.
 {
 	"name": "Cretaceous", "ma": 90,
-	"noise_seed": 500, "coast_roughness": 3.5, "shallow_sea_depth": 3, "land_expand_deg": 2.0,
+	"noise_seed": 500, "coast_roughness": 3.5, "shallow_sea_depth": 3, "land_expand_deg": 7.0,
 	"blur_passes": 2, "thresh_shallow": 0.10,
-	"shader_land":      Color("#4A7A30"),  # jungle green at coastal fringe
-	"shader_highlands": Color("#C8A85A"),  # sandy ochre — dominant interior
-	"shader_midland":   Color("#A8864A"),  # darker sandy accent
-	"midland_mix":      0.08,
+	"shader_land":      Color("#5A9038"),  # bright warm green — coastal fringe
+	"shader_highlands": Color("#427028"),  # mid green — dominant interior
+	"shader_midland":   Color("#2E5018"),  # dark canopy — interior patches
+	"midland_mix":      0.22,
 	"ice_y_abs": 1.01,
 	"atmosphere_color": Color(0.15, 0.72, 0.80, 0.60),  # warm teal — greenhouse hothouse
 	"palette": {
@@ -479,23 +485,23 @@ var _age_cfg: Array = [
 # First grasslands appear but are small and patchy.
 {
 	"name": "Eocene", "ma": 45,
-	"noise_seed": 600, "coast_roughness": 3.0, "shallow_sea_depth": 2, "land_expand_deg": 3.5,
-	"blur_passes": 1, "thresh_shallow": 0.12,
-	"shader_land":      Color("#C8A85A"),  # coastal sand — narrow 1-2 tile fringe
-	"shader_highlands": Color("#3A8C2A"),  # lighter forest — transition wrapping canopy
+	"noise_seed": 600, "coast_roughness": 3.0, "shallow_sea_depth": 2, "land_expand_deg": 7.5,
+	"blur_passes": 2, "thresh_shallow": 0.12,
+	"shader_land":      Color("#6AAA42"),  # bright warm green — coastal fringe
+	"shader_highlands": Color("#4A8030"),  # mid green — dominant interior
 	"ice_y_abs": 1.01,
 	"atmosphere_color": Color(0.18, 0.65, 0.96, 0.65),
 	"palette": {
 		"DEEP_OCEAN":   Color("#1E6B8A"),
 		"SHALLOW_SEA":  Color("#4A9EBF"),
 		"INLAND_SEA":   Color("#5BB4CF"),
-		"FOREST_DENSE": Color("#1E5C15"),
-		"FOREST_LIGHT": Color("#3A8C2A"),
+		"FOREST_DENSE": Color("#306020"),
+		"FOREST_LIGHT": Color("#4A8030"),
 		"WETLAND":      Color("#4a8040"),
-		"GRASSLAND":    Color("#C8A85A"),
+		"GRASSLAND":    Color("#6AAA42"),
 	},
-	"shader_midland":   Color("#1E5C15"),  # dense interior canopy
-	"midland_mix":      0.12,
+	"shader_midland":   Color("#306020"),  # dark canopy — interior patches
+	"midland_mix":      0.22,
 	"land_polygons": [
 		# North America — no Panama yet, Caribbean seaway open
 		[[72,-160],[78,-100],[68,-65],[50,-55],[30,-80],
@@ -549,12 +555,12 @@ var _age_cfg: Array = [
 # The mammoth steppe stretches from Europe to Alaska.
 {
 	"name": "Pleistocene", "ma": 1,
-	"noise_seed": 700, "coast_roughness": 2.5, "shallow_sea_depth": 2, "land_expand_deg": 3.0,
-	"blur_passes": 1, "thresh_shallow": 0.45,
-	"shader_land":      Color("#6B5A45"),  # tundra — equatorial fringe only
+	"noise_seed": 700, "coast_roughness": 2.5, "shallow_sea_depth": 2, "land_expand_deg": 7.0,
+	"blur_passes": 2, "thresh_shallow": 0.45,
+	"shader_land":      Color("#A8C8D8"),  # pale blue-grey tundra fringe
 	"shader_highlands": Color("#DFF0F7"),  # bright ice — dominates non-polar land
 	"shader_midland":   Color("#B8D9EC"),  # deep ice variation
-	"midland_mix":      0.10,
+	"midland_mix":      0.22,
 	"ice_y_abs": 0.38,
 	"atmosphere_color": Color(0.78, 0.91, 0.96, 0.50),
 	"palette": {
@@ -605,12 +611,12 @@ var _age_cfg: Array = [
 # Sea levels 120m higher than Pleistocene — land bridges submerged.
 {
 	"name": "Holocene", "ma": 0,
-	"noise_seed": 800, "coast_roughness": 2.0, "shallow_sea_depth": 2, "land_expand_deg": 2.5,
+	"noise_seed": 800, "coast_roughness": 2.0, "shallow_sea_depth": 2, "land_expand_deg": 6.5,
 	"blur_passes": 2, "thresh_shallow": 0.18,
-	"shader_land":      Color("#C8A85A"),  # desert sand at coastal/mid-continent fringe
-	"shader_highlands": Color("#3A7A2A"),  # temperate forest — dominant north
-	"shader_midland":   Color("#1E5C15"),  # dense equatorial canopy
-	"midland_mix":      0.10,
+	"shader_land":      Color("#5AA035"),  # bright green — coastal fringe
+	"shader_highlands": Color("#3A7825"),  # mid temperate green — dominant
+	"shader_midland":   Color("#265518"),  # dark canopy — interior patches
+	"midland_mix":      0.22,
 	"ice_y_abs": 0.93,   # polar caps — Greenland and Antarctica via lat override
 	"atmosphere_color": Color(0.15, 0.55, 1.00, 0.72),  # vivid Earth blue
 	"palette": {
@@ -972,19 +978,12 @@ func apply_impact(tile_id: int, impact_pos: Vector3 = Vector3.ZERO, intensity: f
 				break
 
 	# Crater world-space radius scales with asteroid size
-	var crater_r: float = 0.45 + intensity * 0.35
+	var crater_r: float = 0.30 + intensity * 0.22
 
 	if use_putty_style:
-		# Project to the bare sphere surface so the stored position matches the
-		# v_local_pos coordinate system in the shader (SphereMesh has no tile raise).
 		var crater_pos := impact_pos.normalized() * planet_radius
-		if _putty_craters.size() < 256:
-			_putty_craters.append({
-				"pos":    crater_pos,
-				"radius": crater_r,
-				"damage": clamp(intensity, 0.3, 1.0)
-			})
-		_update_putty_craters()
+		_putty_craters.append({"pos": crater_pos, "radius": crater_r, "damage": clamp(intensity, 0.3, 1.0)})
+		_paint_crater(impact_pos.normalized(), intensity)
 		impact_landed.emit(tile_id, intensity)
 		return
 
@@ -1391,7 +1390,7 @@ func _build_putty_meshes(_geo: GeodesicSphere, palette: Dictionary) -> void:
 		_putty_mat.set_shader_parameter("clay_normal_tex",    load(CLAY_NORMAL))
 	if FileAccess.file_exists(CLAY_ROUGHNESS):
 		_putty_mat.set_shader_parameter("clay_roughness_tex", load(CLAY_ROUGHNESS))
-	_update_putty_craters()
+	_init_crater_texture()
 
 	_putty_mi                   = MeshInstance3D.new()
 	_putty_mi.mesh              = sphere
@@ -1404,12 +1403,12 @@ func _build_putty_meshes(_geo: GeodesicSphere, palette: Dictionary) -> void:
 	_sync_tile_land_flags()
 
 
-# Bakes a 128x64 single-channel (R8) height texture.
+# Bakes a 256x128 single-channel (R8) height texture.
 # R = 0.0 (deep ocean) → blurred gradient → 1.0 (land interior).
 # Shader dithering at zone boundaries creates gradual pixelated edges.
 func _bake_layer_texture(c: Dictionary) -> ImageTexture:
-	const W: int = 128
-	const H: int = 64
+	const W: int = 256
+	const H: int = 128
 	var data := PackedByteArray(); data.resize(W * H)
 
 	var expand_deg: float = c.get("land_expand_deg", 0.0)
@@ -1466,25 +1465,73 @@ func _bake_layer_texture(c: Dictionary) -> ImageTexture:
 	return ImageTexture.create_from_image(img)
 
 
-func _update_putty_craters() -> void:
-	if _putty_mat == null:
+func _init_crater_texture() -> void:
+	_crater_image = Image.create(CRATER_W, CRATER_H, false, Image.FORMAT_R8)
+	_crater_image.fill(Color(1.0, 1.0, 1.0))
+	_crater_tex = ImageTexture.create_from_image(_crater_image)
+	if _putty_mat:
+		_putty_mat.set_shader_parameter("crater_tex", _crater_tex)
+
+
+func _crater_pos_to_uv(n: Vector3) -> Vector2:
+	var lon := atan2(-n.x, -n.z)  # negate both to flip 180° — sphere mesh seam offset
+	var lat := asin(clamp(n.y, -1.0, 1.0))
+	return Vector2(lon / (PI * 2.0) + 0.5, lat / PI + 0.5)
+
+
+func _crater_uv_to_normal(u: float, v: float) -> Vector3:
+	var lon := (u - 0.5) * PI * 2.0
+	var lat := (v - 0.5) * PI
+	return Vector3(-sin(lon) * cos(lat), sin(lat), -cos(lon) * cos(lat))
+
+
+func _paint_crater(n_impact: Vector3, intensity: float) -> void:
+	if _crater_image == null or _crater_tex == null:
+		push_error("_paint_crater: crater image/tex is null")
 		return
-	const MAX: int = 256
-	var pos_arr: Array[Vector4]  = []
-	var dmg_arr: Array[float]    = []
-	pos_arr.resize(MAX)
-	dmg_arr.resize(MAX)
-	for i in range(MAX):
-		if i < _putty_craters.size():
-			var cr = _putty_craters[i]
-			var p: Vector3 = cr.pos
-			pos_arr[i] = Vector4(p.x, p.y, p.z, cr.radius)
-			dmg_arr[i] = cr.damage
-		else:
-			pos_arr[i] = Vector4(0.0, 0.0, 0.0, 0.0)
-			dmg_arr[i] = 0.0
-	_putty_mat.set_shader_parameter("craters",    pos_arr)
-	_putty_mat.set_shader_parameter("crater_dmg", dmg_arr)
+	var crater_r := 0.30 + intensity * 0.22
+	var angular_r := asin(clamp(crater_r / planet_radius, 0.0, 1.0))
+	var rim_angular_r := angular_r * 1.17
+	var uv_margin := rim_angular_r / PI
+	var impact_uv := _crater_pos_to_uv(n_impact)
+
+	# Paint, wrapping at the longitude seam if needed.
+	for pass_n in range(2):
+		var u_offset := 0.0 if pass_n == 0 else (1.0 if impact_uv.x < 0.5 else -1.0)
+		if pass_n == 1 and abs(impact_uv.x - 0.5) > 0.5 - uv_margin * 2.0:
+			break  # not near seam, skip second pass
+		var x_min: int = max(0, int((impact_uv.x + u_offset - uv_margin * 2.0) * CRATER_W))
+		var x_max: int = min(CRATER_W - 1, int((impact_uv.x + u_offset + uv_margin * 2.0) * CRATER_W))
+		var y_min: int = max(0, int((impact_uv.y - uv_margin) * CRATER_H))
+		var y_max: int = min(CRATER_H - 1, int((impact_uv.y + uv_margin) * CRATER_H))
+		for py in range(y_min, y_max + 1):
+			for px in range(x_min, x_max + 1):
+				var u: float = (float(px) + 0.5) / CRATER_W
+				var v: float = (float(py) + 0.5) / CRATER_H
+				var n_px: Vector3 = _crater_uv_to_normal(u, v)
+				var cos_d: float = clamp(n_impact.dot(n_px), -1.0, 1.0)
+				var angular_d := acos(cos_d)
+				if angular_d > rim_angular_r:
+					continue
+				var existing := _crater_image.get_pixel(px, py).r
+				var new_val: float
+				if angular_d > angular_r:
+					# Bright ejecta rim — fixed brightness so small craters still show a ring
+					new_val = min(1.0, existing * (1.0 + 0.22 + intensity * 0.18))
+				else:
+					var t := angular_d / angular_r
+					var depth := 1.0 - t
+					# Base floor ensures small craters are always visible
+					var darken := 0.10 + intensity * (0.10 + 0.32 * depth * depth)
+					new_val = existing * (1.0 - darken)
+				_crater_image.set_pixel(px, py, Color(new_val, new_val, new_val))
+
+	_crater_tex = ImageTexture.create_from_image(_crater_image)
+	var mat := _putty_mi.material_override as ShaderMaterial
+	if mat:
+		mat.set_shader_parameter("crater_tex", _crater_tex)
+	else:
+		push_error("_paint_crater: no material on _putty_mi")
 
 
 # Sync tile.is_land with the baked terrain texture so both systems agree.
@@ -1501,7 +1548,7 @@ func is_position_sea(dir: Vector3) -> bool:
 	if img == null:
 		return false
 	var n := dir.normalized()
-	var u := atan2(n.x, n.z) / TAU + 0.5
+	var u := atan2(-n.x, -n.z) / TAU + 0.5  # matches sphere mesh UV convention
 	var v := asin(clamp(n.y, -1.0, 1.0)) / PI + 0.5
 	var px := clampi(int(u * img.get_width()),  0, img.get_width()  - 1)
 	var py := clampi(int(v * img.get_height()), 0, img.get_height() - 1)

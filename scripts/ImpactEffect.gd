@@ -1,30 +1,57 @@
 extends Node3D
 
 const DEBRIS_PER_INTENSITY := 45
-const FALL_BASE_DURATION   := 0.8
-const TRAIL_SEGMENTS       := 16
+const FALL_BASE_DURATION   := 1.2
+const TRAIL_SEGMENTS       := 20
+
+# Fire palette — head (hot) to tail (cooling)
+const FIRE_COLORS := [
+	Color(1.00, 0.95, 0.60),  # white-yellow core
+	Color(1.00, 0.72, 0.10),  # bright orange
+	Color(1.00, 0.45, 0.05),  # deep orange
+	Color(0.90, 0.20, 0.02),  # red
+	Color(0.55, 0.08, 0.01),  # dark red ember
+]
 
 var _planet:      Node3D
 var _tile:        Object
-var _meteor:      MeshInstance3D  # owned sphere mesh (normal bombardments)
-var _ext_rock:    Node3D          # externally-owned rock (IMPACT ability)
-var _rock_cb:     Callable        # called when external rock lands
+var _meteor:      MeshInstance3D
+var _ext_rock:    Node3D
+var _rock_cb:     Callable
 var _intensity:   float  = 1.0
 var _tile_col:    Color  = Color(0.5, 0.5, 0.5)
 var _is_sea:      bool   = false
 var _debris:      Array  = []
-var _rings:       Array  = []   # [{mi, mat, life, max_life, speed, delay}]
+var _rings:       Array  = []
 var _surf_normal: Vector3
 
-var _start_pos: Vector3
-var _end_pos:   Vector3
-var _t:         float = 0.0
-var _phase:     int   = 0
+var _start_pos:   Vector3
+var _end_pos:     Vector3
+var _t:           float = 0.0
+var _phase:       int   = 0
+var _flight_dir:  Vector3  # unit vector start→end, for fire particle drift
 
-var _trail_nodes:  Array = []
-var _trail_mats:   Array = []
-var _trail_hist:   Array = []
-var _trail_write:  int   = 0
+var _trail_nodes: Array = []
+var _trail_mats:  Array = []
+var _trail_hist:  Array = []
+var _trail_write: int   = 0
+
+var _fire_pixels: Array = []  # [{mi, mat, vel, life, max_life}]
+var _fire_accum:  float = 0.0
+
+
+func _offscreen_start(surf_normal: Vector3) -> Vector3:
+	# Start from far off-screen: 20 units from planet centre, in a direction
+	# that is offset from the surface normal so the asteroid flies in diagonally.
+	var ref:    Vector3 = Vector3.UP if abs(surf_normal.dot(Vector3.UP)) < 0.9 else Vector3.RIGHT
+	var tang:   Vector3 = surf_normal.cross(ref).normalized()
+	var bitang: Vector3 = tang.cross(surf_normal).normalized()
+	# Random diagonal approach — lateral offset 0.6-1.4 × normal
+	var lat:  float = randf_range(0.6, 1.4)
+	var vert: float = randf_range(0.2, 0.7)
+	var side: Vector3 = (tang * randf_range(-1.0, 1.0) + bitang * randf_range(-1.0, 1.0)).normalized()
+	var approach: Vector3 = (surf_normal + side * lat + Vector3.UP * vert).normalized()
+	return approach * 20.0
 
 
 func setup(planet: Node3D, tile: Object, intensity: float = 1.0, tile_col: Color = Color(0.5, 0.5, 0.5)) -> void:
@@ -33,12 +60,11 @@ func setup(planet: Node3D, tile: Object, intensity: float = 1.0, tile_col: Color
 	_tile        = tile
 	_tile_col    = tile_col
 	_surf_normal = (tile as RefCounted).center_position.normalized()
-	_is_sea      = planet.is_position_sea(_surf_normal)
+	_is_sea      = not (tile as PlanetTile).is_land
 
 	var land_add: float = 0.0 if _is_sea else planet.land_height
-	var surf_r: float   = planet.planet_radius + planet.tile_raise + land_add
+	var surf_r:   float = planet.planet_radius + planet.tile_raise + land_add
 
-	# Random offset within the tile — bigger asteroids can hit further off-centre
 	var ref:       Vector3 = Vector3.UP if abs(_surf_normal.dot(Vector3.UP)) < 0.9 else Vector3.RIGHT
 	var tangent:   Vector3 = _surf_normal.cross(ref).normalized()
 	var bitangent: Vector3 = _surf_normal.cross(tangent).normalized()
@@ -46,27 +72,27 @@ func setup(planet: Node3D, tile: Object, intensity: float = 1.0, tile_col: Color
 	var offset:    Vector3 = (tangent * randf_range(-1.0, 1.0) + bitangent * randf_range(-1.0, 1.0)).normalized() \
 	                         * randf_range(0.0, max_off)
 
-	_end_pos   = _surf_normal * surf_r + offset
-	_start_pos = _surf_normal * (surf_r + 3.5 + _intensity * 2.0)
+	_end_pos     = _surf_normal * surf_r + offset
+	_start_pos   = _offscreen_start(_surf_normal)
+	_flight_dir  = (_end_pos - _start_pos).normalized()
 
 	_build_meteor()
 	_build_trail()
 
 
-# Called by Main when firing the IMPACT rock — rock is already reparented to planet.
 func setup_with_rock(planet: Node3D, tile: Object, intensity: float,
 		tile_col: Color, rock: Node3D, cb: Callable) -> void:
-	_ext_rock  = rock
-	_rock_cb   = cb
-	_intensity = clamp(intensity, 0.1, 5.0)
-	_planet    = planet
-	_tile      = tile
-	_tile_col  = tile_col
+	_ext_rock    = rock
+	_rock_cb     = cb
+	_intensity   = clamp(intensity, 0.1, 5.0)
+	_planet      = planet
+	_tile        = tile
+	_tile_col    = tile_col
 	_surf_normal = (tile as RefCounted).center_position.normalized()
-	_is_sea      = planet.is_position_sea(_surf_normal)
+	_is_sea      = not (tile as PlanetTile).is_land
 
 	var land_add: float = 0.0 if _is_sea else planet.land_height
-	var surf_r: float   = planet.planet_radius + planet.tile_raise + land_add
+	var surf_r:   float = planet.planet_radius + planet.tile_raise + land_add
 
 	var ref:       Vector3 = Vector3.UP if abs(_surf_normal.dot(Vector3.UP)) < 0.9 else Vector3.RIGHT
 	var tangent:   Vector3 = _surf_normal.cross(ref).normalized()
@@ -75,17 +101,18 @@ func setup_with_rock(planet: Node3D, tile: Object, intensity: float,
 	var offset:    Vector3 = (tangent * randf_range(-1.0, 1.0) + bitangent * randf_range(-1.0, 1.0)).normalized() \
 	                         * randf_range(0.0, max_off)
 
-	_end_pos   = _surf_normal * surf_r + offset
-	_start_pos = rock.position  # rock is already in planet-local space after reparent
+	_end_pos    = _surf_normal * surf_r + offset
+	_start_pos  = rock.position
+	_flight_dir = (_end_pos - _start_pos).normalized()
 
-	_build_trail()  # trail uses sphere segments; no owned meteor mesh built
+	_build_trail()
 
 
 func _build_meteor() -> void:
-	_meteor = MeshInstance3D.new()
-	var mesh    := SphereMesh.new()
-	mesh.radius  = 0.12 + _intensity * 0.12
-	mesh.height  = mesh.radius * 2.2
+	_meteor      = MeshInstance3D.new()
+	var mesh     := SphereMesh.new()
+	mesh.radius          = 0.12 + _intensity * 0.12
+	mesh.height          = mesh.radius * 2.2
 	mesh.radial_segments = 12
 	mesh.rings           = 6
 	_meteor.mesh = mesh
@@ -103,21 +130,36 @@ func _build_trail() -> void:
 	for i in range(TRAIL_SEGMENTS):
 		_trail_hist[i] = _start_pos
 
-	var base_radius: float = 0.09 + _intensity * 0.09
+	var base_radius: float = 0.07 + _intensity * 0.07
 
 	for i in range(TRAIL_SEGMENTS):
 		var mi   := MeshInstance3D.new()
 		var mesh := SphereMesh.new()
+		# frac: 1.0 at head (newest), 0.0 at tail (oldest)
 		var frac: float          = float(TRAIL_SEGMENTS - i) / TRAIL_SEGMENTS
-		mesh.radius              = base_radius * frac * 0.9
+		mesh.radius              = base_radius * frac
 		mesh.height              = mesh.radius * 2.0
+		mesh.radial_segments     = 6
+		mesh.rings               = 3
 		mi.mesh                  = mesh
-		var mat := ShaderMaterial.new()
-		mat.shader = load("res://shaders/pixel_rock.gdshader") as Shader
-		mat.set_shader_parameter("pixel_size", 0.04)
-		# Trail fades to transparent by scaling — pixel shader handles colour
+
+		# Colour: hot yellow-white near head, deep red at tail
+		var fire_idx: int = int(frac * (FIRE_COLORS.size() - 1))
+		var fire_t:   float = frac * (FIRE_COLORS.size() - 1) - fire_idx
+		var fire_col: Color = FIRE_COLORS[fire_idx].lerp(
+			FIRE_COLORS[mini(fire_idx + 1, FIRE_COLORS.size() - 1)], fire_t)
+
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = fire_col
+		mat.emission_enabled = true
+		mat.emission         = fire_col
+		mat.emission_energy_multiplier = 1.2 * frac
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.albedo_color.a = frac * 0.9
+
+		mi.set_surface_override_material(0, mat)
 		mi.position = _start_pos
-		mi.scale    = Vector3.ONE * frac
 		add_child(mi)
 		_trail_nodes.append(mi)
 		_trail_mats.append(mat)
@@ -142,11 +184,60 @@ func _hide_trail() -> void:
 		(mi as MeshInstance3D).visible = false
 
 
+# ── Fire pixel particles ───────────────────────────────────────────────────────
+
+func _spawn_fire_pixel(origin: Vector3) -> void:
+	var mi   := MeshInstance3D.new()
+	var mesh := QuadMesh.new()
+	var sz: float = randf_range(0.04, 0.13)
+	mesh.size = Vector2(sz, sz)
+	mi.mesh   = mesh
+
+	# Random fire colour — hotter near the asteroid, cooler drifting back
+	var col: Color = FIRE_COLORS[randi() % FIRE_COLORS.size()]
+
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color             = col
+	mat.emission_enabled         = true
+	mat.emission                 = col
+	mat.emission_energy_multiplier = 1.5
+	mat.shading_mode  = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency  = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.cull_mode     = BaseMaterial3D.CULL_DISABLED
+	mi.set_surface_override_material(0, mat)
+
+	# Drift mostly backward along flight path with random spread
+	var spread: Vector3 = Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized()
+	var vel: Vector3    = -_flight_dir * randf_range(2.0, 5.0) + spread * randf_range(0.3, 1.2)
+
+	mi.position = origin + spread * randf_range(0.0, 0.15)
+	mi.rotation = Vector3(randf() * TAU, randf() * TAU, randf() * TAU)
+	add_child(mi)
+
+	_fire_pixels.append({
+		"mi":       mi,
+		"mat":      mat,
+		"vel":      vel,
+		"life":     0.0,
+		"max_life": randf_range(0.18, 0.45),
+	})
+
+
+func _update_fire_pixels(delta: float) -> void:
+	for p in _fire_pixels:
+		p["life"] += delta
+		var progress: float = p["life"] / p["max_life"]
+		var mi := p["mi"] as MeshInstance3D
+		if progress >= 1.0:
+			mi.visible = false
+			continue
+		mi.position += (p["vel"] as Vector3) * delta
+		var alpha: float = 1.0 - smoothstep(0.5, 1.0, progress)
+		(p["mat"] as StandardMaterial3D).albedo_color.a = alpha
+
+
 # ── Ring helpers ──────────────────────────────────────────────────────────────
 
-# Sphere-cap disk covering 0..max_r on the sphere surface, built once.
-# The ring's visible inner/outer band is controlled by shader uniforms, so no
-# mesh rebuild is needed as the ring expands — only uniform updates each frame.
 func _build_sphere_cap_disk(mesh: ArrayMesh, max_r: float, planet_r: float) -> void:
 	var theta_max: float = asin(clamp(max_r / planet_r, 0.0, 0.9999))
 	var ref: Vector3 = Vector3.UP if abs(_surf_normal.dot(Vector3.UP)) < 0.9 else Vector3.RIGHT
@@ -158,19 +249,19 @@ func _build_sphere_cap_disk(mesh: ArrayMesh, max_r: float, planet_r: float) -> v
 	var verts   := PackedVector3Array()
 	var indices := PackedInt32Array()
 
-	verts.append(_surf_normal * planet_r)  # center vertex
+	verts.append(_surf_normal * planet_r)
 
 	for r_i in range(1, N_R + 1):
 		var theta: float = theta_max * r_i / N_R
 		for phi_i in range(N_PHI):
-			var phi:  float    = phi_i * TAU / N_PHI
-			var tang: Vector3  = bx * cos(phi) + bz * sin(phi)
+			var phi:  float   = phi_i * TAU / N_PHI
+			var tang: Vector3 = bx * cos(phi) + bz * sin(phi)
 			verts.append(planet_r * (cos(theta) * _surf_normal + sin(theta) * tang))
 
-	for phi_i in range(N_PHI):  # center fan
+	for phi_i in range(N_PHI):
 		indices.append_array([0, 1 + phi_i, 1 + (phi_i + 1) % N_PHI])
 
-	for r_i in range(N_R - 1):  # radial quads
+	for r_i in range(N_R - 1):
 		var rs: int = 1 + r_i * N_PHI
 		var re: int = rs + N_PHI
 		for phi_i in range(N_PHI):
@@ -189,10 +280,8 @@ func _build_sphere_cap_disk(mesh: ArrayMesh, max_r: float, planet_r: float) -> v
 func _make_ring(color: Color, start_r: float, delay: float, max_life: float, expand_to: float) -> void:
 	var mi      := MeshInstance3D.new()
 	var mesh    := ArrayMesh.new()
-	var planet_r: float  = (_planet as Planet).planet_radius
-	var center: Vector3  = _surf_normal * planet_r
-	# Disk covers the full expand range plus a small margin so the geometry edge
-	# is always well outside the visible ring band controlled by the shader.
+	var planet_r: float = (_planet as Planet).planet_radius
+	var center: Vector3 = _surf_normal * planet_r
 	_build_sphere_cap_disk(mesh, expand_to * 1.15, planet_r)
 	mi.mesh     = mesh
 	mi.position = Vector3.ZERO
@@ -223,17 +312,16 @@ func _make_ring(color: Color, start_r: float, delay: float, max_life: float, exp
 
 
 func _spawn_rings() -> void:
-	# Crater radius matches apply_impact formula
 	var cr: float = 0.45 + _intensity * 0.35
-
 	if _is_sea:
 		var ripple_col := Color(0.65, 0.85, 1.0, 0.85)
 		_make_ring(ripple_col, cr * 1.1, 0.00, 1.4, cr * 3.5)
 		_make_ring(ripple_col, cr * 1.1, 0.22, 1.3, cr * 3.0)
 		_make_ring(ripple_col, cr * 1.1, 0.44, 1.2, cr * 2.5)
 	else:
-		var blast_col := Color(0.85, 0.78, 0.65, 0.95)
-		_make_ring(blast_col, cr * 1.0, 0.00, 0.80, cr * 4.0)
+		# Fire blast ring — orange, then a cooling red aftershock
+		_make_ring(Color(1.0, 0.55, 0.05, 1.0), cr * 1.0, 0.00, 0.70, cr * 4.0)
+		_make_ring(Color(0.8, 0.20, 0.02, 0.8), cr * 0.8, 0.15, 0.90, cr * 3.2)
 
 
 func _update_rings(delta: float) -> void:
@@ -277,17 +365,27 @@ func _spawn_debris() -> void:
 		var mesh := QuadMesh.new()
 		var w: float = randf_range(0.06, 0.18) * (0.7 + _intensity * 0.3)
 		var h: float = randf_range(0.04, 0.14) * (0.7 + _intensity * 0.3)
-		mesh.size    = Vector2(w, h)
-		mi.mesh      = mesh
+		mesh.size = Vector2(w, h)
+		mi.mesh   = mesh
 
-		var vary: float = randf_range(-0.12, 0.12)
-		var piece_col := Color(
-			clamp(_tile_col.r + vary, 0.0, 1.0),
-			clamp(_tile_col.g + vary, 0.0, 1.0),
-			clamp(_tile_col.b + vary, 0.0, 1.0)
-		)
+		# 35% chance of fire debris, rest terrain-coloured
+		var piece_col: Color
+		if randf() < 0.35:
+			piece_col = FIRE_COLORS[randi() % FIRE_COLORS.size()]
+		else:
+			var vary: float = randf_range(-0.12, 0.12)
+			piece_col = Color(
+				clamp(_tile_col.r + vary, 0.0, 1.0),
+				clamp(_tile_col.g + vary, 0.0, 1.0),
+				clamp(_tile_col.b + vary, 0.0, 1.0)
+			)
+
 		var mat := StandardMaterial3D.new()
 		mat.albedo_color = piece_col
+		mat.emission_enabled = piece_col.r > 0.7  # fire pieces glow
+		if mat.emission_enabled:
+			mat.emission = piece_col
+			mat.emission_energy_multiplier = 1.0
 		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		mat.cull_mode    = BaseMaterial3D.CULL_DISABLED
 		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -296,8 +394,6 @@ func _spawn_debris() -> void:
 		mi.rotation = Vector3(randf() * TAU, randf() * TAU, randf() * TAU)
 		add_child(mi)
 
-		# Physics-based lifetime: piece must have time to arc out and return.
-		# 2*lift/gravity gives the round-trip time; add fade buffer at the end.
 		var return_time: float = 2.0 * lift / 6.5
 		var piece_life: float  = return_time + randf_range(0.4, 0.9)
 		_debris.append({
@@ -318,18 +414,28 @@ func _process(delta: float) -> void:
 		var new_pos: Vector3 = _start_pos.lerp(_end_pos, _t * _t)
 		if _ext_rock:
 			_ext_rock.position = new_pos
-			# Let external rock keep its own rotation (tumbling, set by Main._process)
 		else:
 			_meteor.position = new_pos
 			var dir: Vector3 = (_end_pos - _meteor.position).normalized()
 			if dir.length_squared() > 0.001:
 				_meteor.look_at(_meteor.global_position + dir, Vector3.UP)
 		_update_trail()
+
+		# Spawn fire pixels — more frequent as asteroid gets closer
+		var rate: float = lerp(8.0, 22.0, _t)  # pixels per second
+		_fire_accum += delta * rate
+		while _fire_accum >= 1.0:
+			_spawn_fire_pixel(_active_pos())
+			_fire_accum -= 1.0
+
+		_update_fire_pixels(delta)
+
 		if _t >= 1.0:
 			_on_impact()
 		return
 
 	_update_rings(delta)
+	_update_fire_pixels(delta)
 
 	var all_done := true
 	for d in _debris:
@@ -346,11 +452,13 @@ func _process(delta: float) -> void:
 		var alpha: float = 1.0 - smoothstep(0.80, 1.0, progress)
 		(d["mat"] as StandardMaterial3D).albedo_color.a = alpha
 
-	# Keep alive until rings and debris are all done
 	var rings_done := _rings.all(func(r) -> bool:
 		return r["life"] - r["delay"] >= r["max_life"]
 	)
-	if all_done and rings_done:
+	var fire_done := _fire_pixels.all(func(p) -> bool:
+		return p["life"] >= p["max_life"]
+	)
+	if all_done and rings_done and fire_done:
 		queue_free()
 
 

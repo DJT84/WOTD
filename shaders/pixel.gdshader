@@ -2,7 +2,7 @@ shader_type spatial;
 render_mode unshaded;
 
 uniform sampler2D terrain_tex : filter_nearest;
-uniform float pixel_count : hint_range(32.0, 512.0, 1.0) = 430.0;
+uniform float pixel_count : hint_range(32.0, 1024.0, 1.0) = 900.0;
 
 uniform float thresh_shallow : hint_range(0.0, 1.0) = 0.20;
 uniform float thresh_land    : hint_range(0.0, 1.0) = 0.65;
@@ -21,9 +21,7 @@ uniform vec3  sun_dir     = vec3(0.55, 0.70, 0.45);
 // Set to 1.01 to disable (no epoch has natural ice above 90°).
 uniform float ice_y_abs : hint_range(0.0, 1.01) = 1.01;
 
-const int MAX_CRATERS = 256;
-uniform vec4  craters[MAX_CRATERS];
-uniform float crater_dmg[MAX_CRATERS];
+uniform sampler2D crater_tex : filter_linear;
 
 varying vec3 v_local_pos;
 
@@ -42,15 +40,17 @@ float px_hash(vec2 id) {
 // producing a gradual pixelated edge that curves naturally across the grid.
 const float DITHER_W = 0.10;
 
-vec3 deep_ocean_col(float rnd) {
-	if      (rnd > 0.98) return mix(color_shallow_sea.rgb, vec3(1.0), 0.28);
-	else if (rnd > 0.94) return color_deep_ocean.rgb * 1.18;
-	else                 return color_deep_ocean.rgb;
+vec3 deep_ocean_col(float rnd, vec2 px_id) {
+	float rnd2 = px_hash(px_id * 1.7 + vec2(43.1, 97.6));
+	float rnd3 = px_hash(px_id * 0.3 + vec2(211.3, 53.9));
+	if      (rnd > 0.99 && rnd2 > 0.4)  return mix(color_shallow_sea.rgb, vec3(1.0), 0.28);
+	else if (rnd > 0.97 && rnd3 < 0.6)  return color_deep_ocean.rgb * 1.18;
+	else                                 return color_deep_ocean.rgb;
 }
-vec3 shallow_sea_col(float rnd) {
-	if      (rnd > 0.96) return mix(color_shallow_sea.rgb, vec3(1.0), 0.42);
-	else if (rnd > 0.91) return color_shallow_sea.rgb * 1.10;
-	else                 return color_shallow_sea.rgb;
+vec3 shallow_sea_col(float rnd, vec2 px_id) {
+	float rnd2 = px_hash(px_id * 2.3 + vec2(81.7, 137.2));
+	if (rnd > 0.995 && rnd2 > 0.35) return mix(color_shallow_sea.rgb, vec3(1.0), 0.42);
+	else                             return color_shallow_sea.rgb;
 }
 vec3 land_col(float rnd) {
 	// No random dark pixels on coastal land — they read as noise, not character.
@@ -94,13 +94,13 @@ vec3 zone_color(float h, vec2 px_id) {
 	// Dithered transition: deep ocean ↔ shallow sea
 	float t_shallow = (h - thresh_shallow) / DITHER_W;
 	if (t_shallow < 1.0) {
-		if (t_shallow <= 0.0 || rnd2 > t_shallow) return deep_ocean_col(rnd);
-		else                                        return shallow_sea_col(rnd);
+		if (t_shallow <= 0.0 || rnd2 > t_shallow) return deep_ocean_col(rnd, px_id);
+		else                                        return shallow_sea_col(rnd, px_id);
 	}
 	// Dithered transition: shallow sea ↔ land
 	float t_land = (h - thresh_land) / DITHER_W;
 	if (t_land < 1.0) {
-		if (t_land <= 0.0 || rnd2 > t_land) return shallow_sea_col(rnd);
+		if (t_land <= 0.0 || rnd2 > t_land) return shallow_sea_col(rnd, px_id);
 		else                                  return land_col(rnd);
 	}
 	// Dithered transition: land ↔ highlands
@@ -112,23 +112,25 @@ vec3 zone_color(float h, vec2 px_id) {
 	return highlands_col(rnd, px_id);
 }
 
-void apply_crater(vec3 px_pos, vec4 cdata, float dmg, inout vec3 col) {
-	if (dmg <= 0.0 || cdata.w <= 0.0) return;
-	float t    = length(px_pos - cdata.xyz) / cdata.w;
-	float t_px = floor(t * 6.0) / 6.0;
-	if (t_px >= 1.0) return;
-	// Quadratic depth darkening — darkest at centre, fades toward rim.
-	// No sun-slope shading or rim brightening; those add surface noise back.
-	float depth  = 1.0 - t_px;
-	float darken = dmg * (0.18 + 0.68 * depth * depth);
-	col *= 1.0 - darken;
-}
 
 void fragment() {
 	vec2 uv_raw  = vec2(UV.x, 1.0 - UV.y);
 	vec2 grid    = vec2(pixel_count, pixel_count * 0.5);
-	vec2 px_id   = floor(uv_raw * grid);
-	vec2 uv_snap = (px_id + 0.5) / grid;
+
+	// Screen-space pixel cells — uniform size regardless of sphere position.
+	// dFdx/dFdy give the UV change per screen pixel, letting us reconstruct
+	// the exact UV at each cell's centre. Everything (terrain, noise, dither)
+	// uses that cell-centre UV, so it all rotates with the sphere.
+	// Screen-space cells give uniform pixel size. uv_snap finds the UV at each
+	// cell centre via screen derivatives — rotates with the sphere. px_id is
+	// derived from uv_snap so noise/dither/sparkle all rotate with the surface.
+	float cell     = 1080.0 / pixel_count;
+	vec2  px_scr   = floor(FRAGCOORD.xy / cell);
+	vec2  uv_dx    = dFdx(uv_raw);
+	vec2  uv_dy    = dFdy(uv_raw);
+	vec2  frag_off = (px_scr + 0.5) * cell - FRAGCOORD.xy;
+	vec2  uv_snap  = clamp(uv_raw + uv_dx * frag_off.x + uv_dy * frag_off.y, vec2(0.0), vec2(1.0));
+	vec2  px_id    = floor(uv_snap * grid);
 
 	float h = texture(terrain_tex, uv_snap).r;
 
@@ -147,18 +149,7 @@ void fragment() {
 	                           sin(c_lat),
 	                           cos(c_lon) * cos(c_lat));
 
-	// Inside a crater: use flat base zone color (no sparkles, no midland scatter)
-	// so the blast surface is clean and darkening rings read clearly.
-	bool in_crater = false;
-	for (int i = 0; i < MAX_CRATERS; i++) {
-		if (crater_dmg[i] > 0.0 && craters[i].w > 0.0) {
-			if (length(px_sphere - craters[i].xyz) < craters[i].w) {
-				in_crater = true;
-				break;
-			}
-		}
-	}
-	vec3 col = in_crater ? zone_color_flat(h) : zone_color(h, px_id);
+	vec3 col = zone_color(h, px_id);
 
 	// Terminator uses the snapped direction so the shadow edge steps pixel by pixel.
 	vec3 world_normal = normalize((MODEL_MATRIX * vec4(normalize(px_sphere), 0.0)).xyz);
@@ -172,9 +163,9 @@ void fragment() {
 		col = color_ice.rgb * lit;
 	}
 
-	for (int i = 0; i < MAX_CRATERS; i++) {
-		apply_crater(px_sphere, craters[i], crater_dmg[i], col);
-	}
+	// Crater accumulation texture — painted by CPU at impact time, unlimited craters.
+	float crater_mult = texture(crater_tex, uv_snap).r;
+	col *= crater_mult;
 
 	// Pixelated planet outline — uses the planet-centre-to-camera direction (a single
 	// constant vector, like sun_dir). Because view_dir is constant and world_normal is
@@ -184,6 +175,17 @@ void fragment() {
 	vec3  centre_world = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
 	vec3  view_dir     = normalize(cam_world - centre_world);
 	float rim          = dot(world_normal, view_dir);
+
+	// Pixelated silhouette — evaluate rim at the screen pixel cell centre.
+	// If the cell centre faces away from camera, discard the whole cell,
+	// turning the smooth circular edge into a chunky pixel staircase.
+	float cell_sz     = 1080.0 / pixel_count;
+	vec2  px_cell     = floor(FRAGCOORD.xy / cell_sz);
+	vec2  cell_centre = (px_cell + 0.5) * cell_sz;
+	vec2  rim_offset  = cell_centre - FRAGCOORD.xy;
+	float rim_centre  = rim + dFdx(rim) * rim_offset.x + dFdy(rim) * rim_offset.y;
+	if (rim_centre < 0.0) discard;
+
 	if (rim < 0.04) {
 		col = vec3(0.04, 0.04, 0.06);
 	}
