@@ -1,0 +1,44 @@
+[gd_resource type="ShaderMaterial" load_steps=8 format=3]
+
+[ext_resource type="Shader" path="res://shaders/polygon.gdshader" id="1"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/IceWall_Normals_01.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/IceWall_Normals_01.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Snow_01_Normals.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/IceWall_01.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/IceWall_01.png" id="6"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Snow_01.png" id="7"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/triplanar_normal_bottom = ExtResource("2")
+shader_parameter/triplanar_normal_side = ExtResource("3")
+shader_parameter/triplanar_normal_top = ExtResource("4")
+shader_parameter/triplanar_texture_bottom = ExtResource("5")
+shader_parameter/triplanar_texture_side = ExtResource("6")
+shader_parameter/triplanar_texture_top = ExtResource("7")
+shader_parameter/alpha_clip = true
+shader_parameter/enable_snow = false
+shader_parameter/enable_triplanar_normals = true
+shader_parameter/enable_triplanar_texture = true
+shader_parameter/enable_wave = false
+shader_parameter/alpha_clip_threshold = 0.5
+shader_parameter/ao_intensity = 1.0
+shader_parameter/detail_normal_scale = 1.0
+shader_parameter/metallic = 0.0
+shader_parameter/normal_intensity = 1.0
+shader_parameter/smoothness = 0.0
+shader_parameter/snow_level = 0.0
+shader_parameter/snow_metallic = 0.0
+shader_parameter/snow_normal_intensity = 1.0
+shader_parameter/snow_smoothness = 0.0
+shader_parameter/snow_transition = 0.95
+shader_parameter/triplanar_fade = 1.0
+shader_parameter/triplanar_intensity = 1.0
+shader_parameter/triplanar_normal_intensity_bottom = 1.0
+shader_parameter/triplanar_normal_intensity_side = 1.0
+shader_parameter/triplanar_normal_intensity_top = 1.0
+shader_parameter/wave_scale = 1.0
+shader_parameter/wave_speed = 1.0
+shader_parameter/color_tint = Color(1.0, 1.0, 1.0, 1.0)
+shader_parameter/emission_color_tint = Color(0.0, 0.0, 0.0, 1.0)
+shader_parameter/snow_color = Color(1.0, 1.0, 1.0, 1.0)

@@ -1,0 +1,20 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/clouds.gdshader" id="1"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/enable_fog = true
+shader_parameter/enable_fresnel = true
+shader_parameter/enable_scattering = false
+shader_parameter/use_environment_override = false
+shader_parameter/cloud_speed = 0.0
+shader_parameter/cloud_strength = 0.18
+shader_parameter/fog_density = 0.248
+shader_parameter/fresnel_power = 0.32
+shader_parameter/light_intensity = 0.0
+shader_parameter/scattering_multiplier = 0.31
+shader_parameter/base_color = Color(0.219526, 0.40724, 0.752942, 1.0)
+shader_parameter/fresnel_color = Color(0.306381, 0.536913, 0.764151, 1.0)
+shader_parameter/scattering_color = Color(1.0, 1.0, 1.0, 1.0)
+shader_parameter/top_color = Color(0.991102, 0.991102, 0.991102, 1.0)

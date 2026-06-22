@@ -1,0 +1,16 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/polygon.gdshader" id="1"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/alpha_clip = false
+shader_parameter/enable_depth = true
+shader_parameter/enable_refraction = true
+shader_parameter/enable_side_fresnel = true
+shader_parameter/enable_triplanar = true
+shader_parameter/alpha_clip_threshold = 0.5
+shader_parameter/metallic = 0.239
+shader_parameter/opacity = 1.0
+shader_parameter/smoothness = 0.2
+shader_parameter/emission_color_tint = Color(1.0, 1.0, 1.0, 1.0)

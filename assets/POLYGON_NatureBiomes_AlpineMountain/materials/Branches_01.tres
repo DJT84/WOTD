@@ -1,0 +1,16 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3]
+
+[ext_resource type="Shader" path="res://shaders/foliage.gdshader" id="1"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Branches_01.tga" id="2"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/trunk_color = ExtResource("2")
+shader_parameter/alpha_clip_threshold = 0.5
+shader_parameter/leaf_metallic = 0.0
+shader_parameter/leaf_smoothness = 0.484
+shader_parameter/light_wind_strength = 0.2
+shader_parameter/metallic = 0.132
+shader_parameter/strong_wind_strength = 0.2
+shader_parameter/trunk_metallic = 0.0
+shader_parameter/trunk_smoothness = 0.15

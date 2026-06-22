@@ -1,0 +1,521 @@
+{
+  "SM_Prop_Backpack_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Bench_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Cabin_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Cabin_Door_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Cabin_Door_Glass_01": [
+    "Glass_Mat_01"
+  ],
+  "SM_Prop_Cabin_Glass_01": [
+    "Glass_Mat_01"
+  ],
+  "SM_Prop_Campfire_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Canoe_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Chair_Folding_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Chair_Log_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Fishing_Rod_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Fishing_Rod_Stand_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Fish_Rack_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Fish_Rack_Fish_Hook_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Fish_Rack_Fish_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Fish_Rack_Fish_Hook_02": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Fish_Rack_Fish_02": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Fish_Rack_Fish_Hook_03": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Fish_Rack_Fish_03": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Fish_Rack_Fish_Hook_04": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Fish_Rack_Fish_04": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Fish_Rack_Fish_Hook_05": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Fish_Rack_Fish_05": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Fossil_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Ice_Auger_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Ice_Axe_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Ice_Fishing_Hut_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Ice_Fishing_Hut_01_Door_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Ice_Fishing_Hut_01_Door_Latch_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Ice_Fishing_Hut_01_Glass_01": [
+    "Glass_Mat_01"
+  ],
+  "SM_Prop_Jetty_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Lookout_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Oar_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Sleeping_Bag_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Sleeping_Bag_02": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Tent_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Tent_01_Door_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Thermos_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Wood_Pile_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Prop_Wood_Pile_02": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Background_Trees_01": [
+    "AlpineTree_04_Card",
+    "AlpineTree_02_Card"
+  ],
+  "SM_Env_Background_Trees_02": [
+    "AlpineTree_04_Card",
+    "AlpineTree_02_Card"
+  ],
+  "SM_Env_Branch_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Branch_02": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Branch_03": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Branch_04": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Bush_01_Branches_LOD0": [
+    "Branches_01"
+  ],
+  "SM_Env_Bush_01_Branches_LOD1": [
+    "Branches_01"
+  ],
+  "SM_Env_Bush_01_Leaves_LOD0": [
+    "Alpine_Bush_01"
+  ],
+  "SM_Env_Bush_01_Leaves_LOD1": [
+    "Alpine_Bush_01"
+  ],
+  "SM_Env_Bush_01_Alt_Branches_LOD0": [
+    "Branches_01"
+  ],
+  "SM_Env_Bush_01_Alt_Branches_LOD1": [
+    "Branches_01"
+  ],
+  "SM_Env_Bush_01_Alt_Leaves_LOD0": [
+    "Alpine_Bush_01"
+  ],
+  "SM_Env_Bush_01_Alt_Leaves_LOD1": [
+    "Alpine_Bush_01"
+  ],
+  "SM_Env_Bush_02_LOD0": [
+    "Alpine_Bush_02"
+  ],
+  "SM_Env_Bush_02_LOD1": [
+    "Alpine_Bush_02"
+  ],
+  "SM_Env_Bush_02_LOD2": [
+    "Alpine_Bush_02"
+  ],
+  "SM_Env_Bush_02_Alt_LOD0": [
+    "Alpine_Bush_02"
+  ],
+  "SM_Env_Bush_02_Alt_LOD1": [
+    "Alpine_Bush_02"
+  ],
+  "SM_Env_Bush_02_Alt_LOD2": [
+    "Alpine_Bush_02"
+  ],
+  "SM_Env_Bush_Flower_01_LOD0": [
+    "Alpine_Bush_Flower_01"
+  ],
+  "SM_Env_Bush_Flower_01_LOD1": [
+    "Alpine_Bush_Flower_01"
+  ],
+  "SM_Env_Bush_Flower_01_LOD2": [
+    "Alpine_Bush_Flower_01"
+  ],
+  "SM_Env_Bush_Flower_01_Alt_LOD0": [
+    "Alpine_Bush_Flower_01"
+  ],
+  "SM_Env_Bush_Flower_01_Alt_LOD1": [
+    "Alpine_Bush_Flower_01"
+  ],
+  "SM_Env_Bush_Flower_01_Alt_LOD2": [
+    "Alpine_Bush_Flower_01"
+  ],
+  "SM_Env_Fishing_Hole_01": [
+    "Triplanar_Ice_01",
+    "Water_Lake_01"
+  ],
+  "SM_Env_Fishing_Hole_Water_01": [
+    "Water_Lake_01"
+  ],
+  "SM_Env_Flowers_01_LOD0": [
+    "Alpine_Flowers_01"
+  ],
+  "SM_Env_Flowers_01_LOD1": [
+    "Alpine_Flowers_01"
+  ],
+  "SM_Env_Flowers_01_Alt_LOD0": [
+    "Alpine_Flowers_01"
+  ],
+  "SM_Env_Flowers_01_Alt_LOD1": [
+    "Alpine_Flowers_01"
+  ],
+  "SM_Env_Grass_01_LOD0": [
+    "Grass_Mat_01"
+  ],
+  "SM_Env_Grass_01_LOD1": [
+    "Grass_Mat_01"
+  ],
+  "SM_Env_GroundCover_01_LOD0": [
+    "Alpine_GroundCover_01"
+  ],
+  "SM_Env_GroundCover_01_LOD1": [
+    "Alpine_GroundCover_01"
+  ],
+  "SM_Env_GroundCover_02_LOD0": [
+    "Alpine_GroundCover_01"
+  ],
+  "SM_Env_GroundCover_02_LOD1": [
+    "Alpine_GroundCover_01"
+  ],
+  "SM_Env_GroundCover_03_LOD0": [
+    "Alpine_GroundCover_01"
+  ],
+  "SM_Env_GroundCover_03_LOD1": [
+    "Alpine_GroundCover_01"
+  ],
+  "SM_Env_Ground_Mound_Large_01": [
+    "Snow_Rock_Tri"
+  ],
+  "SM_Env_Ice_Sheet_01": [
+    "Triplanar_Ice_01"
+  ],
+  "SM_Env_Ice_Sheet_02": [
+    "Triplanar_Ice_01"
+  ],
+  "SM_Env_Ice_Sheet_03": [
+    "Triplanar_Ice_01"
+  ],
+  "SM_Env_Ice_Sheet_04": [
+    "Triplanar_Ice_01"
+  ],
+  "SM_Env_Ice_Sheet_05": [
+    "Triplanar_Ice_01"
+  ],
+  "SM_Env_Ice_Sheet_06": [
+    "Triplanar_Ice_01"
+  ],
+  "SM_Env_Lake_01": [
+    "Water_Lake_01"
+  ],
+  "SM_Env_Moss_Lumps_01": [
+    "MossRock_Triplanar"
+  ],
+  "SM_Env_Moss_Lumps_02": [
+    "MossRock_Triplanar"
+  ],
+  "SM_Env_Moss_Lumps_03": [
+    "MossRock_Triplanar"
+  ],
+  "SM_Env_MountainRange_01": [
+    "Snow_Rock_Tri_Background"
+  ],
+  "SM_Env_MountainRange_02": [
+    "Snow_Rock_Tri_Background"
+  ],
+  "SM_Env_MountainRange_03": [
+    "Snow_Rock_Tri_Background"
+  ],
+  "SM_Env_MountainRange_04": [
+    "Snow_Rock_Tri_Background"
+  ],
+  "SM_Env_Pine_01_LOD0": [
+    "AlpineTree_Mat_01_Vibrant"
+  ],
+  "SM_Env_Pine_01_LOD1": [
+    "AlpineTree_Mat_01_Vibrant"
+  ],
+  "SM_Env_Pine_01_LOD2": [
+    "AlpineTree_01_Card"
+  ],
+  "SM_Env_Pine_02_LOD0": [
+    "AlpineTree_Mat_01_Vibrant"
+  ],
+  "SM_Env_Pine_02_LOD1": [
+    "AlpineTree_Mat_01_Vibrant"
+  ],
+  "SM_Env_Pine_02_LOD2": [
+    "AlpineTree_02_Card"
+  ],
+  "SM_Env_Pine_03_LOD0": [
+    "AlpineTree_Mat_02_Vibrant"
+  ],
+  "SM_Env_Pine_03_LOD1": [
+    "AlpineTree_Mat_02_Vibrant"
+  ],
+  "SM_Env_Pine_03_LOD2": [
+    "AlpineTree_Mat_02_Vibrant"
+  ],
+  "SM_Env_Pine_03_LOD3": [
+    "AlpineTree_03_Card"
+  ],
+  "SM_Env_Pine_04_LOD0": [
+    "AlpineTree_Mat_02_Vibrant"
+  ],
+  "SM_Env_Pine_04_LOD1": [
+    "AlpineTree_Mat_02_Vibrant"
+  ],
+  "SM_Env_Pine_04_LOD2": [
+    "AlpineTree_Mat_02_Vibrant"
+  ],
+  "SM_Env_Pine_04_LOD3": [
+    "AlpineTree_04_Card"
+  ],
+  "SM_Env_Pine_05_LOD0": [
+    "AlpineTree_Mat_02"
+  ],
+  "SM_Env_Pine_05_LOD1": [
+    "AlpineTree_Mat_02"
+  ],
+  "SM_Env_Pine_05_LOD2": [
+    "AlpineTree_Mat_02"
+  ],
+  "SM_Env_Pine_05_LOD3": [
+    "AlpineTree_05_Card"
+  ],
+  "SM_Env_Pine_Cone_01_LOD0": [
+    "Alpine_LOD_Mat_01"
+  ],
+  "SM_Env_Pine_Cone_01_LOD1": [
+    "Alpine_LOD_Mat_01"
+  ],
+  "SM_Env_Pine_Cone_01_LOD2": [
+    "Alpine_LOD_Mat_01"
+  ],
+  "SM_Env_Pine_NoLeaves_01_LOD0": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Pine_NoLeaves_01_LOD1": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Pine_Stump_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_010": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_02": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_03": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_04": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_05": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_06": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_07": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_08": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_09": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_Cliff_01": [
+    "Triplanar_Glacier_01"
+  ],
+  "SM_Env_Rock_Cliff_02": [
+    "Triplanar_Glacier_01"
+  ],
+  "SM_Env_Rock_Cliff_03": [
+    "Triplanar_Glacier_01"
+  ],
+  "SM_Env_Rock_Cliff_04": [
+    "Triplanar_Glacier_01"
+  ],
+  "SM_Env_Rock_Cliff_05": [
+    "Triplanar_Glacier_01"
+  ],
+  "SM_Env_Rock_Cliff_06": [
+    "Triplanar_Glacier_01"
+  ],
+  "SM_Env_Rock_Cliff_07": [
+    "Triplanar_Glacier_01"
+  ],
+  "SM_Env_Rock_Cliff_Arch_01": [
+    "Triplanar_Glacier_01"
+  ],
+  "SM_Env_Rock_Pebbles_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_Pebbles_02": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_Pebbles_03": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_Pebbles_04": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_Pebbles_05": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_River_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_River_02": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_River_03": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_River_04": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_Rough_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_Rough_02": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_Small_01": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_Small_02": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Rock_Small_03": [
+    "PolygonNatureBiomes_Alpine_Mat_01"
+  ],
+  "SM_Env_Snow_Mound_01": [
+    "Snow_Rock_Tri"
+  ],
+  "SM_Env_Snow_Mound_02": [
+    "Snow_Rock_Tri"
+  ],
+  "SM_Env_Snow_Mound_03": [
+    "Triplanar_Snow_02"
+  ],
+  "SM_Env_Snow_Mound_04": [
+    "Triplanar_Snow_02"
+  ],
+  "SM_Env_Stalactite_01": [
+    "Triplanar_Glacier_01"
+  ],
+  "SM_Env_Stalactite_02": [
+    "Triplanar_Glacier_01"
+  ],
+  "SM_Env_Stalactite_03": [
+    "Triplanar_Glacier_01"
+  ],
+  "SM_Env_Stalactite_04": [
+    "Triplanar_Glacier_01"
+  ],
+  "SM_Env_Stalactite_05": [
+    "Triplanar_Glacier_01"
+  ],
+  "SM_Env_Stalactite_06": [
+    "Triplanar_Glacier_01"
+  ],
+  "SM_Env_Stalactite_07": [
+    "Triplanar_Glacier_01"
+  ],
+  "SM_Env_Stalactite_08": [
+    "Triplanar_Glacier_01"
+  ],
+  "FX_Rain_01": [
+    "Circle_Transparent_Mat_01"
+  ],
+  "FX_Rain_Splash_01": [
+    "Circle_Transparent_Mat_01"
+  ],
+  "FX_Snow_01": [
+    "Circle_Cutout_Mat"
+  ],
+  "SM_Env_Cloud_Ring_01": [
+    "Cloud_Mat_01"
+  ],
+  "SM_Env_Cloud_Ring_02": [
+    "Cloud_Mat_01"
+  ],
+  "SM_Env_Fog_Ring_01": [
+    "Fog_01"
+  ],
+  "SM_Env_Grass_01_LOD2": [
+    "Grass_Mat_01"
+  ],
+  "SM_Env_Skydome_01": [
+    "Skybox_Mat_01"
+  ],
+  "SM_Env_Water_Plane_01": [
+    "Water_Mat_01"
+  ]
+}

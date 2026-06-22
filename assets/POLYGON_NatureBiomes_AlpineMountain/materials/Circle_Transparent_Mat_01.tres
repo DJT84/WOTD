@@ -1,0 +1,19 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3]
+
+[ext_resource type="Shader" path="res://shaders/polygon.gdshader" id="1"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/FX_Circle.png" id="2"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/base_texture = ExtResource("2")
+shader_parameter/alpha_clip = true
+shader_parameter/enable_camera_fade = false
+shader_parameter/enable_emission = false
+shader_parameter/enable_scene_fog = false
+shader_parameter/enable_soft_particles = false
+shader_parameter/alpha_clip_threshold = 0.5
+shader_parameter/metallic = 0.0
+shader_parameter/normal_intensity = 1.0
+shader_parameter/smoothness = 0.5
+shader_parameter/color_tint = Color(1.0, 1.0, 1.0, 1.0)
+shader_parameter/emission_color_tint = Color(0.0, 0.0, 0.0, 0.0)

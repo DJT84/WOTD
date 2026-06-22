@@ -1,0 +1,14 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/skydome.gdshader" id="1"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/enable_u_v_based = false
+shader_parameter/alpha_clip_threshold = 0.5
+shader_parameter/distance_ = 620.0
+shader_parameter/falloff = 2.0
+shader_parameter/offset = 220.0
+shader_parameter/bottom_color = Color(1.0, 0.742048, 0.533019, 1.0)
+shader_parameter/emission_color_tint = Color(1.0, 1.0, 1.0, 1.0)
+shader_parameter/top_color = Color(0.412335, 0.714201, 0.773585, 1.0)

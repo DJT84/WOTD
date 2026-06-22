@@ -1,0 +1,25 @@
+[gd_resource type="ShaderMaterial" load_steps=6 format=3]
+
+[ext_resource type="Shader" path="res://shaders/polygon.gdshader" id="1"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Generic_01_B.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Generic_Emissive_01_B.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/HairMask.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/SkinMask.png" id="5"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/base_texture = ExtResource("2")
+shader_parameter/emission_texture = ExtResource("3")
+shader_parameter/hair_mask = ExtResource("4")
+shader_parameter/skin_mask = ExtResource("5")
+shader_parameter/alpha_clip = true
+shader_parameter/enable_emission = false
+shader_parameter/enable_emission_texture = true
+shader_parameter/alpha_clip_threshold = 0.0
+shader_parameter/metallic = 0.0
+shader_parameter/normal_intensity = 0.0
+shader_parameter/smoothness = 0.2
+shader_parameter/color_tint = Color(1.0, 1.0, 1.0, 1.0)
+shader_parameter/emission_color_tint = Color(0.0, 0.0, 0.0, 0.0)
+shader_parameter/hair_color = Color(0.309804, 0.254902, 0.176471, 1.0)
+shader_parameter/skin_color = Color(1.0, 0.8, 0.682353, 1.0)

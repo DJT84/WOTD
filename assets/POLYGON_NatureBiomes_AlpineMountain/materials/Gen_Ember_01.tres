@@ -1,0 +1,23 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/particles.gdshader" id="1"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/alpha_clip = true
+shader_parameter/enable_camera_fade = false
+shader_parameter/enable_scene_fog = false
+shader_parameter/enable_soft_particles = true
+shader_parameter/alpha_clip_threshold = 0.5
+shader_parameter/ao_intensity = 1.0
+shader_parameter/camera_fade_far = 20.0
+shader_parameter/camera_fade_near = 0.0
+shader_parameter/camera_fade_smoothness = 1.5
+shader_parameter/detail_normal_scale = 1.0
+shader_parameter/metallic = 0.0
+shader_parameter/normal_intensity = 1.0
+shader_parameter/smoothness = 0.5
+shader_parameter/soft_distance = 2.0
+shader_parameter/soft_power = 1.0
+shader_parameter/base_color = Color(1.0, 1.0, 1.0, 1.0)
+shader_parameter/emission_color = Color(0.0, 0.0, 0.0, 1.0)

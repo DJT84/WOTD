@@ -1,0 +1,48 @@
+[gd_scene format=4]
+
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Alpine_Bush_02_Alt.tga" id="1_4i8yq"]
+[ext_resource type="Material" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/materials/Alpine_Bush_02.tres" id="2_lt0hh"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yxxor"]
+resource_name = "BerryBush_01_MAT1"
+transparency = 4
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.9063318, 0.9063318, 0.9063318, 0.8)
+albedo_texture = ExtResource("1_4i8yq")
+emission_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_oifia"]
+_surfaces = [{
+"aabb": AABB(-0.6471034, 0.011488209, -0.5591559, 1.0483325, 0.9637836, 1.0866063),
+"format": 34359742465,
+"index_count": 63,
+"index_data": PackedByteArray("AAABAAIAAwAEAAUABgAHAAgACAAHAAkACgALAAwADAALAA0ADgAPABAAEAAPABEAEgATABQAFAATABUAFgAXABgAGAAXABkAGgAbABwAHAAbAB0AHgAfACAAIQAiACMAJAAlACYAJgAlACcAKAApACoAKwAsAC0ALQAsAC4A"),
+"name": "BerryBush_01_MAT1",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 47,
+"vertex_data": PackedByteArray("ICfAvUAZnj7THw2/LPw8vpyQrz53OPm+z44TPi3pvj4xPk++3iEOv27fiz7XJA+/kqglv6QdhD5Xg/q+hca0vlxx2j4Ux1y+3RXEvQNaEj+F5Li9+KY+PmCvRT84dQK+9ureOxRwRTy9URO7H46uPlRq3z7zmY+9CFsmvi20DD9X4wk+DpWmPdvLQT9P0Io+UrbIO8PPTTyU1i07RJSKPgqu3z5okGs+0kSQPnrfBz/hc8u9DGy9PoCxND8kpUA+w3O7uwo5PDyP0Tg8U4ZsPp29xz73kao+/dLLvoprKT+FQsa9XKtkvoTadT84JAm+3yoQvTaAWD5mXC88QO1jPSS2Nz/z95y9uFXmvqNCHT9XNAM+zxegvoNKZz/PeIc+yo4TvXqxWD57pn88AI8NvPJyMD9o4WQ+z7UXvTSIRz/h0di9bE7pvGqreT8k9jk+ff89vUy2Uj4zgcY8vf7RvFpdIT93Oqc+BA7MPomXMD9g8MO+5G3NPr8RPD8b8Iy+mPEcPk37zz67wyS+IH+/vhq3TT4IW3a+sd6ivpQ6lj6oUpG+SJFNujE1Ez5cQwa9QL8Ev6rUjD6XCsS9hUYav+Ta9z5NxLi+pLbqvAr+OT4znza8bC5tvhdi6j7xus2+ju8OvlraDD8awfM+gLzbvEH9Cj/+Bgc/dpd2Pf+G1z7k+LM9Ld6BPRwjvD4PwO6+j3CrPuywFT9xv+e+pAN7PDZ7UT3mOOA8NzC5Pu6m0j4SA/q9")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_lcrtg"]
+resource_name = "SM_Env_Bush_02_Alt_LOD2"
+_surfaces = [{
+"aabb": AABB(-0.6471034, 0.011488209, -0.5591559, 1.0483325, 0.9637836, 1.0866063),
+"attribute_data": PackedByteArray("AOH//+2xaD9AnUA9AOH//2ysSj9AnUA9AAD//xRQYj/og7I+AOH//+2xaD9AnUA9AOH//2ysSj9AnUA9AAD//xRQYj/og7I+AKL//65wFj9sxg8/APH//+vQQz8cztI+AAD//7bGPj+w7Gc/AI3//2sfaT/YIBo/AKL//65wFj9sxg8/APH//+vQQz8cztI+AAD//7bGPj+w7Gc/AI3//2sfaT/YIBo/AKL//65wFj9sxg8/APH//+vQQz8cztI+AAD//7bGPj+w7Gc/AI3//2sfaT/YIBo/AKL//65wFj9sxg8/APH//+vQQz8cztI+AAD//7bGPj+w7Gc/AI3//2sfaT/YIBo/AKL//65wFj9sxg8/APH//+vQQz8cztI+AAD//7bGPj+w7Gc/AI3//2sfaT/YIBo/AKL//65wFj9sxg8/APH//+vQQz8cztI+AAD//7bGPj+w7Gc/AI3//2sfaT/YIBo/AOH//2ysSj9AnUA9AOH//+2xaD9AnUA9AAD//xRQYj/og7I+AOH//2ysSj9AnUA9AOH//+2xaD9AnUA9AAD//xRQYj/og7I+AKL//65wFj9sxg8/APH//+vQQz8cztI+AAD//7bGPj+w7Gc/AI3//2sfaT/YIBo/AOH//+2xaD9AnUA9AOH//2ysSj9AnUA9AAD//xRQYj/og7I+AKL//65wFj9sxg8/APH//+vQQz8cztI+AAD//7bGPj+w7Gc/AI3//2sfaT/YIBo/"),
+"format": 34359742495,
+"index_count": 63,
+"index_data": PackedByteArray("AAABAAIAAwAEAAUABgAHAAgACAAHAAkACgALAAwADAALAA0ADgAPABAAEAAPABEAEgATABQAFAATABUAFgAXABgAGAAXABkAGgAbABwAHAAbAB0AHgAfACAAIQAiACMAJAAlACYAJgAlACcAKAApACoAKwAsAC0ALQAsAC4A"),
+"material": SubResource("StandardMaterial3D_yxxor"),
+"name": "BerryBush_01_MAT1",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 47,
+"vertex_data": PackedByteArray("ICfAvUAZnj7THw2/LPw8vpyQrz53OPm+z44TPi3pvj4xPk++3iEOv27fiz7XJA+/kqglv6QdhD5Xg/q+hca0vlxx2j4Ux1y+3RXEvQNaEj+F5Li9+KY+PmCvRT84dQK+9ureOxRwRTy9URO7H46uPlRq3z7zmY+9CFsmvi20DD9X4wk+DpWmPdvLQT9P0Io+UrbIO8PPTTyU1i07RJSKPgqu3z5okGs+0kSQPnrfBz/hc8u9DGy9PoCxND8kpUA+w3O7uwo5PDyP0Tg8U4ZsPp29xz73kao+/dLLvoprKT+FQsa9XKtkvoTadT84JAm+3yoQvTaAWD5mXC88QO1jPSS2Nz/z95y9uFXmvqNCHT9XNAM+zxegvoNKZz/PeIc+yo4TvXqxWD57pn88AI8NvPJyMD9o4WQ+z7UXvTSIRz/h0di9bE7pvGqreT8k9jk+ff89vUy2Uj4zgcY8vf7RvFpdIT93Oqc+BA7MPomXMD9g8MO+5G3NPr8RPD8b8Iy+mPEcPk37zz67wyS+IH+/vhq3TT4IW3a+sd6ivpQ6lj6oUpG+SJFNujE1Ez5cQwa9QL8Ev6rUjD6XCsS9hUYav+Ta9z5NxLi+pLbqvAr+OT4znza8bC5tvhdi6j7xus2+ju8OvlraDD8awfM+gLzbvEH9Cj/+Bgc/dpd2Pf+G1z7k+LM9Ld6BPRwjvD4PwO6+j3CrPuywFT9xv+e+pAN7PDZ7UT3mOOA8NzC5Pu6m0j4SA/q9Kks3+CDrKmE/SX/v0vKzYCCjbvJH7H5gizQA2o306iCTM9/V4/BuHgFSoeIA814gNGrX9EH0A8dwnUXul+qQtqiN1/aR9F+77abL36fay69Ob+vfKNq6xd+GZ+GN29S5E4la8kXewLuil8vTANA1sjmidOdOe1PGSptl1/V8Jrgoe6fx1Hoou2WSUtE3gH6vSVqi4APdPdBtY47teunpyaJ0M/Lr8rLFDZKu+Hb0U7ykXpDVNs4Yzthrk9ob2uvHenVy8FLf5sO/flzn4OYvvhZuJvsggMjGXH2M7CCDqLfQdAvv2IH4vMJ9+eG0hGuyvrBV51x/6s7arCnluHyKy1mig++qfj7KDUhi3OTh0trCSbDj9uZc1gFzsP40/BSnvEtB08DpROi0QS/Yuu9A4yRx3/UM/oHkelC/7lD6JaLfdtPTmgbkKex8p9NPDc8o5oeW6zcKmShcr4b6sbjryge1n+gAuy/DhIX27zC+xbt6q/zgrLXgug==")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_oifia")
+
+[node name="SM_Env_Bush_02_Alt_LOD2" type="MeshInstance3D" unique_id=1395193515]
+mesh = SubResource("ArrayMesh_lcrtg")
+surface_material_override/0 = ExtResource("2_lt0hh")

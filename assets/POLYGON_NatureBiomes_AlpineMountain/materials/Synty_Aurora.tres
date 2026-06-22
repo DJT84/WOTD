@@ -1,0 +1,14 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/polygon.gdshader" id="1"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/alpha_clip = false
+shader_parameter/enable_brightness_breakup = true
+shader_parameter/brightness = 2.04
+shader_parameter/metallic = 0.0
+shader_parameter/scroll_speed = 0.1
+shader_parameter/smoothness = 0.5
+shader_parameter/wave_amplitude = 1.0
+shader_parameter/wave_speed = 1.0

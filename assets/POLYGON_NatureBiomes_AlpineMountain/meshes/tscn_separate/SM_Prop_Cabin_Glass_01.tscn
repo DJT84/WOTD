@@ -1,0 +1,45 @@
+[gd_scene format=4]
+
+[ext_resource type="Material" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/materials/Glass_Mat_01.tres" id="1_aahom"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3q8fc"]
+resource_name = "lambert1704"
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.9063318, 0.9063318, 0.9063318, 0.8)
+emission_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_moxtp"]
+_surfaces = [{
+"aabb": AABB(-1.6329998, -1.545095, -2.604539, 3.2659998, 3.09019, 5.209078),
+"format": 34359742465,
+"index_count": 72,
+"index_data": PackedByteArray("AAABAAIAAgADAAAABAAFAAYABgAHAAQACAAJAAoACgALAAgADAANAA4ADgAPAAwAEAARABIAEgATABAAFAAVABYAFgAXABQAGAAZABoAGgAbABgAHAAdAB4AHgAfABwAIAAhACIAIgAjACAAJAAlACYAJgAnACQAKAApACoAKgArACgALAAtAC4ALgAvACwA"),
+"name": "lambert1704",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 48,
+"vertex_data": PackedByteArray("IwbRv6zFxb/ZGyXAIwbRv6MvFL/ZGyXAMdJwv6MvFL/ZGyXAMdJwv6zFxb/ZGyXAIwbRv6MvFL/EsCbAIwbRv6zFxb/EsCbAMdJwv6zFxb/EsCbAMdJwv6MvFL/EsCbAiHhiP6zFxb/ZGyXAiHhiP6MvFL/ZGyXAWNnJP6MvFL/ZGyXAWNnJP6zFxb/ZGyXAiHhiP6MvFL/EsCbAiHhiP6zFxb/EsCbAWNnJP6zFxb/EsCbAWNnJP6MvFL/EsCbAqTHHvpz4+D5EvyTAqTHHvqzFxT9EvyTAdtesPqzFxT9EvyTAdtesPpz4+D5EvyTAqTHHvqzFxT8wVCbAqTHHvpz4+D4wVCbAdtesPpz4+D4wVCbAdtesPqzFxT8wVCbADwG7Ppz4+D7YGyVADwG7PqzFxT/YGyVAOAi5vqzFxT/YGyVAOAi5vpz4+D7YGyVADwG7PqzFxT/EsCZADwG7Ppz4+D7EsCZAOAi5vpz4+D7EsCZAOAi5vqzFxT/EsCZAJQbRP6zFxb9GvyRAJQbRP6MvFL9GvyRANtJwP6MvFL9GvyRANtJwP6zFxb9GvyRAJQbRP6MvFL8yVCZAJQbRP6zFxb8yVCZANtJwP6zFxb8yVCZANtJwP6MvFL8yVCZAZE9pv6zFxb9GvyRAZE9pv6MvFL9GvyRAvETNv6MvFL9GvyRAvETNv6zFxb9GvyRAZE9pv6MvFL8yVCZAZE9pv6zFxb8yVCZAvETNv6zFxb8yVCZAvETNv6MvFL8yVCZA")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_580t6"]
+resource_name = "SM_Prop_Cabin_Glass_01"
+_surfaces = [{
+"aabb": AABB(-1.6329998, -1.545095, -2.604539, 3.2659998, 3.09019, 5.209078),
+"attribute_data": PackedByteArray("Lx6aPjo+fD8PIJo+vn18PxZ/mj5RfXw/gHmaPu08fD+xH5o+gn18P9Edmj6GPXw/03maPjQ8fD95f5o+FH18Py8emj46Pnw/DyCaPr59fD8Wf5o+UX18P4B5mj7tPHw/sR+aPoJ9fD/RHZo+hj18P9N5mj40PHw/eX+aPhR9fD8vHpo+Oj58Pw8gmj6+fXw/Fn+aPlF9fD+AeZo+7Tx8P7Efmj6CfXw/0R2aPoY9fD/TeZo+NDx8P3l/mj4UfXw/Lx6aPjo+fD8PIJo+vn18PxZ/mj5RfXw/gHmaPu08fD+xH5o+gn18P9Edmj6GPXw/03maPjQ8fD95f5o+FH18Py8emj46Pnw/DyCaPr59fD8Wf5o+UX18P4B5mj7tPHw/sR+aPoJ9fD/RHZo+hj18P9N5mj40PHw/eX+aPhR9fD8vHpo+Oj58Pw8gmj6+fXw/Fn+aPlF9fD+AeZo+7Tx8P7Efmj6CfXw/0R2aPoY9fD/TeZo+NDx8P3l/mj4UfXw/"),
+"format": 34359742487,
+"index_count": 72,
+"index_data": PackedByteArray("AAABAAIAAgADAAAABAAFAAYABgAHAAQACAAJAAoACgALAAgADAANAA4ADgAPAAwAEAARABIAEgATABAAFAAVABYAFgAXABQAGAAZABoAGgAbABgAHAAdAB4AHgAfABwAIAAhACIAIgAjACAAJAAlACYAJgAnACQAKAApACoAKgArACgALAAtAC4ALgAvACwA"),
+"material": SubResource("StandardMaterial3D_3q8fc"),
+"name": "lambert1704",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 48,
+"vertex_data": PackedByteArray("IwbRv6zFxb/ZGyXAIwbRv6MvFL/ZGyXAMdJwv6MvFL/ZGyXAMdJwv6zFxb/ZGyXAIwbRv6MvFL/EsCbAIwbRv6zFxb/EsCbAMdJwv6zFxb/EsCbAMdJwv6MvFL/EsCbAiHhiP6zFxb/ZGyXAiHhiP6MvFL/ZGyXAWNnJP6MvFL/ZGyXAWNnJP6zFxb/ZGyXAiHhiP6MvFL/EsCbAiHhiP6zFxb/EsCbAWNnJP6zFxb/EsCbAWNnJP6MvFL/EsCbAqTHHvpz4+D5EvyTAqTHHvqzFxT9EvyTAdtesPqzFxT9EvyTAdtesPpz4+D5EvyTAqTHHvqzFxT8wVCbAqTHHvpz4+D4wVCbAdtesPpz4+D4wVCbAdtesPqzFxT8wVCbADwG7Ppz4+D7YGyVADwG7PqzFxT/YGyVAOAi5vqzFxT/YGyVAOAi5vpz4+D7YGyVADwG7PqzFxT/EsCZADwG7Ppz4+D7EsCZAOAi5vpz4+D7EsCZAOAi5vqzFxT/EsCZAJQbRP6zFxb9GvyRAJQbRP6MvFL9GvyRANtJwP6MvFL9GvyRANtJwP6zFxb9GvyRAJQbRP6MvFL8yVCZAJQbRP6zFxb8yVCZANtJwP6zFxb8yVCZANtJwP6MvFL8yVCZAZE9pv6zFxb9GvyRAZE9pv6MvFL9GvyRAvETNv6MvFL9GvyRAvETNv6zFxb9GvyRAZE9pv6MvFL8yVCZAZE9pv6zFxb8yVCZAvETNv6zFxb8yVCZAvETNv6MvFL8yVCZA/3//f5/90D7/f/9/n/3QPv9//3/T/mk//3//f3H8OT7/////n/0uwf////+f/S7B/////3X8w8H/////zv6XwP9//3+f/dA+/3//f5/90D7/f/9/0/5pP/9//39x/Dk+/////5/9LsH/////n/0uwf////91/MPB/////87+l8D/f/9/hf3DPv9//3+F/cM+/3//f8b+Yz//f/9/SvwlPv////+F/TzB/////4X9PMH/////T/zXwf/////B/p7A/////3kCwz7/////eQLDPv////84AWM//////7QDJT7/f/9/eQI8wf9//395AjzB/3//f68D18H/f/9/PQGewP////9fAtA+/////18C0D7/////KwFpP/////+NAzk+/3//f18CLsH/f/9/XwIuwf9//3+JA8PB/3//fzABl8D/////XwLQPv////9fAtA+/////ysBaT//////jQM5Pv9//39fAi7B/3//f18CLsH/f/9/iQPDwf9//38wAZfA")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_moxtp")
+
+[node name="SM_Prop_Cabin_Glass_01" type="MeshInstance3D" unique_id=3329872]
+mesh = SubResource("ArrayMesh_580t6")
+surface_material_override/0 = ExtResource("1_aahom")

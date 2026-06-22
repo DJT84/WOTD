@@ -1,0 +1,54 @@
+[gd_resource type="ShaderMaterial" load_steps=6 format=3]
+
+[ext_resource type="Shader" path="res://shaders/water.gdshader" id="1"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Noise_Small.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/WaterNormals_01.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/LODNoise.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Noise_Small.png" id="5"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/noise_texture = ExtResource("2")
+shader_parameter/normal_texture = ExtResource("3")
+shader_parameter/scrolling_texture = ExtResource("4")
+shader_parameter/shore_foam_noise_texture = ExtResource("5")
+shader_parameter/alpha_clip = false
+shader_parameter/enable_caustics = true
+shader_parameter/enable_distortion = false
+shader_parameter/enable_fresnel = false
+shader_parameter/enable_global_foam = true
+shader_parameter/enable_normal_texture = true
+shader_parameter/enable_normals = true
+shader_parameter/enable_ocean_wave = false
+shader_parameter/enable_shore_foam = true
+shader_parameter/enable_shore_wave_foam = true
+shader_parameter/enable_shore_waves = true
+shader_parameter/enable_top_scrolling_texture = true
+shader_parameter/alpha_clip_threshold = 0.5
+shader_parameter/ao_intensity = 1.0
+shader_parameter/base_opacity = 0.941
+shader_parameter/caustics_intensity = 0.077
+shader_parameter/deep_height = 4.1
+shader_parameter/depth_distance = 3.94
+shader_parameter/detail_normal_scale = 1.0
+shader_parameter/distortion_strength = 0.06
+shader_parameter/metallic = 0.0
+shader_parameter/normal_intensity = 1.0
+shader_parameter/ocean_wave_height = 0.26
+shader_parameter/ocean_wave_speed = 1.0
+shader_parameter/shallow_intensity = 1.0
+shader_parameter/shallows_opacity = 0.616
+shader_parameter/shore_foam_intensity = 0.504
+shader_parameter/shore_wave_speed = 0.318
+shader_parameter/smoothness = 0.776
+shader_parameter/very_deep_height = 31.38
+shader_parameter/water_depth = 0.697
+shader_parameter/caustics_color = Color(0.369126, 0.990566, 0.990566, 1.0)
+shader_parameter/color_tint = Color(1.0, 1.0, 1.0, 1.0)
+shader_parameter/deep_color = Color(0.211765, 0.592157, 0.65098, 1.0)
+shader_parameter/emission_color_tint = Color(0.0, 0.0, 0.0, 1.0)
+shader_parameter/foam_color = Color(1.0, 1.0, 1.0, 1.0)
+shader_parameter/shallow_color = Color(0.830189, 0.70407, 0.552154, 1.0)
+shader_parameter/shore_foam_color_tint = Color(0.529412, 0.752941, 0.866667, 1.0)
+shader_parameter/shore_wave_color_tint = Color(0.528124, 0.752112, 0.867924, 1.0)
+shader_parameter/very_deep_color = Color(0.098923, 0.301397, 0.367924, 1.0)

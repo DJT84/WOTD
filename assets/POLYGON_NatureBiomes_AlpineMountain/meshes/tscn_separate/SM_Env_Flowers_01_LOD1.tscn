@@ -1,0 +1,48 @@
+[gd_scene format=4]
+
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Flowers_01.tga" id="1_fr1ug"]
+[ext_resource type="Material" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/materials/Alpine_Flowers_01.tres" id="2_myik1"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u0vjh"]
+resource_name = "lambert5"
+transparency = 4
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.9063318, 0.9063318, 0.9063318, 0.8)
+albedo_texture = ExtResource("1_fr1ug")
+emission_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_t1fc7"]
+_surfaces = [{
+"aabb": AABB(-0.2599686, -0.005161667, -0.28674418, 0.5199373, 0.64274234, 0.59503436),
+"format": 34359742465,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAgADAAAABAAFAAYABgAHAAQACAAJAAoACgALAAgADAANAA4ADgAPAAwAEAARABIAEgATABAAFAAVABYAFgAXABQA"),
+"name": "lambert5",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 24,
+"vertex_data": PackedByteArray("yXuhvQ0y1D432J0+hc+1vQBAcLskym0+w7Y4vaQcyzwfkI89SQ8QvVfE4j5arhU+PaA6vgAAAAAsNwm+PaA6vn04Iz8sNwm+PKA6Pn04Iz8tNwk+PKA6PgAAAAAtNwk+TVMmPuk70z5QlIe+Gl4TPjMjqbs4wUC+McS6PVxd1zxxyvC8lq7gPUxW4z5sAdm9mxqFvmJPnD6Dyfc9mxqFvgAAAACDyfc9nBqFPgAAAACAyfe9nBqFPmJPnD6Ayfe9HN+fpmJPnD4i0JI+MjjcJQAAAAAi0JI+MjjcpQAAAAAi0JK+mv0Gp2JPnD4i0JK+JMxVPmJPnD5mQ0k+JMxVPgAAAABmQ0k+JcxVvgAAAABmQ0m+JcxVvmJPnD5mQ0m+")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_ua7ee"]
+resource_name = "SM_Env_Flowers_01_LOD1"
+_surfaces = [{
+"aabb": AABB(-0.2599686, -0.005161667, -0.28674418, 0.5199373, 0.64274234, 0.59503436),
+"attribute_data": PackedByteArray("UKr//+8wET/ABwo/BAD//x4wET96HWc/CQD//7yw1z74IWc/Var//7uw1z5CAwo/BQD//z2n9DuLHmc/eNn//ySn9DsMdug+eNn//3j1pj5Wfeg+BQD//9Xzpj7mGmc/UKr//+8wET/ABwo/BAD//x4wET96HWc/CgD//7yw1z74IWc/Var//7uw1z5CAwo/AP///3HVFz+w7WQ9AAD//1DcFz/Mg64+AAD//1Lvaz1wha4+AP///z9dbD0Q/mQ9AP///3HVFz+w7WQ9AAD//1DcFz/Mg64+AAD//1Lvaz1wha4+AP///z9dbD0Q/mQ9AP///3HVFz+w7WQ9AAD//1DcFz/Mg64+AAD//1Lvaz1wha4+AP///z9dbD0Q/mQ9"),
+"format": 34359742495,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAgADAAAABAAFAAYABgAHAAQACAAJAAoACgALAAgADAANAA4ADgAPAAwAEAARABIAEgATABAAFAAVABYAFgAXABQA"),
+"material": SubResource("StandardMaterial3D_u0vjh"),
+"name": "lambert5",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 24,
+"vertex_data": PackedByteArray("yXuhvQ0y1D432J0+hc+1vQBAcLskym0+w7Y4vaQcyzwfkI89SQ8QvVfE4j5arhU+PaA6vgAAAAAsNwm+PaA6vn04Iz8sNwm+PKA6Pn04Iz8tNwk+PKA6PgAAAAAtNwk+TVMmPuk70z5QlIe+Gl4TPjMjqbs4wUC+McS6PVxd1zxxyvC8lq7gPUxW4z5sAdm9mxqFvmJPnD6Dyfc9mxqFvgAAAACDyfc9nBqFPgAAAACAyfe9nBqFPmJPnD6Ayfe9HN+fpmJPnD4i0JI+MjjcJQAAAAAi0JI+MjjcpQAAAAAi0JK+mv0Gp2JPnD4i0JK+JMxVPmJPnD5mQ0k+JMxVPgAAAABmQ0k+JcxVvgAAAABmQ0m+JcxVvmJPnD5mQ0m+C3wE7U5mibyoehztcGfAue58GPioZbS99H3x9apnVLlVbWf1D8Xru/1wTffdwyDFsIj88N3D3rqWilXtD8USxImUIPj6+VqPcZNt9+f0q44oiMj51/zRj6WLAfqn83eO13K57J8w1sVOcWfqpDFnuZaVTfGkMZbGRZPX8p8wJ7r/f+7w/3+Hxz2A3u72f4q33m7A//Z/dMjucP///392uHuKr+s9vITFJoxV6Da7eblVaNfzNruFxq9rgvU9vHq6")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_t1fc7")
+
+[node name="SM_Env_Flowers_01_LOD1" type="MeshInstance3D" unique_id=829585945]
+mesh = SubResource("ArrayMesh_ua7ee")
+surface_material_override/0 = ExtResource("2_myik1")

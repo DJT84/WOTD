@@ -1,0 +1,51 @@
+[gd_resource type="ShaderMaterial" load_steps=5 format=3]
+
+[ext_resource type="Shader" path="res://shaders/foliage.gdshader" id="1"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Pine_cluster_01_Dead.tga" id="2"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/pineFoliage_normals.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/PolygonNatureBiomesS2_Alpine_Texture_01.png" id="4"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/leaf_color = ExtResource("2")
+shader_parameter/leaf_normal = ExtResource("3")
+shader_parameter/trunk_color = ExtResource("4")
+shader_parameter/alpha_clip = true
+shader_parameter/enable_breeze = true
+shader_parameter/enable_emission = false
+shader_parameter/enable_frosting = true
+shader_parameter/enable_leaf_normal = true
+shader_parameter/enable_light_wind = true
+shader_parameter/enable_strong_wind = true
+shader_parameter/enable_wind_twist = true
+shader_parameter/use_vertex_color_wind = true
+shader_parameter/alpha_clip_threshold = 0.4
+shader_parameter/ao_intensity = 1.0
+shader_parameter/breeze_strength = 0.2
+shader_parameter/detail_normal_scale = 1.0
+shader_parameter/frosting_falloff = 27.21
+shader_parameter/frosting_height = 9.59
+shader_parameter/leaf_metallic = 0.0
+shader_parameter/leaf_smoothness = 0.02
+shader_parameter/light_wind_strength = 0.2
+shader_parameter/light_wind_y_offset = 0.0
+shader_parameter/light_wind_y_strength = 1.0
+shader_parameter/metallic = 0.0
+shader_parameter/normal_intensity = 1.0
+shader_parameter/pulse_speed = 0.0
+shader_parameter/smoothness = 0.5
+shader_parameter/strong_wind_strength = 0.2
+shader_parameter/trunk_metallic = 0.0
+shader_parameter/trunk_smoothness = 0.2
+shader_parameter/wind_twist_strength = 0.15
+shader_parameter/color_tint = Color(1.0, 1.0, 1.0, 1.0)
+shader_parameter/emission_color_tint = Color(0.0, 0.0, 0.0, 1.0)
+shader_parameter/emissive_2_color = Color(0.0, 0.0, 0.0, 0.0)
+shader_parameter/emissive_color = Color(0.0, 0.0, 0.0, 0.0)
+shader_parameter/frosting_color = Color(0.846218, 0.929, 0.929, 1.0)
+shader_parameter/leaf_base_color = Color(1.0, 1.0, 1.0, 1.0)
+shader_parameter/leaf_noise_color = Color(0.504717, 0.88237, 1.0, 1.0)
+shader_parameter/leaf_noise_large_color = Color(1.0, 1.0, 1.0, 1.0)
+shader_parameter/trunk_base_color = Color(1.0, 1.0, 1.0, 1.0)
+shader_parameter/trunk_emissive_color = Color(0.0, 0.0, 0.0, 0.0)
+shader_parameter/trunk_noise_color = Color(1.0, 1.0, 1.0, 1.0)

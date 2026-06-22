@@ -1,0 +1,20 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3]
+
+[ext_resource type="Shader" path="res://shaders/polygon.gdshader" id="1"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Dirt_Texture_01.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Dirt_Normals_01.png" id="3"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/base_texture = ExtResource("2")
+shader_parameter/normal_texture = ExtResource("3")
+shader_parameter/alpha_clip = false
+shader_parameter/enable_normal_texture = true
+shader_parameter/alpha_clip_threshold = 0.5
+shader_parameter/ao_intensity = 1.0
+shader_parameter/detail_normal_scale = 1.0
+shader_parameter/metallic = 0.0
+shader_parameter/normal_intensity = 1.5
+shader_parameter/smoothness = 0.0
+shader_parameter/color_tint = Color(1.0, 1.0, 1.0, 1.0)
+shader_parameter/emission_color_tint = Color(0.0, 0.0, 0.0, 1.0)

@@ -1,0 +1,45 @@
+[gd_scene format=4]
+
+[ext_resource type="Material" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/materials/AlpineTree_03_Card.tres" id="1_3kli7"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pakn6"]
+resource_name = "treesFromBranch_MAT_01A4"
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.9063318, 0.9063318, 0.9063318, 0.8)
+emission_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_cm615"]
+_surfaces = [{
+"aabb": AABB(-1.7270782, -0.2397127, -1.936581, 3.3837452, 6.9061265, 4.1213593),
+"format": 34359742465,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAgADAAAABAABAAAAAAAFAAQABgAHAAgACAAJAAYACgAHAAYABgALAAoADAANAA4ADgAPAAwAEAARABIAEgATABAA"),
+"name": "treesFromBranch_MAT_01A4",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 20,
+"vertex_data": PackedByteArray("Iw8fJwrXozIAe8W/s5bupgrXozKNVus/s5bupnEu0kCNVus/Iw8fJ3Eu0kAAe8W/s5bupj93db6NVus/Iw8fJz93db4Ae8W/LcTFPwrXozIAAAAA36TPvwrXozIAAAAA36TPv3Eu0kAAAAAALcTFP3Eu0kAAAAAA36TPvz93db4AAAAALcTFPz93db4AAAAAqQ3UP0NT1UCabQ68qQ3UP+nuRj6abQ685hDdv+nuRj6abQ685hDdv0NT1UCabQ68zBwfPENT1UDj4fe/zBwfPOnuRj7j4fe/zBwfPOnuRj5o0wtAzBwfPENT1UBo0wtA")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_1rv4j"]
+resource_name = "SM_Env_Pine_03_LOD3"
+_surfaces = [{
+"aabb": AABB(-1.7270782, -0.2397127, -1.936581, 3.3837452, 6.9061265, 4.1213593),
+"attribute_data": PackedByteArray("AAAA/7UdWj8o2XE/AAAA/4l5ID8o2XE/dgAA/4l5ID/abwU/dgAA/7UdWj/abwU/AAAA/4l5ID/Y3Hc/AAAA/7UdWj/Y3Hc/AAAA/3lDsz6bw3E/AAAA/7yYEj6bw3E/dgAA/7yYEj5AWQU/dgAA/3lDsz5AWQU/AAAA/7yYEj5Lx3c/AAAA/3lDsz5Lx3c/eAD//3aLvz7g80U9CgD//3aLvz5r1gg/CgD//xMS9z1r1gg/eAD//xMS9z3g80U9eAD//z/NYz9AbC49CgD//z/NYz/60Qk/CgD//x/iGT/60Qk/eAD//x/iGT9AbC49"),
+"format": 34359742495,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAgADAAAABAABAAAAAAAFAAQABgAHAAgACAAJAAYACgAHAAYABgALAAoADAANAA4ADgAPAAwAEAARABIAEgATABAA"),
+"material": SubResource("StandardMaterial3D_pakn6"),
+"name": "treesFromBranch_MAT_01A4",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 20,
+"vertex_data": PackedByteArray("Iw8fJwrXozIAe8W/s5bupgrXozKNVus/s5bupnEu0kCNVus/Iw8fJ3Eu0kAAe8W/s5bupj93db6NVus/Iw8fJz93db4Ae8W/LcTFPwrXozIAAAAA36TPvwrXozIAAAAA36TPv3Eu0kAAAAAALcTFP3Eu0kAAAAAA36TPvz93db4AAAAALcTFPz93db4AAAAAqQ3UP0NT1UCabQ68qQ3UP+nuRj6abQ685hDdv+nuRj6abQ685hDdv0NT1UCabQ68zBwfPENT1UDj4fe/zBwfPOnuRj7j4fe/zBwfPOnuRj5o0wtAzBwfPENT1UBo0wtA3tOv+NBIB4YfiOCrLbhZ+ZiBKtaA157/Ka0l/3IsOYAfiOCrLbhZ+d7Tr/jQSAeGcNUCtxOqw56SKvm2dr306gJSmtiw18XVnK6L2YHUO6ySKvm2dr306nDVArcTqsOeVK+i2JnTy6tl1em2F6qsnpwq47ZPvfLqQFHg1/nWLtaasRr/1jBGgJjTlfnqSVWFXIcbrD637PlAgaDSr9Op/w==")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_cm615")
+
+[node name="SM_Env_Pine_03_LOD3" type="MeshInstance3D" unique_id=1167310316]
+mesh = SubResource("ArrayMesh_1rv4j")
+surface_material_override/0 = ExtResource("1_3kli7")

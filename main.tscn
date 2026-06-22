@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://10lrmst1j6fa"]
+
+[ext_resource type="Script" uid="uid://4wcdjv267h17" path="res://scripts/Main.gd" id="1"]
+[ext_resource type="Script" uid="uid://0rsrx60otwoq" path="res://scripts/Planet.gd" id="2_h2yge"]
+
+[node name="Main" type="Node3D" unique_id=894894493]
+script = ExtResource("1")
+
+[node name="Planet" type="Node3D" parent="." unique_id=868940086]
+script = ExtResource("2_h2yge")
+tile_raise = 0.06
+impact_intensity_min = null
+impact_intensity_max = null
+impact_meteor_intensity = null
+metadata/_custom_type_script = "uid://0rsrx60otwoq"

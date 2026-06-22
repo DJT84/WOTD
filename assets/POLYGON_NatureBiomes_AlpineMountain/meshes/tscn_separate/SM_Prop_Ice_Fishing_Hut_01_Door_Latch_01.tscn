@@ -1,0 +1,47 @@
+[gd_scene format=4]
+
+[ext_resource type="Material" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/materials/PolygonNatureBiomes_Alpine_Mat_01.tres" id="1_jgmao"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hlo8l"]
+resource_name = "lambert5"
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.9063318, 0.9063318, 0.9063318, 0.8)
+emission_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_3ts0k"]
+_surfaces = [{
+"aabb": AABB(-0.23365755, -0.10472973, -0.030621415, 0.2683598, 0.14711487, 0.06124283),
+"format": 34359742465,
+"index_count": 84,
+"index_data": PackedByteArray("AAABAAIAAgABAAMAAwABAAAAAgAEAAAAAAAFAAMAAwAGAAIABgADAAUABwAFAAAABQAHAAYAAAAEAAcAAgAGAAcABwAEAAIACAAJAAoACwAKAAkACgAMAAgACAAMAA0ADQAOAAgADwAJAAgACQAPAAsACAAOAA8AEAAOAA0ADwAOABAADQARABAACwAPABIAEAASAA8AEgAQABEAEgATAAsAEQATABIA"),
+"lods": [0.0308084, PackedByteArray("AAABAAIAAgABAAMAAwABAAAAAgAEAAAAAAAFAAMAAwAGAAIABgADAAUABwAFAAAABQAHAAYAAAAEAAcAAgAGAAcABwAEAAIA")],
+"name": "lambert5",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 20,
+"vertex_data": PackedByteArray("7UNvvkdsKr0UJl08K7hYPAucLT0UJl088SMOPeDgqbwUJl08K7hYPAucLT3D2fq8b0ZZvop81r0UJl087UNvvkdsKr3D2fq88SMOPeDgqbzD2fq8b0ZZvop81r3D2fq8D4Btvc5TMrvD2fo8x4qivc5TMrvD2fo8h2SpvWVfSTspJBs8pyPGva39rbwpJBs8jMxfvWVfSTspJBs8TE4mva39rbwpJBs8T7VBva39rbzD2fo8J3C4va39rbzD2fo8D4BtvXDYIr3D2fo8kcxfvaOTOr0pJBs8x4qivXDYIr3D2fo8h2SpvaOTOr0pJBs8")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_38tiu"]
+resource_name = "SM_Prop_Ice_Fishing_Hut_01_Door_Latch_01"
+_surfaces = [{
+"aabb": AABB(-0.23365755, -0.10472973, -0.030621415, 0.2683598, 0.14711487, 0.06124283),
+"attribute_data": PackedByteArray("eHQAPihCPj+vAv89YFU+P6nc/j3IRT4/gWEAPlwzPj+4Bf89zlU+P68C/z1gVT4/eHQAPihCPj84bwA+GEM+P8jg/j2pRj4/uAX/Pc5VPj84bwA+GEM+P81cAD60ND4/qdz+PchFPj/I4P49qUY+P81cAD60ND4/gWEAPlwzPj+4Bf89zlU+P8jg/j2pRj4/qdz+PchFPj+vAv89YFU+P3h0AD4oQj4/gWEAPlwzPj/NXAA+tDQ+PzhvAD4YQz4/YNb5PadXLD8unvo9uVcsPz98+j2ZDTM/qHf5PYgNMz8unvo9uVcsP4oC+z0TQSw/8v76PRrwMj8/fPo9mQ0zPzKg+j1QKiw/7n76PXrSMj/y/vo9GvAyP4oC+z0TQSw/MqD6PVAqLD+o2Pk9GCosP9B6+T0q0jI/7n76PXrSMj+o2Pk9GCosPy9z+T3JQCw/N/b4PbvvMj/Qevk9KtIyP2DW+T2nVyw/qHf5PYgNMz839vg9u+8yPy9z+T3JQCw/qNj5PRgqLD8yoPo9UCosP4oC+z0TQSw/L3P5PclALD9g1vk9p1csPy9z+T3JQCw/igL7PRNBLD8unvo9uVcsPw=="),
+"format": 34359742487,
+"index_count": 84,
+"index_data": PackedByteArray("AAABAAIAAgADAAAABAAFAAYABgAHAAQACAAJAAoACgALAAgADAANAA4ADgAPAAwAEAARABIAEgATABAAFAAVABYAFgAXABQAGAAZABoAGgAbABgAHAAdAB4AHgAfABwAIAAhACIAIgAjACAAJAAlACYAJgAnACQAKAApACoAKgArACgALAAtAC4ALgAvACwAMAAxADIAMgAzADAANAA1ADYANgA3ADQA"),
+"lods": [0.0308084, PackedByteArray("AAABAAIAAgADAAAABAAFAAYABgAHAAQACAAJAAoACgALAAgADAANAA4ADgAPAAwAEAARABIAEgATABAAFAAVABYAFgAXABQA")],
+"material": SubResource("StandardMaterial3D_hlo8l"),
+"name": "lambert5",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 56,
+"vertex_data": PackedByteArray("7UNvvkdsKr0UJl08K7hYPAucLT0UJl088SMOPeDgqbwUJl08b0ZZvop81r0UJl08K7hYPAucLT3D2fq8K7hYPAucLT0UJl087UNvvkdsKr0UJl087UNvvkdsKr3D2fq88SMOPeDgqbzD2fq8K7hYPAucLT3D2fq87UNvvkdsKr3D2fq8b0ZZvop81r3D2fq88SMOPeDgqbwUJl088SMOPeDgqbzD2fq8b0ZZvop81r3D2fq8b0ZZvop81r0UJl08K7hYPAucLT3D2fq88SMOPeDgqbzD2fq88SMOPeDgqbwUJl08K7hYPAucLT0UJl087UNvvkdsKr0UJl08b0ZZvop81r0UJl08b0ZZvop81r3D2fq87UNvvkdsKr3D2fq8D4Btvc5TMrvD2fo8x4qivc5TMrvD2fo8h2SpvWVfSTspJBs8jMxfvWVfSTspJBs8x4qivc5TMrvD2fo8J3C4va39rbzD2fo8pyPGva39rbwpJBs8h2SpvWVfSTspJBs8x4qivXDYIr3D2fo8h2SpvaOTOr0pJBs8pyPGva39rbwpJBs8J3C4va39rbzD2fo8x4qivXDYIr3D2fo8D4BtvXDYIr3D2fo8kcxfvaOTOr0pJBs8h2SpvaOTOr0pJBs8D4BtvXDYIr3D2fo8T7VBva39rbzD2fo8TE4mva39rbwpJBs8kcxfvaOTOr0pJBs8D4Btvc5TMrvD2fo8jMxfvWVfSTspJBs8TE4mva39rbwpJBs8T7VBva39rbzD2fo8D4BtvXDYIr3D2fo8x4qivXDYIr3D2fo8J3C4va39rbzD2fo8T7VBva39rbzD2fo8D4Btvc5TMrvD2fo8T7VBva39rbzD2fo8J3C4va39rbzD2fo8x4qivc5TMrvD2fo8/3//f6gCq77/f/9/1QKUvv9//3+oAqu+/3//f3oCwb6BX4HfBSD8r4Ffgd/ZBEeHgV+B34wI1IyBX4HfAe+L5gAA/v82BwZCAAD+/7AFPUEAAP7/IARwQAAA/v+wBT1BfaB9IKoIdnN9oH0gTwoVcX2gfSDQC+hufaB9IE8KFXGB332g/3//v4HffaCeyI92gd99oLP2aX6B332g/dYCeX0ggV94fNM6fSCBX8F7xjl9IIFfEXvEOH0ggV/Be8Y5/3955AEA/7//f3nkAQD/v/9/eeQBAP+//3955AEA/79nPAanJFBSl2c8BqckUFGXZzwGpyRQUpdnPAanJVBSl2c8+VjYUa8XZzz5WNdRrxdnPPlY1lGvF2c8+VjXUa8X/3+FGwUA/z//f4UbBQD/P/9/hRsFAP8//3+FGwUA/z+Xw/hYn1DraJfD+FieUOtol8P4WJ9Q6miXw/hYn1DqaJfDBqdaUQ/ol8MGp1pREOiXwwanWVEQ6JfDBqdaURDo/3//fw4BeL//f/9/4ACOv/9//3+zAKW//3//f+AAjr//f/9/VwDTv/9//3+FALy//3//f7MApb//f/9/hQC8vw==")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_3ts0k")
+
+[node name="SM_Prop_Ice_Fishing_Hut_01_Door_Latch_01" type="MeshInstance3D" unique_id=1344508342]
+mesh = SubResource("ArrayMesh_38tiu")
+surface_material_override/0 = ExtResource("1_jgmao")

@@ -1,0 +1,45 @@
+[gd_scene format=4]
+
+[ext_resource type="Material" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/materials/Glass_Mat_01.tres" id="1_8k3bv"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gfc3r"]
+resource_name = "lambert2072"
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.9063318, 0.9063318, 0.9063318, 0.8)
+emission_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_s31s1"]
+_surfaces = [{
+"aabb": AABB(-1.2221149, 1.401572, -0.47741616, 2.2952979, 0.9077585, 1.5522506),
+"format": 34359742465,
+"index_count": 24,
+"index_data": PackedByteArray("AAABAAIAAgADAAAABAAFAAYABgAHAAQACAAJAAoACgALAAgADAANAA4ADgAPAAwA"),
+"name": "lambert2072",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 16,
+"vertex_data": PackedByteArray("D16JP3NuCEAtlIk/D16JP/Gp3D8tlIk/1ySsPvGp3D8tlIk/1ySsPnNuCEAtlIk/D16JP/Gp3D+T6Xw/D16JP3NuCECT6Xw/1ySsPnNuCECT6Xw/1ySsPvGp3D+T6Xw/Q26cvxLME0A4eEA9Q26cv7Zmsz84eEA9Q26cv7Zmsz/kb/S+Q26cvxLME0Dkb/S+306Rv7Zmsz84eEA9306RvxLME0A4eEA9306RvxLME0Dkb/S+306Rv7Zmsz/kb/S+")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_lam1v"]
+resource_name = "SM_Prop_Ice_Fishing_Hut_01_Glass_01"
+_surfaces = [{
+"aabb": AABB(-1.2221149, 1.401572, -0.47741616, 2.2952979, 0.9077585, 1.5522506),
+"attribute_data": PackedByteArray("PpyTPmNnfT8kmpM+YUN9PxQvkz5dL30/ICmTPpdbfT8QqZM++kB9PzSskz79ZX0/2jiTPlBZfT/QPZM+kCt9Pz6ckz5jZ30/JJqTPmFDfT8UL5M+XS99PyApkz6XW30/EKmTPvpAfT80rJM+/WV9P9o4kz5QWX0/0D2TPpArfT8="),
+"format": 34359742487,
+"index_count": 24,
+"index_data": PackedByteArray("AAABAAIAAgADAAAABAAFAAYABgAHAAQACAAJAAoACgALAAgADAANAA4ADgAPAAwA"),
+"material": SubResource("StandardMaterial3D_gfc3r"),
+"name": "lambert2072",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 16,
+"vertex_data": PackedByteArray("D16JP3NuCEAtlIk/D16JP/Gp3D8tlIk/1ySsPvGp3D8tlIk/1ySsPnNuCEAtlIk/D16JP/Gp3D+T6Xw/D16JP3NuCECT6Xw/1ySsPnNuCECT6Xw/1ySsPvGp3D+T6Xw/Q26cvxLME0A4eEA9Q26cv7Zmsz84eEA9Q26cv7Zmsz/kb/S+Q26cvxLME0Dkb/S+306Rv7Zmsz84eEA9306RvxLME0A4eEA9306RvxLME0Dkb/S+306Rv7Zmsz/kb/S+/3//f0rpWUv/f/9/SulZS/9//39c5tFM/3//f1rs0kn/f/9/oOfQs/9//3+g59Cz/3//f/rufbf/f/9/9eB6sAAA/3//f6xZAAD/f/9/rFkAAP9//38cXAAA/3//fyhXAAD/f/9/c6UAAP9//39zpQAA/3//f0CrAAD/f/9/+p8=")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_s31s1")
+
+[node name="SM_Prop_Ice_Fishing_Hut_01_Glass_01" type="MeshInstance3D" unique_id=1775804472]
+mesh = SubResource("ArrayMesh_lam1v")
+surface_material_override/0 = ExtResource("1_8k3bv")

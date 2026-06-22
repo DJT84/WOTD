@@ -1,0 +1,14 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3]
+
+[ext_resource type="Shader" path="res://shaders/polygon.gdshader" id="1"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Snow_01_Normals.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Snow_01.png" id="3"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/triplanar_normal_side = ExtResource("2")
+shader_parameter/triplanar_texture_side = ExtResource("3")
+shader_parameter/enable_triplanar_normals = true
+shader_parameter/enable_triplanar_texture = true
+shader_parameter/metallic = 0.0
+shader_parameter/smoothness = 0.5

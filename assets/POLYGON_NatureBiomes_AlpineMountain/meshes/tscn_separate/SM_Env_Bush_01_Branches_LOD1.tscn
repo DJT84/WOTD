@@ -1,0 +1,48 @@
+[gd_scene format=4]
+
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Branches_01.tga" id="1_l321k"]
+[ext_resource type="Material" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/materials/Branches_01.tres" id="2_u23m7"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y8ibc"]
+resource_name = "Branches_01_MAT"
+transparency = 4
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.9063318, 0.9063318, 0.9063318, 0.8)
+albedo_texture = ExtResource("1_l321k")
+emission_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_hxe54"]
+_surfaces = [{
+"aabb": AABB(-0.71397126, -0.055621777, -0.78621066, 1.429602, 0.7985009, 1.2954204),
+"format": 34359742465,
+"index_count": 21,
+"index_data": PackedByteArray("AAABAAIAAwAEAAUABgAHAAgACQAKAAsADAAKAA0ADgAPABAAEQASABMA"),
+"name": "Branches_01_MAT",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 20,
+"vertex_data": PackedByteArray("5h8VPiS5CT+xAyu/pvp1PaztqTtzZ8693agPP0N30j5TqHG+Dxsev51h7T76Kqm+uGUhvJlZm7wsbmi+ca4dvs2GDj8Dp3I9+smBvVMtPj8a2ew9bIIkPeaaF7syzM69Q3uwPnNADD9ccJi+ySYnv+7roz5/myW+ZqVTPSznVbz79bO9DYPTvrfV5D1zb7k+DwYqva4r+D6SWwI/F6S3PqG8qzw0//w+lDM3P86m9D5qZoK9sf7ePU+wbLyuSei9BNUqP6nTY72Ud28+bUkWv6mbvT4aRUm/eHKavSznVbyILau+0sY2v1Eq9j2BP3e+")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_7316j"]
+resource_name = "SM_Env_Bush_01_Branches_LOD1"
+_surfaces = [{
+"aabb": AABB(-0.71397126, -0.055621777, -0.78621066, 1.429602, 0.7985009, 1.2954204),
+"attribute_data": PackedByteArray("OAAA//bEhT7Qim4+AAAA/wx9/z4qTHg/JAAA/2Hibj9wXe0+QwAA//bEhT7Qim4+AAAA/wx9/z4qTHg/MQAA/2Hibj9wXe0+VgAA//bEhT7Qim4+AAAA/wx9/z4qTHg/MAAA/2Hibj9wXe0+JwAA//bEhT7Qim4+AAAA/wx9/z4qTHg/CQAA/2Hibj9wXe0+IgAA//bEhT7Qim4+AAAA/wx9/z4qTHg/AQAA/2Hibj9wXe0+LwAA//bEhT7Qim4+AAAA/wx9/z4qTHg/BgAA/2Hibj9wXe0+KwAA//bEhT7Qim4+AAAA/wx9/z4qTHg/CgAA/2Hibj9wXe0+"),
+"format": 34359742495,
+"index_count": 21,
+"index_data": PackedByteArray("AAABAAIAAwAEAAUABgAHAAgACQAKAAsADAANAA4ADwAQABEAEgATABQA"),
+"material": SubResource("StandardMaterial3D_y8ibc"),
+"name": "Branches_01_MAT",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 21,
+"vertex_data": PackedByteArray("5h8VPiS5CT+xAyu/pvp1PaztqTtzZ8693agPP0N30j5TqHG+Dxsev51h7T76Kqm+uGUhvJlZm7wsbmi+ca4dvs2GDj8Dp3I9+smBvVMtPj8a2ew9bIIkPeaaF7syzM69Q3uwPnNADD9ccJi+ySYnv+7roz5/myW+ZqVTPSznVbz79bO9DYPTvrfV5D1zb7k+lDM3P86m9D5qZoK9sf7ePU+wbLyuSei9BNUqP6nTY72Ud28+DwYqva4r+D6SWwI/ZqVTPSznVbz79bO9F6S3PqG8qzw0//w+bUkWv6mbvT4aRUm/eHKavSznVbyILau+0sY2v1Eq9j2BP3e+IsTbFOrV9kAdxMcU4MK3ONTHsCTq1etASOQJ2pGseixS5BXaKaPYL9PcJ9GGrH4sJAJyuzr5nhsjAl27zvnCIzEDTsw7+agbkatL0cyK4kSXq2HRZ32QTxqnA8K7ivFEQ9+oGlKZdl9U36QaHZKtWn7S8B1JmXBf9dCo1G/A6VTo0LvUm69IWbDb+MRZwO9UQ55uwyVUNUZRnnXDUFKyTS2T870jVEBG")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_hxe54")
+
+[node name="SM_Env_Bush_01_Branches_LOD1" type="MeshInstance3D" unique_id=603560010]
+mesh = SubResource("ArrayMesh_7316j")
+surface_material_override/0 = ExtResource("2_u23m7")

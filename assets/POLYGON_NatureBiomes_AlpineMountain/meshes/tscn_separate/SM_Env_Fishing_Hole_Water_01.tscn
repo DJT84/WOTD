@@ -1,0 +1,45 @@
+[gd_scene format=4]
+
+[ext_resource type="Material" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/materials/Water_Ice_Lake.tres" id="1_j1jn8"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2tkjw"]
+resource_name = "lambert1"
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.6651851, 0.6651851, 0.6651851, 1)
+emission_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_vyeic"]
+_surfaces = [{
+"aabb": AABB(-0.33163264, -0.015636297, -0.37877825, 0.68198836, 1e-05, 0.6510185),
+"format": 34359742465,
+"index_count": 18,
+"index_data": PackedByteArray("AAABAAIAAwABAAAAAgAEAAAAAAAFAAMAAAAEAAYABgAFAAAA"),
+"name": "lambert1",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 7,
+"vertex_data": PackedByteArray("DSS7vLEXgLwkngM7wcupvrEXgLyKKW27yY59vrEXgLylTru+gns6vrEXgLyEgYg+yinpPbEXgLw578G+dLcBPrEXgLwTY4s+1GGzPrEXgLx9IpE8")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_lbwox"]
+resource_name = "SM_Env_Fishing_Hole_Water_01"
+_surfaces = [{
+"aabb": AABB(-0.33163264, -0.015636297, -0.37877825, 0.68198836, 1e-05, 0.6510185),
+"attribute_data": PackedByteArray("17PdPgAAAD8AAAAzAABAPwAAAAACAIA+2bPdPgAAgD8AAAAzAABAP9ez3T4AAAA/17PdPgAAAD/Ys10///8/P9mz3T4AAIA/17NdP/j/fz7Ys10///8/P9ez3T4AAAA/17PdPgAAAD/Vs90+AAAAANezXT/4/38+AAAAAAIAgD7Vs90+AAAAANez3T4AAAA/"),
+"format": 34359742487,
+"index_count": 18,
+"index_data": PackedByteArray("AAABAAIAAwAEAAUABgAHAAgACQAKAAsADAANAA4ADwAQABEA"),
+"material": SubResource("StandardMaterial3D_2tkjw"),
+"name": "lambert1",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 18,
+"vertex_data": PackedByteArray("DSS7vLEXgLwkngM7wcupvrEXgLyKKW27yY59vrEXgLylTru+gns6vrEXgLyEgYg+wcupvrEXgLyKKW27DSS7vLEXgLwkngM7DSS7vLEXgLwkngM7dLcBPrEXgLwTY4s+gns6vrEXgLyEgYg+1GGzPrEXgLx9IpE8dLcBPrEXgLwTY4s+DSS7vLEXgLwkngM7DSS7vLEXgLwkngM7yinpPbEXgLw578G+1GGzPrEXgLx9IpE8yY59vrEXgLylTru+yinpPbEXgLw578G+DSS7vLEXgLwkngM7/3///0rL/7//f///Ssv/v/9///9Ky/+//3///+bP/7//f///5s//v/9////mz/+//3///+bP/7//f///5s//v/9////mz/+//3///7zS/7//f///vNL/v/9///+80v+//3///13M/7//f///Xcz/v/9///9dzP+//3///7rP/7//f///us//v/9///+6z/+/")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_vyeic")
+
+[node name="SM_Env_Fishing_Hole_Water_01" type="MeshInstance3D" unique_id=1864468966]
+mesh = SubResource("ArrayMesh_lbwox")
+surface_material_override/0 = ExtResource("1_j1jn8")

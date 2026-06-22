@@ -1,0 +1,34 @@
+[gd_resource type="ShaderMaterial" load_steps=8 format=3]
+
+[ext_resource type="Shader" path="res://shaders/crystal.gdshader" id="1"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/IceWall_01 copy.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/IceWall_Normals_01.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/caustic_height.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/caustic_height.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Snow_01.png" id="6"]
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Snow_01_Normals.png" id="7"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/base_albedo = ExtResource("2")
+shader_parameter/base_normal = ExtResource("3")
+shader_parameter/refraction_height = ExtResource("4")
+shader_parameter/refraction_texture = ExtResource("5")
+shader_parameter/top_albedo = ExtResource("6")
+shader_parameter/top_normal = ExtResource("7")
+shader_parameter/alpha_clip = false
+shader_parameter/enable_depth = true
+shader_parameter/enable_refraction = true
+shader_parameter/enable_side_fresnel = true
+shader_parameter/enable_top_projection = true
+shader_parameter/enable_triplanar = true
+shader_parameter/fresnel_power = 4.85
+shader_parameter/metallic = 0.239
+shader_parameter/opacity = 1.0
+shader_parameter/smoothness = 0.2
+shader_parameter/base_color = Color(0.057004, 0.169105, 0.575472, 1.0)
+shader_parameter/deep_color = Color(0.0, 0.049652, 0.283019, 1.0)
+shader_parameter/fresnel_color = Color(0.360377, 1.002822, 1.498039, 1.0)
+shader_parameter/refraction_color = Color(0.071956, 0.096088, 0.311321, 1.0)
+shader_parameter/shallow_color = Color(0.160199, 0.272488, 0.45283, 1.0)
+shader_parameter/top_color = Color(0.962264, 0.962264, 0.962264, 1.0)

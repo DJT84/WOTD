@@ -1,0 +1,45 @@
+[gd_scene format=4]
+
+[ext_resource type="Material" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/materials/Glass_Mat_01.tres" id="1_2b2b6"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3q8fc"]
+resource_name = "lambert1704"
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.9063318, 0.9063318, 0.9063318, 0.8)
+emission_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_nn88r"]
+_surfaces = [{
+"aabb": AABB(-0.2739485, -0.4043007, -0.012357025, 0.54789674, 0.8086014, 0.024714354),
+"format": 34359742465,
+"index_count": 12,
+"index_data": PackedByteArray("AAABAAIAAgADAAAABAAFAAYABgAHAAQA"),
+"name": "lambert1704",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("8kKMPoAAz74fdUq88kKMPoAAzz4fdUq8+kKMvoAAzz4fdUq8+kKMvoAAz74fdUq88kKMPoAAzz5mdko88kKMPoAAz75mdko8+kKMvoAAz75mdko8+kKMvoAAzz5mdko8")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_p0uwl"]
+resource_name = "SM_Prop_Cabin_Door_Glass_01"
+_surfaces = [{
+"aabb": AABB(-0.2739485, -0.4043007, -0.012357025, 0.54789674, 0.8086014, 0.024714354),
+"attribute_data": PackedByteArray("Lx6aPjo+fD8PIJo+vn18PxZ/mj5RfXw/gHmaPu08fD+xH5o+gn18P9Edmj6GPXw/03maPjQ8fD95f5o+FH18Pw=="),
+"format": 34359742487,
+"index_count": 12,
+"index_data": PackedByteArray("AAABAAIAAgADAAAABAAFAAYABgAHAAQA"),
+"material": SubResource("StandardMaterial3D_3q8fc"),
+"name": "lambert1704",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("8kKMPoAAz74fdUq88kKMPoAAzz4fdUq8+kKMvoAAzz4fdUq8+kKMvoAAz74fdUq88kKMPoAAzz5mdko88kKMPoAAz75mdko8+kKMvoAAz75mdko8+kKMvoAAzz5mdko8/////4ECvz7/////gQK/Pv////88AWE//////78DHz7/f/9/gQJAwf9//3+BAkDB/3//f7sD3MH/f/9/QQGgwA==")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_nn88r")
+
+[node name="SM_Prop_Cabin_Door_Glass_01" type="MeshInstance3D" unique_id=1432272126]
+mesh = SubResource("ArrayMesh_p0uwl")
+surface_material_override/0 = ExtResource("1_2b2b6")

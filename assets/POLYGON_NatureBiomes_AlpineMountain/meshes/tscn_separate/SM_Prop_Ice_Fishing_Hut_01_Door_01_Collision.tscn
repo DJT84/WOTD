@@ -1,0 +1,47 @@
+[gd_scene format=4]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vvlgu"]
+resource_name = "lambert1"
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.6651851, 0.6651851, 0.6651851, 1)
+emission_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_nxuwy"]
+_surfaces = [{
+"aabb": AABB(-0.02408249, -0.043891486, -0.110172726, 0.97031534, 1.8921582, 0.1517112),
+"format": 34359742465,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAgADAAAAAQAAAAQABAAAAAMABQACAAEAAwACAAUABAAGAAEAAQAGAAUAAwAHAAQABgAEAAcABQAHAAMABwAFAAYA"),
+"name": "lambert1",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("UTxyPwGU7D89JCo9UTxyP4/HM709JCo9pEjFvI/HM709JCo9pEjFvAGU7D89JCo9UTxyPwGU7D89ouG9pEjFvI/HM709ouG9UTxyP4/HM709ouG9pEjFvAGU7D89ouG9")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_v7dx5"]
+resource_name = "SM_Prop_Ice_Fishing_Hut_01_Door_01_Collision"
+_surfaces = [{
+"aabb": AABB(-0.02408249, -0.043891486, -0.110172726, 0.97031534, 1.8921582, 0.1517112),
+"attribute_data": PackedByteArray("AAAgPwAAQD8AACA/AACAPwAAwD4AAIA/AADAPgAAQD8AACA/AAAAPwAAID8AAEA/AADAPgAAQD8AAMA+AAAAPwAAID8AAIA+AAAgPwAAAD8AAMA+AAAAPwAAwD4AAIA+AAAgPwAAAAAAACA/AACAPgAAwD4AAIA+AADAPgAAAAAAAGA/AABAPwAAYD8AAIA/AAAgPwAAgD8AACA/AABAPwAAwD4AAEA/AADAPgAAgD8AAAA+AACAPwAAAD4AAEA/"),
+"format": 34359742487,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAgADAAAABAAFAAYABgAHAAQACAAJAAoACgALAAgADAANAA4ADgAPAAwAEAARABIAEgATABAAFAAVABYAFgAXABQA"),
+"material": SubResource("StandardMaterial3D_vvlgu"),
+"name": "lambert1",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 24,
+"vertex_data": PackedByteArray("UTxyPwGU7D89JCo9UTxyP4/HM709JCo9pEjFvI/HM709JCo9pEjFvAGU7D89JCo9UTxyPwGU7D89ouG9UTxyPwGU7D89JCo9pEjFvAGU7D89JCo9pEjFvAGU7D89ouG9UTxyP4/HM709ouG9UTxyPwGU7D89ouG9pEjFvAGU7D89ouG9pEjFvI/HM709ouG9UTxyP4/HM709JCo9UTxyP4/HM709ouG9pEjFvI/HM709ouG9pEjFvI/HM709JCo9UTxyPwGU7D89ouG9UTxyP4/HM709ouG9UTxyP4/HM709JCo9UTxyPwGU7D89JCo9pEjFvAGU7D89JCo9pEjFvI/HM709JCo9pEjFvI/HM709ouG9pEjFvAGU7D89ouG9/3//f////7//f/9/////v/9//3////+//3//f////7//f///////v/9///////+//3///////7//f///////v/////////+//////////7//////////v/////////+//38AAP///7//fwAA////v/9/AAD///+//38AAP///7////9//////////3//////////f/////////9//////wAA/3//f/+/AAD/f/9//78AAP9//3//vwAA/3//f/+/")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_nxuwy")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2ee0t"]
+shading_mode = 0
+albedo_color = Color(0, 1, 0, 1)
+
+[node name="SM_Prop_Ice_Fishing_Hut_01_Door_01_Collision" type="MeshInstance3D" unique_id=234268954]
+mesh = SubResource("ArrayMesh_v7dx5")
+surface_material_override/0 = SubResource("StandardMaterial3D_2ee0t")

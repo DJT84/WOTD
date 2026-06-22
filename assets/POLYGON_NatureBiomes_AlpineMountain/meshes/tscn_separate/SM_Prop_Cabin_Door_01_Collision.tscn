@@ -1,0 +1,47 @@
+[gd_scene format=4]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_c3dau"]
+resource_name = "lambert1"
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.6651851, 0.6651851, 0.6651851, 1)
+emission_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_qyet3"]
+_surfaces = [{
+"aabb": AABB(-0.03954182, -0.022172699, -0.15080413, 1.0472823, 1.9446108, 0.18639983),
+"format": 34359742465,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAgADAAAAAQAAAAQABAAAAAMABQACAAEAAwACAAUABAAGAAEAAQAGAAUAAwAHAAQABgAEAAcABQAHAAMABwAFAAYA"),
+"name": "lambert1",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("pP2AP3QS9j/NzBE9pP2AP4WjtbzNzBE9mvYhvYWjtbzNzBE9mvYhvXQS9j/NzBE9pP2AP3QS9j9mbBq+mvYhvYWjtbxmbBq+pP2AP4WjtbxmbBq+mvYhvXQS9j9mbBq+")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_q0s05"]
+resource_name = "SM_Prop_Cabin_Door_01_Collision"
+_surfaces = [{
+"aabb": AABB(-0.03954182, -0.022172699, -0.15080413, 1.0472823, 1.9446108, 0.18639983),
+"attribute_data": PackedByteArray("AAAgPwAAQD8AACA/AACAPwAAwD4AAIA/AADAPgAAQD8AACA/AAAAPwAAID8AAEA/AADAPgAAQD8AAMA+AAAAPwAAID8AAIA+AAAgPwAAAD8AAMA+AAAAPwAAwD4AAIA+AAAgPwAAAAAAACA/AACAPgAAwD4AAIA+AADAPgAAAAAAAGA/AABAPwAAYD8AAIA/AAAgPwAAgD8AACA/AABAPwAAwD4AAEA/AADAPgAAgD8AAAA+AACAPwAAAD4AAEA/"),
+"format": 34359742487,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAgADAAAABAAFAAYABgAHAAQACAAJAAoACgALAAgADAANAA4ADgAPAAwAEAARABIAEgATABAAFAAVABYAFgAXABQA"),
+"material": SubResource("StandardMaterial3D_c3dau"),
+"name": "lambert1",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 24,
+"vertex_data": PackedByteArray("pP2AP3QS9j/NzBE9pP2AP4WjtbzNzBE9mvYhvYWjtbzNzBE9mvYhvXQS9j/NzBE9pP2AP3QS9j9mbBq+pP2AP3QS9j/NzBE9mvYhvXQS9j/NzBE9mvYhvXQS9j9mbBq+pP2AP4WjtbxmbBq+pP2AP3QS9j9mbBq+mvYhvXQS9j9mbBq+mvYhvYWjtbxmbBq+pP2AP4WjtbzNzBE9pP2AP4WjtbxmbBq+mvYhvYWjtbxmbBq+mvYhvYWjtbzNzBE9pP2AP3QS9j9mbBq+pP2AP4WjtbxmbBq+pP2AP4WjtbzNzBE9pP2AP3QS9j/NzBE9mvYhvXQS9j/NzBE9mvYhvYWjtbzNzBE9mvYhvYWjtbxmbBq+mvYhvXQS9j9mbBq+/3//f////7//f/9/////v/9//3////+//3//f////7//f///////v/9///////+//3///////7//f///////v/////////+//////////7//////////v/////////+//38AAP///7//fwAA////v/9/AAD///+//38AAP///7////9//////////3//////////f/////////9//////wAA/3//f/+/AAD/f/9//78AAP9//3//vwAA/3//f/+/")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_qyet3")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2ee0t"]
+shading_mode = 0
+albedo_color = Color(0, 1, 0, 1)
+
+[node name="SM_Prop_Cabin_Door_01_Collision" type="MeshInstance3D" unique_id=503805671]
+mesh = SubResource("ArrayMesh_q0s05")
+surface_material_override/0 = SubResource("StandardMaterial3D_2ee0t")

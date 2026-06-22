@@ -1,0 +1,45 @@
+[gd_scene format=4]
+
+[ext_resource type="Material" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/materials/Alpine_LOD_Mat_01.tres" id="1_heun1"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a5e2y"]
+resource_name = "MAT_01A7"
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.9063318, 0.9063318, 0.9063318, 0.8)
+emission_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_83k54"]
+_surfaces = [{
+"aabb": AABB(-0.04032379, -0.07119864, -0.046417695, 0.07337799, 0.12663867, 0.07987656),
+"format": 34359742465,
+"index_count": 60,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAACAAEAAwAEAAEAAAACAAUAAAAFAAMABgACAAQABwAFAAIABwACAAYACAAGAAQACAAHAAYAAwAIAAQACQAFAAcACgADAAUACgAFAAkACgAIAAMACwAJAAcACgAJAAsACwAHAAgACgALAAgA"),
+"name": "MAT_01A7",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 12,
+"vertex_data": PackedByteArray("12MHPdomBL17ID69wxUHvKVThL0z56u84eKrPJjQkb3DhQW8SBnlvJR+gbxS4CK94eKrvJjQkb3DhQU8cT3NPIZV8TzhSve7wxUHPKVThL0z56s8cY3YPE/+gbwpDAk9jyolvXyEgbxmmrs8UiDlPIRkND3DFWk8XG9CvBMVYz24Xta7mlkGu3pkND1cnQE9")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_duutk"]
+resource_name = "SM_Env_Pine_Cone_01_LOD2"
+_surfaces = [{
+"aabb": AABB(-0.04032379, -0.07119864, -0.046417695, 0.07337799, 0.12663867, 0.07987656),
+"attribute_data": PackedByteArray("iNbNPAH+Nz/SQ9A82sJFP9PhzjxYCUY/iNbNPAH+Nz/i29A80T0/P9JD0DzawkU/iNbNPAH+Nz8F7848MFtFP+Lb0DzRPT8/iNbNPAH+Nz/T4c48WAlGPwXvzjwwW0U/4tvQPNE9Pz9mBNE8KgJGP9JD0DzawkU/4tvQPNE9Pz9s39E8bX0/P2YE0TwqAkY/bN/RPG19Pz+Unc88Ab9FP2YE0TwqAkY/bN/RPG19Pz9e9s48OEY/P5SdzzwBv0U/XvbOPDhGPz/T4c48WAlGP5SdzzwBv0U/XvbOPDhGPz8F7848MFtFP9PhzjxYCUY/a+TOPNZrOD8F7848MFtFP172zjw4Rj8/vvjPPECGOD9r5M481ms4P172zjw4Rj8/vvjPPECGOD9e9s48OEY/P2zf0TxtfT8/3GfQPLMNPj+++M88QIY4P2zf0TxtfT8/3GfQPLMNPj9s39E8bX0/P+Lb0DzRPT8/3GfQPLMNPj/i29A80T0/PwXvzjwwW0U/3GfQPLMNPj8F7848MFtFP2vkzjzWazg/3GfQPLMNPj9r5M481ms4P774zzxAhjg/lJ3PPAG/RT/T4c48WAlGP2YE0TwqAkY/ZgTRPCoCRj/T4c48WAlGP9JD0DzawkU/"),
+"format": 34359742487,
+"index_count": 60,
+"index_data": PackedByteArray("AAABAAIAAwAEAAUABgAHAAgACQAKAAsADAANAA4ADwAQABEAEgATABQAFQAWABcAGAAZABoAGwAcAB0AHgAfACAAIQAiACMAJAAlACYAJwAoACkAKgArACwALQAuAC8AMAAxADIAMwA0ADUANgA3ADgAOQA6ADsA"),
+"material": SubResource("StandardMaterial3D_a5e2y"),
+"name": "MAT_01A7",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 60,
+"vertex_data": PackedByteArray("12MHPdomBL17ID69wxUHvKVThL0z56u84eKrPJjQkb3DhQW812MHPdomBL17ID69SBnlvJR+gbxS4CK9wxUHvKVThL0z56u812MHPdomBL17ID69cT3NPIZV8TzhSve7SBnlvJR+gbxS4CK912MHPdomBL17ID694eKrPJjQkb3DhQW8cT3NPIZV8TzhSve7SBnlvJR+gbxS4CK94eKrvJjQkb3DhQU8wxUHvKVThL0z56u8SBnlvJR+gbxS4CK9jyolvXyEgbxmmrs84eKrvJjQkb3DhQU8jyolvXyEgbxmmrs8wxUHPKVThL0z56s84eKrvJjQkb3DhQU8jyolvXyEgbxmmrs8cY3YPE/+gbwpDAk9wxUHPKVThL0z56s8cY3YPE/+gbwpDAk94eKrPJjQkb3DhQW8wxUHPKVThL0z56s8cY3YPE/+gbwpDAk9cT3NPIZV8TzhSve74eKrPJjQkb3DhQW8UiDlPIRkND3DFWk8cT3NPIZV8TzhSve7cY3YPE/+gbwpDAk9mlkGu3pkND1cnQE9UiDlPIRkND3DFWk8cY3YPE/+gbwpDAk9mlkGu3pkND1cnQE9cY3YPE/+gbwpDAk9jyolvXyEgbxmmrs8XG9CvBMVYz24Xta7mlkGu3pkND1cnQE9jyolvXyEgbxmmrs8XG9CvBMVYz24Xta7jyolvXyEgbxmmrs8SBnlvJR+gbxS4CK9XG9CvBMVYz24Xta7SBnlvJR+gbxS4CK9cT3NPIZV8TzhSve7XG9CvBMVYz24Xta7cT3NPIZV8TzhSve7UiDlPIRkND3DFWk8XG9CvBMVYz24Xta7UiDlPIRkND3DFWk8mlkGu3pkND1cnQE9wxUHPKVThL0z56s84eKrPJjQkb3DhQW84eKrvJjQkb3DhQU84eKrvJjQkb3DhQU84eKrPJjQkb3DhQW8wxUHvKVThL0z56u8esSTC7sPMNh6xJMLuw8w2HrEkwu7DzDY0CPFEeo1YODQI8UR6jVg4NAjxRHqNWDg/c9B+7kY11b9z0H7uRjXVv3PQfu5GNdWWuHme0KEoQNa4eZ7QoShA1rh5ntChKEDYCQHOv1agLlgJAc6/VqAuWAkBzr9WoC5axmuVaBqt8FrGa5VoGq3wWsZrlWgarfBJmZjY/cLylYmZmNj9wvKViZmY2P3C8pWC3FobcICSzYLcWhtwgJLNgtxaG3CAks24b0jYLZa8jnhvSNgtlryOeG9I2C2WvI5a/uAcuWIyv1r+4By5YjK/Wv7gHLliMr9ufkNbwOAQWi5+Q1vA4BBaLn5DW8DgEFoXqfFlA0wzD5ep8WUDTDMPl6nxZQNMMw+K283eyUD9TUrbzd7JQP1NStvN3slA/U1MUDMpDlo8p0xQMykOWjynTFAzKQ5aPKd2xqDq7BzMcrbGoOrsHMxytsag6uwczHKs+AQ7DVGk4uz4BDsNUaTi7PgEOw1RpOLoMs63JohfNugyzrcmiF826DLOtyaIXzbrI2/2rswtr+sjb/auzC2v6yNv9q7MLa/0okdI/MgvUAHgB4A1h8AQOF/CADWH/8/4X8IANIn/r8HgB4A0if/v+Fc0gnaKD+/")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_83k54")
+
+[node name="SM_Env_Pine_Cone_01_LOD2" type="MeshInstance3D" unique_id=203099194]
+mesh = SubResource("ArrayMesh_duutk")
+surface_material_override/0 = ExtResource("1_heun1")

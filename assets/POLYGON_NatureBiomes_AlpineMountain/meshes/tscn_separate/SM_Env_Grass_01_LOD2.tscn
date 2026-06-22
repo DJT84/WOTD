@@ -1,0 +1,48 @@
+[gd_scene format=4]
+
+[ext_resource type="Texture2D" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/textures/Grass_01.tga" id="1_q385d"]
+[ext_resource type="Material" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/materials/Grass_Mat_01.tres" id="2_r47b6"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2qnqk"]
+resource_name = "grassSHD13"
+transparency = 4
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.9063318, 0.9063318, 0.9063318, 0.8)
+albedo_texture = ExtResource("1_q385d")
+emission_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_uvuou"]
+_surfaces = [{
+"aabb": AABB(-0.9487476, -0.026869953, -0.9487476, 1.8932967, 1, 1.8932967),
+"format": 34359742465,
+"index_count": 24,
+"index_data": PackedByteArray("AAABAAIAAgADAAAABAAFAAYABgAHAAQACAAJAAoACgALAAgADAANAA4ADgAPAAwA"),
+"name": "grassSHD13",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 16,
+"vertex_data": PackedByteArray("NFkHPA0feT/6zXE/NFkHPA0feT9mIGO9NFkHPGAe3LxmIGO9NFkHPGAe3Lz6zXE/PcJlpQ0feT8U7lE9j3A5pg0feT8f4XK/PcJlpWAe3Lwf4XK/4R6NJWAe3LwU7lE9+s1xPw0feT80WQe8ZiBjvQ0feT80WQe8ZiBjvWAe3Lw0WQe8+s1xP2Ae3Lw0WQe8FO5RPQ0feT8AAIAlH+Fyvw0feT8AAIAlH+Fyv2Ae3LwAAIClFO5RPWAe3LwAAICl")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_dmytq"]
+resource_name = "SM_Env_Grass_01_LOD2"
+_surfaces = [{
+"aabb": AABB(-0.9487476, -0.026869953, -0.9487476, 1.8932967, 1, 1.8932967),
+"attribute_data": PackedByteArray("ffv//8PUfD9Az0o8ffv//0DPSjxAz0o8AQD//0DPSjzD1Hw/AQD//8PUfD/D1Hw/ffv//8PUfD9Az0o8ffv//0DPSjxAz0o8AQD//0DPSjzD1Hw/AQD//8PUfD/D1Hw/ffv//8PUfD9Az0o8ffv//0DPSjxAz0o8AQD//0DPSjzD1Hw/AQD//8PUfD/D1Hw/ffv//8PUfD9Az0o8ffv//0DPSjxAz0o8AQD//0DPSjzD1Hw/AQD//8PUfD/D1Hw/"),
+"format": 34359742495,
+"index_count": 24,
+"index_data": PackedByteArray("AAABAAIAAgADAAAABAAFAAYABgAHAAQACAAJAAoACgALAAgADAANAA4ADgAPAAwA"),
+"material": SubResource("StandardMaterial3D_2qnqk"),
+"name": "grassSHD13",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 16,
+"vertex_data": PackedByteArray("NFkHPA0feT/6zXE/NFkHPA0feT9mIGO9NFkHPGAe3LxmIGO9NFkHPGAe3Lz6zXE/PcJlpQ0feT8U7lE9j3A5pg0feT8f4XK/PcJlpWAe3Lwf4XK/4R6NJWAe3LwU7lE9+s1xPw0feT80WQe8ZiBjvQ0feT80WQe8ZiBjvWAe3Lw0WQe8+s1xP2Ae3Lw0WQe8FO5RPQ0feT8AAIAlH+Fyvw0feT8AAIAlH+Fyv2Ae3LwAAIClFO5RPWAe3LwAAICl/IDu3LR20mHuXAL/on8eUXYz7Pi0di0eEYd1s6J/4C78gO7ctHbSYe5cAv+ifx5RdjPs+LR2LR4Rh3Wzon/gLhCj690Os9Jh613u3GPdHlGIOnWzDrMtHojMh7pj3eAuEKPr3Q6z0mHrXe7cY90eUYg6dbMOsy0eiMyHumPd4C4=")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_uvuou")
+
+[node name="SM_Env_Grass_01_LOD2" type="MeshInstance3D" unique_id=260031592]
+mesh = SubResource("ArrayMesh_dmytq")
+surface_material_override/0 = ExtResource("2_r47b6")

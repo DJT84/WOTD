@@ -1,0 +1,45 @@
+[gd_scene format=4]
+
+[ext_resource type="Material" path="res://assets/POLYGON_NatureBiomes_AlpineMountain/materials/Fog_01.tres" id="1_s5ekx"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0opl4"]
+resource_name = "lambert1"
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.6651851, 0.6651851, 0.6651851, 1)
+emission_enabled = true
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_m125m"]
+_surfaces = [{
+"aabb": AABB(-35.085335, 0, -35.085327, 70.17067, 3.9398355, 70.170654),
+"format": 34359742465,
+"index_count": 144,
+"index_data": PackedByteArray("AAABAAIAAQAAAAMAAgAEAAAAAwAFAAEABgAEAAIABQADAAcAAgAIAAYABwAJAAUABgAIAAoACQAHAAsACgAMAAYACwANAAkADAAKAA4ADQALAA8ADgAQAAwADwARAA0AEgAQAA4AEQAPABMADgAUABIAEwAVABEAFgASABQAFQATABcAFAAYABYAFwAZABUAFgAYABoAGQAXABsAGgAcABYAGwAdABkAHgAcABoAHwAdABsAGgAgAB4AGwAhAB8AHgAgACIAHwAhACMAIgAkAB4AIwAlAB8AJgAkACIAJQAjACcAIgAoACYAJwApACUAJgAoACoAKwApACcAKgAsACYAJwAtACsALAAqAC4AKwAtAC8ALgAvACwALwAuACsA"),
+"name": "lambert1",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 48,
+"vertex_data": PackedByteArray("2F7PQQAAAABqc2/BBxTzQUQmfEBfV4zBK48HQkQmfEDCShHBOVGpQQAAAAA7UanBq0rnQQAAAADW5ffA9njGQUQmfED7eMbBbXPvQQAAAACTlrO2ZnNvQQAAAADZXs/BYlcMQkQmfEClRM+2XVeMQUQmfEAIFPPBMI8HQkQmfEC9ShFBz+X3QAAAAACwSufBskrnQQAAAADN5fdAvkoRQUQmfEAtjwfCDBTzQUQmfEBfV4xBdTOqKQAAAABrc+/B3V7PQQAAAABpc29BchG9MkQmfEBgVwzCPVGpQQAAAAA9UalB0uX3wAAAAACxSufB+3jGQUQmfED9eMZBwEoRwUQmfEAujwfCanNvQQAAAADcXs9BanNvwQAAAADdXs/BX1eMQUQmfEALFPNBX1eMwUQmfEAMFPPBvUoRQUQmfEAujwdCPVGpwQAAAABAUanBzuX3QAAAAACwSudB/HjGwUQmfEAAecbBJaiVtgAAAABrc+9BCxTzwUQmfEBkV4zBKbCutkQmfEBfVwxC3F7PwQAAAABzc2/Bx0oRwUQmfEAtjwdCs0rnwQAAAADi5ffA3uX3wAAAAACvSudBL48HwkQmfEDJShHBcnNvwQAAAADZXs9BbnPvwQAAAABwc++2Y1eMwUQmfEAKFPNBYlcMwkQmfEAruAq3/3jGwUQmfED6eMZBL48HwkQmfEC5ShFBP1GpwQAAAAA6UalBs0rnwQAAAADG5fdADxTzwUQmfEBcV4xB3l7PwQAAAABkc29B")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_37q05"]
+resource_name = "SM_Env_Fog_Ring_01"
+_surfaces = [{
+"aabb": AABB(-35.085335, 0, -35.085327, 70.17067, 3.9398355, 70.170654),
+"attribute_data": PackedByteArray("0hJrP06jez/SEms/gJaLPMtsdz+Alos82GxXP06jez/LbHc/TqN7P9hsVz+Alos8TqN7P06jez+l0T0/TqN7P06jez+Alos8pdE9P4CWizzRbHc/gJaLPPT/Hz9Oo3s/0Wx3P06jez/0/x8/gJaLPNYSaz+Alos8AAAAP06jez/WEms/TqN7PwAAAD+Alos82GxXP06jez8VAMA+TqN7P9hsVz+Alos8FQDAPoCWizyn0T0/TqN7P7RchD5Oo3s/p9E9P4CWizy0XIQ+gJaLPPT/Hz+Alos8mkwiPk6jez/0/x8/TqN7P5pMIj6Alos8/v//Pk6jez9gaac9gJaLPP7//z6Alos8YGmnPU6jez8TAMA+gJaLPAAzCT1Oo3s/EwDAPk6jez8AMwk9gJaLPLBchD5Oo3s/QJaLPE6jez+wXIQ+gJaLPECWizyAlos8lkwiPoCWizwAMwk9gJaLPJZMIj5Oo3s/ADMJPU6jez9Qaac9gJaLPFBppz1Oo3s/"),
+"format": 34359742487,
+"index_count": 144,
+"index_data": PackedByteArray("AAABAAIAAQAAAAMAAgAEAAAAAwAFAAEABgAEAAIABQADAAcAAgAIAAYABwAJAAUABgAIAAoACQAHAAsACgAMAAYACwANAAkADAAKAA4ADQALAA8ADgAQAAwADwARAA0AEgAQAA4AEQAPABMADgAUABIAEwAVABEAFgASABQAFQATABcAFAAYABYAFwAZABUAFgAYABoAGQAXABsAGgAcABYAGwAdABkAHgAcABoAHwAdABsAGgAgAB4AGwAhAB8AHgAgACIAHwAhACMAIgAkAB4AIwAlAB8AJgAkACIAJQAjACcAIgAoACYAJwApACUAJgAoACoAKwApACcAKgAsACYAJwAtACsALAAqAC4AKwAtAC8ALgAvACwALwAuACsA"),
+"material": SubResource("StandardMaterial3D_0opl4"),
+"name": "lambert1",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 48,
+"vertex_data": PackedByteArray("2F7PQQAAAABqc2/BBxTzQUQmfEBfV4zBK48HQkQmfEDCShHBOVGpQQAAAAA7UanBq0rnQQAAAADW5ffA9njGQUQmfED7eMbBbXPvQQAAAACTlrO2ZnNvQQAAAADZXs/BYlcMQkQmfEClRM+2XVeMQUQmfEAIFPPBMI8HQkQmfEC9ShFBz+X3QAAAAACwSufBskrnQQAAAADN5fdAvkoRQUQmfEAtjwfCDBTzQUQmfEBfV4xBdTOqKQAAAABrc+/B3V7PQQAAAABpc29BchG9MkQmfEBgVwzCPVGpQQAAAAA9UalB0uX3wAAAAACxSufB+3jGQUQmfED9eMZBwEoRwUQmfEAujwfCanNvQQAAAADcXs9BanNvwQAAAADdXs/BX1eMQUQmfEALFPNBX1eMwUQmfEAMFPPBvUoRQUQmfEAujwdCPVGpwQAAAABAUanBzuX3QAAAAACwSudB/HjGwUQmfEAAecbBJaiVtgAAAABrc+9BCxTzwUQmfEBkV4zBKbCutkQmfEBfVwxC3F7PwQAAAABzc2/Bx0oRwUQmfEAtjwdCs0rnwQAAAADi5ffA3uX3wAAAAACvSudBL48HwkQmfEDJShHBcnNvwQAAAADZXs9BbnPvwQAAAABwc++2Y1eMwUQmfEAKFPNBYlcMwkQmfEAruAq3/3jGwUQmfED6eMZBL48HwkQmfEC5ShFBP1GpwQAAAAA6UalBs0rnwQAAAADG5fdADxTzwUQmfEBcV4xB3l7PwQAAAABkc29Bi1acvtmu/7+LVpy+2a7/vy9PGsIMm/+/wF6Bvf+//78vTxrCDJv/v8Begb3/v/+/i0iKyEaJisMQaJy+JdH/v4tIishGiYrDEGicviXR/78bQi/P//+GDetyGsLy5P+/G0Ivz///hg3rchrC8uT/v50+i9b//5Jo/3+KyP7//7+dPovW/v+SaP9/isj+//+/gT3A3v///18TjRrC//+FzYE9wN7///8fE40awv//hc2dPhDo//9sV+6XnL7//2zXnT4Q6P//bFful5y+//9s1xtC6vL//4ZNPqGBvf///98bQury//+GTT6hgb3///+fc7f///7//z9zqZy+//+S6HO3///+//8/c6mcvv//kujjvery8uT/P8+wGsL//3jy473q8vLk/z/PsBrC//+FjWHBEOgl0f8/c7eKyEaJi0NhwRDoJdH/P3O3ishGiYtDfcLA3v+//z/jvS/PDJv/P33CwN7/v/8/470vzwyb/z9hwYvW2a7/P2HBi9bZrv8/")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_m125m")
+
+[node name="SM_Env_Fog_Ring_01" type="MeshInstance3D" unique_id=1245567590]
+mesh = SubResource("ArrayMesh_37q05")
+surface_material_override/0 = ExtResource("1_s5ekx")
