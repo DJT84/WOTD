@@ -10,7 +10,7 @@ var _shake_intensity: float = 0.0
 var _shake_decay:     float = 0.0
 var _impact_btn:      Control   # ImpactMeterUI ring overlay
 var _impact_rock:     Node3D    # 3D stone model
-var _rock_home_pos:   Vector3   = Vector3(-4.8, -3.6, -9.0)  # camera-local home
+var _rock_home_pos:   Vector3   = Vector3(-6.2, -4.8, -9.0)  # camera-local home — bottom-left corner
 var _rock_in_flight:  bool      = false
 var _rock_hidden:     bool      = false
 var _drag_active:   bool  = false
@@ -106,8 +106,8 @@ func _on_rock_landed() -> void:
 
 
 func screen_shake(intensity: float) -> void:
-	_shake_intensity = clamp(intensity, 0.0, 3.0)
-	_shake_decay     = 6.0 + intensity * 2.0  # stronger = slower decay
+	_shake_intensity = clamp(intensity, 0.0, 8.0)
+	_shake_decay     = 2.5 + intensity * 0.8  # stronger = slower decay, longer shake
 
 
 func _process(delta: float) -> void:
@@ -116,7 +116,7 @@ func _process(delta: float) -> void:
 			randf_range(-1.0, 1.0),
 			randf_range(-1.0, 1.0),
 			0.0
-		) * _shake_intensity * 0.08
+		) * _shake_intensity * 0.20
 		_cam.position    = _cam_base + offset
 		_shake_intensity = move_toward(_shake_intensity, 0.0, delta * _shake_decay)
 	elif _cam.position != _cam_base:
@@ -136,17 +136,6 @@ func _process(delta: float) -> void:
 			_impact_rock.reparent(_cam, false)
 			_impact_rock.position = _rock_home_pos
 			_impact_rock.visible  = true
-
-	# Keep cooldown ring over the rock (or over its home spot when hidden)
-	if _impact_btn:
-		var ring_world: Vector3
-		if _impact_rock and not _rock_hidden:
-			ring_world = _impact_rock.global_position
-		else:
-			ring_world = _cam.to_global(_rock_home_pos)
-		var screen_pos: Vector2 = _cam.unproject_position(ring_world)
-		var half := 48.0
-		(_impact_btn as Control).position = screen_pos - Vector2(half, half)
 
 
 func _cycle_epoch(dir: int) -> void:
@@ -204,9 +193,9 @@ func _setup_lighting() -> void:
 
 func _setup_camera() -> void:
 	_cam          = Camera3D.new()
-	_cam_base     = Vector3(0.0, -1.0, 17.0)
+	_cam_base     = Vector3(0.0, 0.0, 17.0)
 	_cam.position = _cam_base
-	_cam.look_at(Vector3(0.0, 2.5, 0.0), Vector3.UP)
+	_cam.look_at(Vector3(0.0, 0.0, 0.0), Vector3.UP)
 	_cam.fov      = 75.0
 	_cam.current  = true
 	add_child(_cam)
@@ -221,8 +210,15 @@ func _setup_impact_ui() -> void:
 		# Camera-local position: left, down, forward
 		_impact_rock.position = Vector3(-4.8, -3.6, -9.0)
 		_cam.add_child(_impact_rock)
+		# Apply pixel art shader to all mesh surfaces in the GLB
+		var rock_mat := ShaderMaterial.new()
+		rock_mat.shader = load("res://shaders/pixel_rock.gdshader") as Shader
+		for child in _impact_rock.find_children("*", "MeshInstance3D", true):
+			var mi := child as MeshInstance3D
+			for s in range(mi.get_surface_override_material_count()):
+				mi.set_surface_override_material(s, rock_mat)
 
-	# 2D ring overlay — positioned over the rock each frame in _process
+	# ImpactMeterUI kept for cooldown logic but ring is hidden
 	var canvas := CanvasLayer.new()
 	canvas.layer = 10
 	add_child(canvas)
@@ -230,6 +226,7 @@ func _setup_impact_ui() -> void:
 	_impact_btn = load("res://scripts/ImpactMeterUI.gd").new()
 	(_impact_btn as Node).set("cooldown_max", 30.0)
 	(_impact_btn as Node).connect("fired", _do_impact_strike)
+	(_impact_btn as Control).visible = false
 	canvas.add_child(_impact_btn)
 
 

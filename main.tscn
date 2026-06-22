@@ -8,8 +8,7 @@ script = ExtResource("1")
 
 [node name="Planet" type="Node3D" parent="." unique_id=868940086]
 script = ExtResource("2_h2yge")
+subdivision_depth = 4
 tile_raise = 0.06
-impact_intensity_min = null
-impact_intensity_max = null
-impact_meteor_intensity = null
+use_putty_style = true
 metadata/_custom_type_script = "uid://0rsrx60otwoq"

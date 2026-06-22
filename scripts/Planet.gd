@@ -74,6 +74,7 @@ signal impact_landed(tile_id: int, intensity: float)
 @export_range(0, 7) var current_age: int = 0:
 	set(v):
 		current_age = v
+		_putty_craters.clear()
 		if is_inside_tree(): rebuild()
 
 @export var planet_radius: float = 6.5:
@@ -104,6 +105,11 @@ signal impact_landed(tile_id: int, intensity: float)
 		if is_inside_tree():
 			rebuild()
 
+@export var use_putty_style: bool = false:
+	set(v):
+		use_putty_style = v
+		if is_inside_tree(): rebuild()
+
 # ── Runtime state ─────────────────────────────────────────────────────────────
 
 var _impacts:       Array          = []
@@ -112,6 +118,13 @@ var _tile_mesh_map: Dictionary     = {}   # tile_id → MeshInstance3D
 var _shared_mat:    ShaderMaterial = null
 var _mesh_root:     Node3D         = null
 var _geo_tiles:     Array          = []   # cached PlanetTile array — used by editor plugin
+
+var _putty_mat:     ShaderMaterial = null
+var _putty_mi:      MeshInstance3D = null
+var _putty_craters: Array          = []   # [{pos, radius, damage}] — up to 4
+var _atmos_mi:      MeshInstance3D = null
+var _terrain_image:  Image = null   # blurred — drives the shader
+var _terrain_binary: Image = null   # pre-blur binary — drives is_position_sea
 
 var _hovered_tile_id:    int   = -1
 var _selected_tile_id:   int   = -1
@@ -140,31 +153,31 @@ var _age_cfg: Array = [
 # in the tropics. No life on land. Almost all life in shallow marine shelf seas.
 {
 	"name": "Cambrian", "ma": 541,
-	"noise_seed": 100, "coast_roughness": 5.0, "shallow_sea_depth": 3, "land_expand_deg": 5.0,
+	"noise_seed": 100, "coast_roughness": 5.5, "shallow_sea_depth": 3, "land_expand_deg": 5.0,
+	"blur_passes": 2, "thresh_shallow": 0.04,
+	"shader_land":      Color("#7A6A55"),  # cool dark exposed rock at coast
+	"shader_highlands": Color("#7A6A55"),  # same — no interior/exterior distinction on small cratons
+	"ice_y_abs": 1.01,
+	"atmosphere_color": Color(0.36, 0.61, 0.71, 0.72),
 	"palette": {
-		"DEEP_OCEAN":   Color("#2a6a82"),
-		"SHALLOW_SEA":  Color("#5abcd4"),
-		"INLAND_SEA":   Color("#7ad4e8"),
-		"BARE_ROCK":    Color("#c9b97a"),
-		"COASTAL_ROCK": Color("#a89460"),
-		"SCRUB":        Color("#9a9860"),
+		"DEEP_OCEAN":  Color("#2A3B6B"),
+		"SHALLOW_SEA": Color("#5B9BB5"),
 	},
 	"land_polygons": [
-		# Gondwana — large southern supercontinent
-		[[-8,-18],[-8,40],[-15,85],[-25,130],[-45,155],[-70,150],[-80,60],[-80,-20],[-65,-55],[-40,-45],[-8,-18]],
-		# Laurentia (proto-North America)
-		[[-5,-115],[5,-65],[20,-55],[30,-75],[25,-105],[5,-120],[-5,-115]],
-		# Baltica
-		[[-38,18],[-25,55],[-12,52],[-18,18],[-38,18]],
-		# Siberia
-		[[-22,105],[-10,155],[5,155],[8,108],[-8,100],[-22,105]],
-		# Avalonia
-		[[-22,-50],[-12,-40],[-10,-52],[-22,-50]],
+		# Gondwana — massive south polar continent. South pole in NW Africa region.
+		# Includes proto-Africa, S America, Antarctica, India, Australia all joined.
+		[[-75,-10],[-70,30],[-60,60],[-45,70],[-20,65],[0,50],
+		 [20,30],[15,-10],[0,-40],[-30,-60],[-55,-50],[-75,-10]],
+		# Laurentia — equatorial craton (proto N America), rotated ~45° from modern
+		[[30,-130],[45,-110],[40,-80],[25,-60],[5,-70],[-10,-90],[-5,-120],[15,-140],[30,-130]],
+		# Baltica — subtropical southern hemisphere (15°S–40°S)
+		[[-15,20],[-10,45],[-25,55],[-40,50],[-45,30],[-35,10],[-20,8],[-15,20]],
+		# Siberia — isolated northern subtropical plate (10°N–40°N)
+		[[10,100],[25,120],[40,135],[45,115],[40,90],[25,80],[10,90],[10,100]],
 	],
 	"sea_polygons": [],
 	"land_rules": [
-		{"type": "COASTAL_ROCK", "coast": true},
-		{"type": "BARE_ROCK",    "default": true},
+		{"type": "BARE_ROCK", "default": true},
 	],
 	"life": {
 		"zones": {"deep_ocean": 0.30, "shallow_sea": 0.60, "inland_sea": 0.10, "land": 0.00},
@@ -185,46 +198,41 @@ var _age_cfg: Array = [
 {
 	"name": "Carboniferous", "ma": 310,
 	"noise_seed": 200, "coast_roughness": 4.5, "shallow_sea_depth": 3, "land_expand_deg": 4.0,
+	"blur_passes": 2, "thresh_shallow": 0.10,
+	"shader_land":      Color("#2D5E20"),  # coal forest at coastal fringe
+	"shader_highlands": Color("#1A3A15"),  # dark swamp — dominant interior
+	"shader_midland":   Color("#4A3520"),  # mudflat patches in interior (~20%)
+	"midland_mix":      0.08,
+	"ice_y_abs": 1.01,
+	"atmosphere_color": Color(0.10, 0.42, 0.35, 0.65),
 	"palette": {
-		"DEEP_OCEAN":    Color("#1E3A48"),
-		"SHALLOW_SEA":   Color("#2A5A6B"),
-		"INLAND_SEA":    Color("#2A5A6B"),
-		"SWAMP":         Color("#1A3A15"),
-		"FOREST_DENSE":  Color("#2D5E20"),
-		"FERN_LAND":     Color("#2A6B5A"),
-		"BARE_ROCK":     Color("#4A3520"),
-		"COASTAL_ROCK":  Color("#4A3520"),
-		"IRON_MUDFLAT":  Color("#8B3A2A"),
-		"ICE_SHEET":     Color("#c8dce8"),
+		"DEEP_OCEAN":   Color("#2A5A6B"),
+		"SHALLOW_SEA":  Color("#2A6B5A"),
+		"INLAND_SEA":   Color("#2A6B5A"),
+		"BARE_ROCK":    Color("#4A3520"),
+		"IRON_MUDFLAT": Color("#8B3A2A"),
+		"SWAMP":        Color("#1A3A15"),
+		"FOREST_DENSE": Color("#2D5E20"),
 	},
 	"land_polygons": [
-		# Euramerica / western Laurasia
-		[[-8,-108],[8,-62],[22,-48],[35,8],[30,45],[15,52],[5,30],[-5,2],[-10,-38],[-10,-78],[-8,-108]],
-		# Siberia + Kazakhstania
-		[[8,72],[25,128],[48,142],[55,78],[35,62],[8,72]],
-		# Cathaysia
-		[[0,105],[15,130],[25,130],[20,108],[5,105],[0,105]],
-		# Gondwana
-		[[-5,-18],[-5,88],[-18,135],[-42,158],[-70,148],[-80,58],[-80,-22],[-65,-55],[-40,-45],[-5,-18]],
+		# Laurussia — N America + Europe merged at equator. Coal swamps at 0°–15°N.
+		# Appalachian collision closing the Rheic Ocean on the SE margin.
+		[[50,-60],[55,-20],[50,20],[35,35],[20,30],[10,10],
+		 [0,-10],[-5,-40],[10,-70],[25,-90],[40,-80],[50,-60]],
+		# Gondwana — south polar supercontinent. South pole over Antarctica.
+		# Contains Africa, S America, India, Australia, Antarctica all joined.
+		[[-80,0],[-75,40],[-60,60],[-40,70],[-20,60],[10,50],
+		 [20,20],[10,-20],[-10,-40],[-35,-55],[-60,-40],[-75,-20],[-80,0]],
 	],
 	"sea_polygons": [
-		# Inland sea flooding central Laurussia (where central Europe sits)
-		{"type": "INLAND_SEA", "poly": [[10,-15],[25,-5],[30,20],[28,40],[20,42],[12,38],[5,18],[0,5],[10,-15]]},
+		# Narrow Rheic Ocean remnant between the two supercontinents (~equatorial)
+		{"type": "SHALLOW_SEA", "poly": [[10,10],[10,-20],[-10,-40],[-10,-20],[5,0],[10,10]]},
 	],
 	"land_rules": [
-		{"type": "ICE_SHEET",    "lat_south_of": -65},
-		# Southern Gondwana — cold, dark mud and swamp fringe, no desert
-		{"type": "BARE_ROCK",    "lat_south_of": -45},
-		{"type": "FERN_LAND",    "lat_south_of": -30},
-		# Iron mudflat — scattered rust-red accent across all latitudes (~10% of tiles)
-		{"type": "IRON_MUDFLAT", "noise_above": 0.75},
-		# Coastal zones
-		{"type": "BARE_ROCK",    "coast": true, "lat_south_of": -20},
-		{"type": "SWAMP",        "coast": true, "lat_abs_below": 45},
-		{"type": "BARE_ROCK",    "coast": true},
-		# Interior land by latitude
-		{"type": "FOREST_DENSE", "lat_abs_below": 32},
-		{"type": "FERN_LAND",    "lat_abs_below": 55},
+		{"type": "IRON_MUDFLAT", "noise_above": 0.82},
+		{"type": "FOREST_DENSE", "coast": true, "lat_abs_below": 48},
+		{"type": "SWAMP",        "lat_abs_below": 35},
+		{"type": "FOREST_DENSE", "lat_abs_below": 55},
 		{"type": "BARE_ROCK",    "default": true},
 	],
 	"life": {
@@ -248,44 +256,44 @@ var _age_cfg: Array = [
 {
 	"name": "Permian", "ma": 270,
 	"noise_seed": 300, "coast_roughness": 4.0, "shallow_sea_depth": 3, "land_expand_deg": 7.0,
+	"blur_passes": 1, "thresh_shallow": 0.40,
+	"shader_land":      Color("#5A2A1A"),  # dark exposed rock at coast
+	"shader_highlands": Color("#8B3A2A"),  # rust-red — dominant arid interior
+	"ice_y_abs": 0.97,   # tiny polar ice remnant (~3% each pole)
+	"atmosphere_color": Color(0.92, 0.60, 0.18, 0.55),  # amber-orange haze
 	"palette": {
-		"DEEP_OCEAN":  Color("#1a5070"),
-		"SHALLOW_SEA": Color("#2a7090"),
-		"INLAND_SEA":  Color("#3a8898"),
-		"DESERT":      Color("#b05c30"),
-		"BARE_ROCK":   Color("#8a3a18"),
-		"SCRUB":       Color("#c47840"),
-		"SAND_DUNE":   Color("#d4a060"),
-		"FOREST_LIGHT":Color("#3a4a28"),
-		"ICE_SHEET":   Color("#c8d8e8"),
-		"VOLCANIC":    Color("#8a2a10"),
+		"DEEP_OCEAN":   Color("#3A6B8A"),
+		"SHALLOW_SEA":  Color("#5A8FAA"),
+		"INLAND_SEA":   Color("#5A8FAA"),
+		"DESERT":       Color("#8B3A2A"),  # for land rules
+		"SCRUB":        Color("#c47840"),
+		"SAND_DUNE":    Color("#d4a060"),
+		"FOREST_LIGHT": Color("#3a4a28"),
+		"BARE_ROCK":    Color("#5A2A1A"),
+		"ICE_SHEET":    Color("#c8d8e8"),
+		"VOLCANIC":     Color("#8a2a10"),
 	},
 	"land_polygons": [
-		# Laurasia (northern half of Pangaea)
-		[[75,-40],[80,0],[75,30],[68,60],[62,80],[55,85],[48,82],[40,78],
-		 [30,70],[22,62],[18,52],[12,42],[7,30],[3,22],[0,18],
-		 [0,10],[5,-20],[20,-28],[35,-32],[50,-38],[65,-35],[75,-40]],
-		# Gondwana (southern half of Pangaea) — shares the Tethys-tip shoreline
-		[[0,18],[-2,22],[-5,30],[-5,50],[-2,72],[2,95],[5,118],
-		 [-10,128],[-25,132],[-42,128],[-58,118],[-68,98],[-75,62],
-		 [-80,18],[-80,-20],[-72,-40],[-58,-55],[-42,-52],[-28,-42],
-		 [-12,-32],[2,-24],[0,10],[0,18]],
+		# Pangaea — single C-shaped supercontinent, pole to pole.
+		# Concavity faces east where the Tethys Sea indents.
+		# Panthalassa (proto-Pacific) covers the rest of the globe.
+		[[-70,-60],[-60,-40],[-40,-30],[-20,-10],[0,0],[20,10],
+		 [40,20],[60,30],[70,40],[65,60],[50,50],[30,45],
+		 [10,50],[-10,40],[-30,30],[-50,20],[-65,0],[-70,-60]],
 	],
 	"sea_polygons": [
-		# Tethys Sea — triangular bay opening eastward from the equator
+		# Tethys Sea — wedge-shaped embayment, widest at 20°N 90°E, tip at 15°N 20°E
 		{"type": "SHALLOW_SEA", "poly": [
-			[0,18],[5,25],[12,40],[22,55],[28,70],[20,100],[10,118],
-			[5,118],[2,95],[-2,72],[-5,50],[-5,30],[-2,22],[0,18]
+			[40,25],[50,50],[40,80],[20,90],[0,80],[5,50],[20,30],[35,25],[40,25]
 		]},
 	],
+	"shader_midland": Color("#5A2A1A"),  # dark rock — 10% interior patches
+	"midland_mix":    0.10,
 	"land_rules": [
 		{"type": "ICE_SHEET",    "lat_south_of": -70},
-		# Siberian Traps — volcanic region in NW Pangaea
 		{"type": "VOLCANIC",     "lat_north_of": 58, "lon_between": [80, 130]},
-		# Coastal forests at the Tethys coast and wetter margins
 		{"type": "FOREST_LIGHT", "coast": true, "lat_abs_below": 50},
 		{"type": "FOREST_LIGHT", "lat_south_of": -50, "lat_north_of": -65},
-		# Vast desert interior — the largest in Earth's history
 		{"type": "BARE_ROCK",    "lat_south_of": -48},
 		{"type": "SAND_DUNE",    "lat_abs_below": 20, "noise_above": 0.2},
 		{"type": "DESERT",       "lat_abs_below": 45, "noise_above": -0.3},
@@ -311,48 +319,57 @@ var _age_cfg: Array = [
 {
 	"name": "Jurassic", "ma": 150,
 	"noise_seed": 400, "coast_roughness": 4.0, "shallow_sea_depth": 3, "land_expand_deg": 4.0,
+	"blur_passes": 2, "thresh_shallow": 0.08,
+	"shader_land":      Color("#3A8C2A"),  # mid green canopy at coastal fringe
+	"shader_highlands": Color("#1E5C15"),  # dark jungle — dominant interior
+	"ice_y_abs": 1.01,
+	"atmosphere_color": Color(0.18, 0.55, 0.72, 0.65),  # steel blue — slate ocean + dark jungle
 	"palette": {
-		"DEEP_OCEAN":   Color("#2a5878"),
-		"SHALLOW_SEA":  Color("#4a8a9a"),
-		"INLAND_SEA":   Color("#6aaaba"),
-		"FOREST_DENSE": Color("#2a5228"),
-		"FERN_LAND":    Color("#5a9a45"),
-		"FOREST_LIGHT": Color("#3a6b35"),
-		"SWAMP":        Color("#1e4030"),
+		"DEEP_OCEAN":   Color("#1E5A7A"),
+		"SHALLOW_SEA":  Color("#4A9EBF"),
+		"INLAND_SEA":   Color("#4A9EBF"),
+		"FOREST_DENSE": Color("#1E5C15"),  # for land rules
+		"FOREST_LIGHT": Color("#3A8C2A"),
+		"SWAMP":        Color("#0e2016"),
+		"BARE_ROCK":    Color("#6A5A3A"),
 		"DESERT":       Color("#9a8850"),
 	},
 	"land_polygons": [
-		# Laurasia — North America
-		[[72,-62],[58,-64],[40,-52],[25,-80],[8,-77],[9,-75],
-		 [15,-90],[22,-112],[32,-118],[48,-125],[60,-140],[70,-142],[72,-62]],
-		# Laurasia — Europe + Asia (connected)
-		[[32,-8],[58,8],[70,32],[68,110],[58,148],[38,135],
-		 [22,80],[22,55],[35,32],[32,-8]],
-		# South America
-		[[-5,-80],[8,-62],[5,-52],[-25,-42],[-55,-65],[-55,-75],[-25,-80],[-5,-80]],
-		# Africa
-		[[-5,-15],[15,-17],[22,32],[10,46],[-5,42],[-35,28],[-38,18],[-12,12],[-5,-15]],
-		# India (isolated, heading north)
-		[[-15,65],[-5,75],[-15,90],[-35,80],[-35,70],[-15,65]],
-		# Antarctica + Australia (still joined)
-		[[-55,22],[-48,100],[-28,128],[-42,168],[-60,158],[-75,108],[-80,48],[-80,-28],[-55,22]],
+		# North America — narrow proto-Atlantic opening on east; Gulf of Mexico open
+		[[70,-160],[75,-100],[65,-70],[50,-55],[30,-60],
+		 [10,-75],[5,-85],[15,-110],[35,-120],[55,-140],[70,-160]],
+		# Europe + Asia (Laurasia) — still connected, Tethys to south
+		[[70,-10],[75,30],[70,80],[65,120],[55,140],[40,130],
+		 [25,110],[15,90],[20,60],[35,45],[50,30],[60,10],[65,-5],[70,-10]],
+		# Africa — Tethys on north coast, S Atlantic rift just opening on west
+		[[-40,20],[-30,40],[-10,50],[10,45],[30,40],[35,20],
+		 [20,10],[5,-5],[-10,-15],[-25,-10],[-40,20]],
+		# South America — S Atlantic barely open (~200 km), close to Africa
+		[[-60,-70],[-50,-65],[-30,-50],[-10,-40],[5,-45],
+		 [10,-60],[0,-75],[-20,-80],[-45,-75],[-60,-70]],
+		# India — still attached to Gondwana near Madagascar/Antarctica
+		[[-40,55],[-30,70],[-15,75],[-5,70],[-5,55],[-20,48],[-35,50],[-40,55]],
+		# Antarctica + Australia (joined Gondwana remnant)
+		[[-60,60],[-55,100],[-60,130],[-70,150],[-80,120],[-85,60],[-80,30],[-70,40],[-60,60]],
 		# Madagascar
-		[[-20,43],[-12,50],[-25,50],[-25,44],[-20,43]],
+		[[-12,44],[-5,50],[-20,52],[-25,48],[-12,44]],
 	],
 	"sea_polygons": [
-		# Sundance Sea — floods western interior of North America N-S
+		# Sundance Sea — floods western interior of North America
 		{"type": "INLAND_SEA", "poly": [
 			[72,-100],[55,-95],[40,-100],[32,-108],[40,-115],[55,-112],[72,-110]
 		]},
-		# European archipelago — much of NW Europe is underwater
+		# Tethys Ocean — wide between Africa and Laurasia
 		{"type": "INLAND_SEA", "poly": [
-			[42,-2],[55,2],[58,22],[52,25],[45,18],[38,5],[42,-2]
+			[35,20],[20,10],[15,90],[35,45],[35,20]
 		]},
 	],
+	"shader_midland": Color("#6A5A3A"),  # bare rock at coastal edges (~5%)
+	"midland_mix":    0.05,
 	"land_rules": [
+		# Tiny bare rock clusters at immediate coastline only
+		{"type": "BARE_ROCK",    "coast": true, "noise_above": 0.55},
 		{"type": "SWAMP",        "coast": true, "lat_abs_below": 45},
-		{"type": "DESERT",       "lat_abs_below": 22, "noise_above": 0.35},
-		{"type": "FERN_LAND",    "lat_abs_below": 18},
 		{"type": "FOREST_DENSE", "lat_abs_below": 65},
 		{"type": "FOREST_LIGHT", "default": true},
 	],
@@ -375,62 +392,72 @@ var _age_cfg: Array = [
 {
 	"name": "Cretaceous", "ma": 90,
 	"noise_seed": 500, "coast_roughness": 3.5, "shallow_sea_depth": 3, "land_expand_deg": 2.0,
+	"blur_passes": 2, "thresh_shallow": 0.10,
+	"shader_land":      Color("#4A7A30"),  # jungle green at coastal fringe
+	"shader_highlands": Color("#C8A85A"),  # sandy ochre — dominant interior
+	"shader_midland":   Color("#A8864A"),  # darker sandy accent
+	"midland_mix":      0.08,
+	"ice_y_abs": 1.01,
+	"atmosphere_color": Color(0.15, 0.72, 0.80, 0.60),  # warm teal — greenhouse hothouse
 	"palette": {
-		"DEEP_OCEAN":   Color("#3a6888"),
-		"SHALLOW_SEA":  Color("#5a88a8"),
-		"INLAND_SEA":   Color("#7aaac8"),
-		"FOREST_DENSE": Color("#4a7a38"),
-		"FOREST_LIGHT": Color("#6aa840"),
-		"FERN_LAND":    Color("#5a8850"),
+		"DEEP_OCEAN":   Color("#3A7AAA"),
+		"SHALLOW_SEA":  Color("#5A9EBF"),
+		"INLAND_SEA":   Color("#5A9EBF"),
+		"FOREST_DENSE": Color("#4A7A30"),  # for land rules
+		"FOREST_LIGHT": Color("#5a9830"),
+		"FERN_LAND":    Color("#5a8840"),
 		"SCRUB":        Color("#88b858"),
 		"VOLCANIC":     Color("#8a2a10"),
-		"DESERT":       Color("#b89860"),
+		"DESERT":       Color("#C8A85A"),
+		"BARE_ROCK":    Color("#5A4A2A"),
 	},
 	"land_polygons": [
-		# North America (seaway will cut it — defined via sea_polygon below)
-		[[72,-130],[58,-64],[40,-52],[25,-80],[8,-77],[9,-75],
-		 [15,-90],[22,-112],[35,-120],[48,-125],[60,-140],[72,-130]],
-		# Europe (smaller — high seas)
-		[[35,-8],[55,5],[62,18],[58,28],[48,22],[38,8],[35,-8]],
-		# Asia
-		[[25,60],[55,62],[78,102],[65,152],[40,135],[25,100],[25,60]],
+		# North America west block (Western Interior Seaway splits continent)
+		[[70,-165],[75,-120],[65,-90],[50,-75],[35,-80],
+		 [25,-90],[20,-105],[30,-125],[50,-140],[70,-165]],
+		# North America east block
+		[[70,-80],[65,-60],[50,-55],[35,-65],[25,-75],
+		 [30,-85],[45,-85],[65,-85],[70,-80]],
+		# Europe — low-lying, extensively flooded; only high ground visible
+		[[55,-5],[60,15],[55,25],[45,30],[35,20],[40,5],[50,-5],[55,-5]],
+		# Asia — main landmass, broad and intact
+		[[70,30],[75,80],[70,130],[55,140],[35,130],
+		 [20,110],[20,75],[35,55],[50,45],[65,40],[70,30]],
 		# Africa
-		[[-5,-15],[15,-17],[22,35],[10,50],[-5,42],[-35,28],[-38,18],[-12,12],[-5,-15]],
-		# South America
-		[[-5,-80],[8,-62],[5,-52],[-25,-42],[-55,-65],[-55,-75],[-25,-80],[-5,-80]],
-		# India (mid-drift ~10°S)
-		[[-5,65],[8,77],[-5,90],[-18,85],[-18,68],[-5,65]],
+		[[-40,15],[-30,40],[-10,50],[10,48],[30,38],
+		 [35,15],[20,5],[0,-10],[-20,-12],[-35,10],[-40,15]],
+		# South America — S Atlantic ~1500 km wide, fully established
+		[[-60,-70],[-50,-65],[-30,-48],[-10,-38],[5,-48],
+		 [10,-62],[0,-78],[-20,-82],[-45,-75],[-60,-70]],
+		# India — mid-Indian Ocean ~5°S, racing north at 15 cm/yr
+		[[-15,68],[-5,78],[5,78],[10,72],[8,62],[-5,60],[-15,65],[-15,68]],
 		# Arabia
-		[[12,42],[30,38],[30,60],[22,60],[12,50],[12,42]],
-		# SE Asia
-		[[-5,100],[20,100],[22,122],[5,120],[-5,100]],
-		# Australia
-		[[-15,125],[-15,155],[-38,150],[-40,130],[-28,115],[-15,125]],
-		# Antarctica (still has forest, near south pole)
-		[[-62,-78],[-58,22],[-62,102],[-62,162],[-80,162],[-85,50],[-85,-60],[-62,-78]],
+		[[10,40],[20,55],[25,57],[30,48],[25,38],[15,36],[10,40]],
+		# Australia + Antarctica (still joined)
+		[[-55,80],[-50,110],[-55,140],[-65,155],[-80,130],[-85,80],[-80,50],[-65,55],[-55,80]],
 		# Greenland
 		[[76,-65],[84,-40],[76,-18],[60,-42],[76,-65]],
 		# Madagascar
 		[[-12,44],[-12,51],[-26,48],[-24,43],[-12,44]],
 	],
 	"sea_polygons": [
-		# Western Interior Seaway — splits North America N to S
+		# Western Interior Seaway — N-S corridor bisecting North America
 		{"type": "INLAND_SEA", "poly": [
-			[72,-88],[60,-86],[48,-92],[35,-94],[25,-92],
-			[25,-98],[35,-100],[48,-100],[60,-96],[72,-96]
+			[70,-90],[65,-92],[55,-90],[45,-88],[35,-82],
+			[30,-87],[35,-94],[45,-98],[60,-100],[70,-96],[70,-90]
 		]},
-		# European seaway — floods much of central Europe
+		# Turgai Strait — shallow seaway separating W and E Asia
 		{"type": "INLAND_SEA", "poly": [
-			[38,0],[52,2],[58,20],[52,22],[44,18],[36,5],[38,0]
+			[65,40],[70,30],[65,55],[55,52],[50,45],[65,40]
 		]},
 	],
 	"land_rules": [
-		# Deccan Traps — India tile is volcanic in this epoch
 		{"type": "VOLCANIC",     "lat_between": [-20, 12], "lon_between": [65, 90]},
-		{"type": "DESERT",       "lat_abs_below": 22, "noise_above": 0.30},
-		{"type": "FERN_LAND",    "coast": true, "lat_abs_below": 25},
-		{"type": "SCRUB",        "lat_abs_below": 35, "noise_above": 0.15},
-		{"type": "FOREST_DENSE", "lat_abs_below": 55},
+		# Jungle patches in mid-continent interior (scattered, not just coast)
+		{"type": "FOREST_DENSE", "coast": false, "lat_abs_below": 42, "noise_above": 0.55},
+		{"type": "DESERT",       "lat_abs_below": 18, "noise_above": 0.20},
+		{"type": "FOREST_DENSE", "coast": true, "lat_abs_below": 30},
+		{"type": "FOREST_DENSE", "lat_abs_below": 35, "noise_above": 0.30},
 		{"type": "FOREST_LIGHT", "default": true},
 	],
 	"life": {
@@ -453,55 +480,54 @@ var _age_cfg: Array = [
 {
 	"name": "Eocene", "ma": 45,
 	"noise_seed": 600, "coast_roughness": 3.0, "shallow_sea_depth": 2, "land_expand_deg": 3.5,
+	"blur_passes": 1, "thresh_shallow": 0.12,
+	"shader_land":      Color("#C8A85A"),  # coastal sand — narrow 1-2 tile fringe
+	"shader_highlands": Color("#3A8C2A"),  # lighter forest — transition wrapping canopy
+	"ice_y_abs": 1.01,
+	"atmosphere_color": Color(0.18, 0.65, 0.96, 0.65),
 	"palette": {
 		"DEEP_OCEAN":   Color("#1E6B8A"),
 		"SHALLOW_SEA":  Color("#4A9EBF"),
 		"INLAND_SEA":   Color("#5BB4CF"),
 		"FOREST_DENSE": Color("#1E5C15"),
 		"FOREST_LIGHT": Color("#3A8C2A"),
-		"WETLAND":      Color("#6B9E4A"),
+		"WETLAND":      Color("#4a8040"),
 		"GRASSLAND":    Color("#C8A85A"),
-		"SCRUB":        Color("#C8A85A"),
-		"DESERT":       Color("#C8A85A"),
-		"SWAMP":        Color("#1E5C15"),
 	},
+	"shader_midland":   Color("#1E5C15"),  # dense interior canopy
+	"midland_mix":      0.12,
 	"land_polygons": [
-		# North America
-		[[72,-62],[55,-55],[45,-52],[25,-80],[8,-77],[9,-75],
-		 [15,-90],[22,-105],[32,-117],[48,-124],[60,-140],[70,-142],[72,-62]],
-		# Greenland
-		[[76,-65],[84,-35],[76,-18],[62,-42],[76,-65]],
-		# South America (isolated island — no Panama yet)
-		[[8,-77],[8,-62],[5,-52],[-25,-42],[-55,-65],[-55,-75],[-25,-80],[8,-77]],
-		# Europe
-		[[35,-8],[58,5],[70,28],[62,30],[55,22],[48,2],[36,-8],[35,-8]],
-		# Africa + Arabia (still somewhat joined)
-		[[35,-5],[22,-17],[12,-18],[-5,-8],[-35,18],[-35,28],
-		 [-10,42],[12,50],[30,45],[38,45],[30,30],[35,-5]],
-		# India (just colliding with Asia — narrow sea still visible)
-		[[22,68],[8,78],[8,92],[22,92],[35,72],[22,68]],
-		# Central + West Asia
-		[[25,55],[62,55],[75,92],[55,60],[25,55]],
-		# East Asia
-		[[22,100],[42,138],[22,122],[5,102],[22,100]],
-		# SE Asia + Indonesia
-		[[-5,98],[18,98],[22,122],[8,120],[2,108],[-8,118],[-8,100],[-5,98]],
-		# Australia (separated from Antarctica, moving north)
-		[[-15,128],[-15,155],[-38,150],[-38,128],[-28,114],[-15,128]],
-		# Antarctica with S America bridge + forest (no ice)
-		[[-58,-68],[-62,-40],[-62,22],[-62,102],[-62,162],[-78,162],[-85,50],[-85,-60],[-62,-68]],
+		# North America — no Panama yet, Caribbean seaway open
+		[[72,-160],[78,-100],[68,-65],[50,-55],[30,-80],
+		 [15,-90],[20,-110],[35,-120],[55,-140],[72,-160]],
+		# Greenland — separated from Europe (Norwegian Sea open)
+		[[84,-60],[80,-20],[72,-22],[68,-30],[65,-45],[68,-60],[76,-70],[84,-60]],
+		# Europe — smaller than modern, North Sea flooding
+		[[60,-10],[65,15],[60,30],[50,35],[38,28],[36,10],[45,-5],[55,-10],[60,-10]],
+		# Asia — India just crashing in, narrow suture forming Himalayas
+		[[70,30],[75,90],[68,140],[50,140],[25,120],
+		 [15,100],[20,70],[35,55],[50,45],[65,38],[70,30]],
+		# India — just docking with Asia; Himalayas initiating at ~28°N suture
+		[[8,68],[12,78],[22,88],[28,82],[30,72],[24,62],[12,62],[8,68]],
+		# Africa — Tethys closing to north, becoming Mediterranean
+		[[-40,18],[-28,42],[-10,52],[12,50],[32,38],
+		 [38,20],[25,8],[5,-8],[-18,-14],[-36,12],[-40,18]],
+		# South America — no Panama; Central American seaway open at ~8°N
+		[[-58,-68],[-50,-65],[-30,-48],[-10,-36],[5,-48],
+		 [10,-62],[0,-78],[-20,-82],[-42,-73],[-58,-68]],
+		# Australia — separated from Antarctica ~35 Ma, heading north; now ~50°S–25°S
+		[[-38,114],[-32,127],[-28,142],[-38,152],[-48,148],[-52,130],[-48,114],[-38,114]],
+		# Antarctica — separated, Drake Passage opening
+		[[-68,-80],[-65,-30],[-68,20],[-72,60],[-78,100],[-80,150],[-80,-150],[-78,-110],[-68,-80]],
 	],
 	"sea_polygons": [
-		# Tethys remnant — shallow sea across Turkey, Iran, Central Asia
-		{"type": "INLAND_SEA", "poly": [
-			[12,35],[28,40],[38,52],[32,68],[22,58],[12,45],[12,35]
-		]},
+		# Remnant Neo-Tethys — narrow closing seaway north of India
+		{"type": "INLAND_SEA", "poly": [[28,60],[30,80],[28,95],[22,92],[24,70],[28,60]]},
 	],
 	"land_rules": [
-		{"type": "WETLAND",      "coast": true, "lat_abs_below": 30},
-		{"type": "GRASSLAND",    "lat_abs_below": 25, "noise_above": 0.35},
-		{"type": "FOREST_DENSE", "lat_abs_below": 50},
-		{"type": "WETLAND",      "lat_abs_below": 60, "noise_above": 0.25},
+		# Layering coast → interior: sand (shader_land) → light forest → dense canopy (midland_mix)
+		{"type": "FOREST_LIGHT", "coast": true, "lat_abs_below": 55},
+		{"type": "FOREST_DENSE", "lat_abs_below": 48},
 		{"type": "FOREST_LIGHT", "default": true},
 	],
 	"life": {
@@ -524,63 +550,42 @@ var _age_cfg: Array = [
 {
 	"name": "Pleistocene", "ma": 1,
 	"noise_seed": 700, "coast_roughness": 2.5, "shallow_sea_depth": 2, "land_expand_deg": 3.0,
+	"blur_passes": 1, "thresh_shallow": 0.45,
+	"shader_land":      Color("#6B5A45"),  # tundra — equatorial fringe only
+	"shader_highlands": Color("#DFF0F7"),  # bright ice — dominates non-polar land
+	"shader_midland":   Color("#B8D9EC"),  # deep ice variation
+	"midland_mix":      0.10,
+	"ice_y_abs": 0.38,
+	"atmosphere_color": Color(0.78, 0.91, 0.96, 0.50),
 	"palette": {
 		"DEEP_OCEAN":  Color("#3A6B8A"),
-		"SHALLOW_SEA": Color("#8FC4D8"),
+		"SHALLOW_SEA": Color("#6A9DB5"),
 		"ICE_SHEET":   Color("#DFF0F7"),
 		"DEEP_ICE":    Color("#B8D9EC"),
-		"TUNDRA":      Color("#4A5C35"),
+		"TUNDRA":      Color("#6B5A45"),
 	},
 	"land_polygons": [
-		# North America (larger — lower sea levels)
+		# Mirror of Holocene layout — same continents but ice dominates the visual
 		[[72,-62],[55,-55],[45,-52],[25,-80],[8,-77],[9,-75],
 		 [15,-90],[22,-105],[32,-117],[48,-124],[60,-140],[70,-142],[72,-62]],
-		# Beringia — land bridge, Alaska to Siberia
-		[[55,-168],[68,-162],[68,-178],[55,-178],[55,-168]],
-		# Greenland
 		[[76,-65],[84,-35],[76,-18],[62,-42],[76,-65]],
-		# South America
 		[[8,-77],[8,-62],[5,-52],[-25,-42],[-55,-65],[-55,-75],[-25,-80],[8,-77]],
-		# Europe
-		[[35,-8],[58,5],[70,28],[62,30],[55,22],[48,2],[36,-8],[35,-8]],
-		# Africa
-		[[35,-5],[22,-17],[12,-18],[-5,-8],[-35,18],[-35,28],
-		 [-10,42],[12,50],[22,38],[32,30],[35,-5]],
-		# Middle East + Arabia
+		[[35,-8],[58,5],[70,28],[65,90],[58,148],[42,138],[22,80],[22,55],[35,32],[35,-8]],
+		[[35,-5],[22,-17],[12,-18],[-5,-8],[-35,18],[-35,28],[-10,42],[12,50],[30,45],[35,-5]],
 		[[12,42],[30,38],[38,48],[30,60],[22,60],[12,52],[12,42]],
-		# Central + West Asia
-		[[25,58],[62,58],[75,92],[55,62],[25,58]],
-		# East Asia
 		[[22,100],[42,138],[22,122],[5,102],[22,100]],
-		# Sundaland — SE Asia joined up (lower sea level)
 		[[-5,98],[18,98],[22,122],[8,120],[-5,108],[-8,100],[-5,98]],
-		# India
 		[[22,68],[8,78],[8,92],[22,92],[35,72],[22,68]],
-		# Australia (larger shelves exposed)
 		[[-12,128],[-15,155],[-38,150],[-38,128],[-28,114],[-12,128]],
-		# New Zealand
-		[[-35,172],[-35,178],[-46,168],[-46,162],[-35,172]],
-		# Antarctica
+		# Antarctica land polygon — ice_y_abs already handles visual appearance
 		[[-62,-80],[-60,22],[-62,102],[-62,162],[-80,162],[-85,50],[-85,-60],[-62,-80]],
 	],
 	"sea_polygons": [],
 	"land_rules": [
-		# Deep ice — the ancient core of the Antarctic sheet
-		{"type": "DEEP_ICE",  "lat_south_of": -75},
-		# Antarctic perimeter ice
-		{"type": "ICE_SHEET", "lat_south_of": -58},
-		# Laurentide ice sheet — N America
-		{"type": "ICE_SHEET", "lat_north_of": 48, "lon_between": [-140, -55]},
-		# Scandinavian ice sheet
-		{"type": "ICE_SHEET", "lat_north_of": 55, "lon_between": [-10, 35]},
-		# Greenland ice cap
-		{"type": "DEEP_ICE",  "lat_north_of": 70, "lon_between": [-58, -18]},
-		{"type": "ICE_SHEET", "lat_north_of": 62, "lon_between": [-58, -18]},
-		# Tundra refugia — narrow band just below ice sheets
-		{"type": "TUNDRA",    "lat_north_of": 40, "noise_above": -0.3},
-		{"type": "TUNDRA",    "lat_south_of": -52, "noise_above": -0.3},
-		# Everything else defaults to ice — this is the ice age
-		{"type": "ICE_SHEET", "default": true},
+		# Tundra only at equatorial land — everything else is overridden by ice_y_abs
+		{"type": "DEEP_ICE",  "lat_abs_above": 60},
+		{"type": "ICE_SHEET", "lat_abs_above": 30},
+		{"type": "TUNDRA",    "default": true},
 	],
 	"life": {
 		"zones": {"deep_ocean": 0.25, "shallow_sea": 0.30, "inland_sea": 0.00, "land": 0.45},
@@ -601,18 +606,26 @@ var _age_cfg: Array = [
 {
 	"name": "Holocene", "ma": 0,
 	"noise_seed": 800, "coast_roughness": 2.0, "shallow_sea_depth": 2, "land_expand_deg": 2.5,
+	"blur_passes": 2, "thresh_shallow": 0.18,
+	"shader_land":      Color("#C8A85A"),  # desert sand at coastal/mid-continent fringe
+	"shader_highlands": Color("#3A7A2A"),  # temperate forest — dominant north
+	"shader_midland":   Color("#1E5C15"),  # dense equatorial canopy
+	"midland_mix":      0.10,
+	"ice_y_abs": 0.93,   # polar caps — Greenland and Antarctica via lat override
+	"atmosphere_color": Color(0.15, 0.55, 1.00, 0.72),  # vivid Earth blue
 	"palette": {
-		"DEEP_OCEAN":   Color("#2858a0"),
-		"SHALLOW_SEA":  Color("#4878c0"),
-		"INLAND_SEA":   Color("#6898d0"),
-		"FOREST_DENSE": Color("#2a6a5a"),
-		"FOREST_LIGHT": Color("#4a8a3a"),
-		"GRASSLAND":    Color("#c8d870"),
-		"DESERT":       Color("#d4c090"),
-		"TUNDRA":       Color("#8a9878"),
-		"ICE_SHEET":    Color("#e0eef8"),
-		"WETLAND":      Color("#3a7050"),
-		"SCRUB":        Color("#a8b858"),
+		"DEEP_OCEAN":   Color("#1E5A8A"),
+		"SHALLOW_SEA":  Color("#4A8FBF"),
+		"INLAND_SEA":   Color("#5898e0"),
+		"FOREST_DENSE": Color("#3A7A2A"),  # for land rules
+		"FOREST_LIGHT": Color("#3a7828"),
+		"GRASSLAND":    Color("#90b840"),
+		"DESERT":       Color("#C8A85A"),
+		"TUNDRA":       Color("#7a8858"),
+		"ICE_SHEET":    Color("#FFFFFF"),  # polar cap ice — used by lat override
+		"WETLAND":      Color("#3a6838"),
+		"SCRUB":        Color("#90a848"),
+		"URBAN":        Color("#8A8A8A"),  # tiny urban accent
 	},
 	"land_polygons": [
 		# North America
@@ -651,24 +664,20 @@ var _age_cfg: Array = [
 		]},
 	],
 	"land_rules": [
-		# Ice sheets — Greenland and Antarctica only
+		# Greenland ice — handled by ice_y_abs but explicit rule reinforces it
 		{"type": "ICE_SHEET",    "lat_north_of": 64, "lon_between": [-58, -18]},
-		{"type": "ICE_SHEET",    "lat_south_of": -70},
-		# Tundra fringe below ice
+		# Tundra fringe at high latitudes
 		{"type": "TUNDRA",       "lat_north_of": 62},
-		{"type": "TUNDRA",       "lat_south_of": -58},
-		# Tropical forests — Amazon, Congo, SE Asia
-		{"type": "FOREST_DENSE", "lat_abs_below": 10},
-		# Deserts — Sahara, Arabia, Australia, central Asia
-		{"type": "DESERT",       "lat_between": [15, 35],  "noise_above": -0.1},
-		{"type": "DESERT",       "lat_between": [-35, -15], "noise_above": 0.2},
-		# Savannas and grasslands
-		{"type": "GRASSLAND",    "lat_abs_below": 42, "noise_above": 0.05},
-		# Temperate forest — Europe, eastern N America, East Asia
-		{"type": "FOREST_LIGHT", "lat_abs_below": 60},
-		# Scrub — Mediterranean, California, South Africa
-		{"type": "SCRUB",        "lat_abs_below": 45, "noise_above": 0.30},
-		{"type": "TUNDRA",       "lat_north_of": 55},
+		# Tropical/equatorial forests — Amazon, Congo, SE Asia
+		{"type": "FOREST_DENSE", "lat_abs_below": 12},
+		# Desert bands — Sahara, Arabia, Australia interior, Atacama
+		{"type": "DESERT",       "lat_between": [18, 35],  "noise_above": -0.1},
+		{"type": "DESERT",       "lat_between": [-35, -18], "noise_above": 0.25},
+		# Temperate forest — dominant cover of northern mid-latitudes
+		{"type": "FOREST_LIGHT", "lat_abs_below": 62},
+		# Grassland savanna
+		{"type": "GRASSLAND",    "lat_abs_below": 20, "noise_above": 0.35},
+		{"type": "TUNDRA",       "lat_south_of": -55},
 		{"type": "GRASSLAND",    "default": true},
 	],
 	"life": {
@@ -717,6 +726,9 @@ func _process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 	rotate_object_local(Vector3.UP, ROTATION_SPEED * delta)
+	# Atmosphere billboard stays at planet world position but never inherits planet rotation.
+	if _atmos_mi:
+		_atmos_mi.global_position = global_position
 
 
 # ── Public API ────────────────────────────────────────────────────────────────
@@ -843,6 +855,10 @@ func set_tile_hover(tile_id: int) -> void:
 	if _hovered_tile_id != -1 and _feature_icon_map.has(_hovered_tile_id):
 		(_feature_icon_map[_hovered_tile_id] as Label3D).visible = false
 	_hovered_tile_id = tile_id
+	if use_putty_style:
+		if tile_id != -1 and _feature_icon_map.has(tile_id):
+			(_feature_icon_map[tile_id] as Label3D).visible = true
+		return
 	_refresh_highlights()
 	# Show the new tile's icon
 	if tile_id != -1 and _feature_icon_map.has(tile_id):
@@ -851,6 +867,8 @@ func set_tile_hover(tile_id: int) -> void:
 
 func set_tile_selected(tile_id: int) -> void:
 	_selected_tile_id = -1 if tile_id == _selected_tile_id else tile_id
+	if use_putty_style:
+		return
 	_refresh_highlights()
 
 
@@ -956,6 +974,20 @@ func apply_impact(tile_id: int, impact_pos: Vector3 = Vector3.ZERO, intensity: f
 	# Crater world-space radius scales with asteroid size
 	var crater_r: float = 0.45 + intensity * 0.35
 
+	if use_putty_style:
+		# Project to the bare sphere surface so the stored position matches the
+		# v_local_pos coordinate system in the shader (SphereMesh has no tile raise).
+		var crater_pos := impact_pos.normalized() * planet_radius
+		if _putty_craters.size() < 256:
+			_putty_craters.append({
+				"pos":    crater_pos,
+				"radius": crater_r,
+				"damage": clamp(intensity, 0.3, 1.0)
+			})
+		_update_putty_craters()
+		impact_landed.emit(tile_id, intensity)
+		return
+
 	# Apply crater shader to every tile close enough to the impact point
 	for t in _geo_tiles:
 		var pt    := t as PlanetTile
@@ -978,6 +1010,22 @@ func apply_impact(tile_id: int, impact_pos: Vector3 = Vector3.ZERO, intensity: f
 
 
 # ── Classification ─────────────────────────────────────────────────────────────
+
+# Chaikin corner-cutting: 2 iterations turns a 10-pt sharp polygon into a
+# 40-pt smooth curve, rounding every corner organically.
+func _chaikin(poly: Array, iterations: int) -> Array:
+	var result: Array = poly.duplicate()
+	for _iter in range(iterations):
+		var next: Array = []
+		var n: int = result.size()
+		for i in range(n):
+			var a = result[i]
+			var b = result[(i + 1) % n]
+			next.append([a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25])
+			next.append([a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75])
+		result = next
+	return result
+
 
 func _inflate_polygon(polygon: Array, deg: float) -> Array:
 	# Compute planar centroid
@@ -1242,6 +1290,12 @@ func _build_planet() -> void:
 
 	# ── Build meshes ──────────────────────────────────────────────────────
 	var palette: Dictionary = c.palette
+	if use_putty_style:
+		if Engine.is_editor_hint():
+			return   # skip heavy build in editor — enable putty at runtime only
+		_build_putty_meshes(geo, palette)
+		return
+
 	_tile_mesh_map.clear()
 	for tile in geo.tiles:
 		var mi := MeshInstance3D.new()
@@ -1259,6 +1313,386 @@ func _build_planet() -> void:
 		wall_mi.material_override = _shared_mat
 		wall_mi.cast_shadow       = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		_mesh_root.add_child(wall_mi)
+
+
+func _palette_pick(palette: Dictionary, keys: Array, fallback: Color) -> Color:
+	for k in keys:
+		if palette.has(k):
+			return palette[k]
+	return fallback
+
+
+func _build_atmosphere(c: Dictionary) -> void:
+	if _atmos_mi:
+		_atmos_mi.queue_free()
+		_atmos_mi = null
+
+	var atmos_col: Color = c.get("atmosphere_color", Color(0.25, 0.65, 1.0, 0.7))
+
+	var quad := QuadMesh.new()
+	# Quad is 2.8× the planet diameter so the halo extends ~40% beyond the planet edge.
+	var sz: float = planet_radius * 2.75
+	quad.size = Vector2(sz, sz)
+
+	_atmos_mi = MeshInstance3D.new()
+	_atmos_mi.mesh        = quad
+	_atmos_mi.top_level   = true   # world-space positioning; ignores planet rotation
+	_atmos_mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+	var mat := ShaderMaterial.new()
+	mat.shader = load("res://shaders/atmosphere.gdshader") as Shader
+	mat.set_shader_parameter("atmos_color", atmos_col)
+	# planet fills 80% of quad half-size (quad = 2.5× planet diameter)
+	mat.set_shader_parameter("planet_edge", 1.0 / 1.375)
+	_atmos_mi.set_surface_override_material(0, mat)
+
+	add_child(_atmos_mi)
+	_atmos_mi.global_position = global_position
+
+
+func _build_putty_meshes(_geo: GeodesicSphere, palette: Dictionary) -> void:
+	_putty_mat = null
+	_putty_mi  = null
+
+	var c: Dictionary = _age_cfg[current_age]
+
+	# Bake a small single-channel height texture — fast polygon tests at low res.
+	# The GPU bilinear filter turns low-res zone transitions into smooth organic curves.
+	var terrain_tex: ImageTexture = _bake_layer_texture(c)
+
+	# Godot generates the sphere mesh instantly — no custom icosphere needed.
+	var sphere := SphereMesh.new()
+	sphere.radius          = planet_radius
+	sphere.height          = planet_radius * 2.0
+	sphere.radial_segments = 128
+	sphere.rings           = 64
+
+	_putty_mat        = ShaderMaterial.new()
+	_putty_mat.shader = load("res://shaders/pixel.gdshader") as Shader
+	_putty_mat.set_shader_parameter("terrain_tex",       terrain_tex)
+	_putty_mat.set_shader_parameter("color_deep_ocean",  palette.get("DEEP_OCEAN",  Color(0.05, 0.18, 0.42)))
+	_putty_mat.set_shader_parameter("color_shallow_sea", palette.get("SHALLOW_SEA", Color(0.14, 0.42, 0.68)))
+	_putty_mat.set_shader_parameter("thresh_shallow", c.get("thresh_shallow", 0.20))
+	_putty_mat.set_shader_parameter("color_midland",  c.get("shader_midland",  c.get("shader_highlands", Color(0.12, 0.36, 0.08))))
+	_putty_mat.set_shader_parameter("midland_mix",    c.get("midland_mix", 0.0))
+	# Coastal fringe (h 0.65-0.88) and interior dominant (h > 0.88).
+	# Epochs set shader_land/shader_highlands directly for precise palette control.
+	_putty_mat.set_shader_parameter("color_land", c.get("shader_land",
+		_palette_pick(palette,
+			["WETLAND","SWAMP","FERN_LAND","FOREST_LIGHT","ICE_SHEET","TUNDRA","GRASSLAND","COASTAL_ROCK","BARE_ROCK"],
+			Color(0.40, 0.58, 0.20))))
+	_putty_mat.set_shader_parameter("color_highlands", c.get("shader_highlands",
+		_palette_pick(palette,
+			["DEEP_ICE","ICE_SHEET","FOREST_DENSE","DESERT","SAND_DUNE","SCRUB","BARE_ROCK"],
+			Color(0.52, 0.44, 0.28))))
+	_putty_mat.set_shader_parameter("color_ice",       palette.get("ICE_SHEET", Color(0.90, 0.95, 1.00)))
+	_putty_mat.set_shader_parameter("ice_y_abs",       c.get("ice_y_abs", 1.01))
+	if FileAccess.file_exists(CLAY_NORMAL):
+		_putty_mat.set_shader_parameter("clay_normal_tex",    load(CLAY_NORMAL))
+	if FileAccess.file_exists(CLAY_ROUGHNESS):
+		_putty_mat.set_shader_parameter("clay_roughness_tex", load(CLAY_ROUGHNESS))
+	_update_putty_craters()
+
+	_putty_mi                   = MeshInstance3D.new()
+	_putty_mi.mesh              = sphere
+	_putty_mi.material_override = _putty_mat
+	_putty_mi.cast_shadow       = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_mesh_root.add_child(_putty_mi)
+
+	_build_atmosphere(c)
+
+	_sync_tile_land_flags()
+
+
+# Bakes a 128x64 single-channel (R8) height texture.
+# R = 0.0 (deep ocean) → blurred gradient → 1.0 (land interior).
+# Shader dithering at zone boundaries creates gradual pixelated edges.
+func _bake_layer_texture(c: Dictionary) -> ImageTexture:
+	const W: int = 128
+	const H: int = 64
+	var data := PackedByteArray(); data.resize(W * H)
+
+	var expand_deg: float = c.get("land_expand_deg", 0.0)
+	var inflated_land: Array = []
+	for poly in c.land_polygons:
+		var base: Array = _inflate_polygon(poly, expand_deg) if expand_deg > 0.0 else poly
+		inflated_land.append(_chaikin(base, 3))
+
+	# Binary pass: land = 255, ocean = 0. No shallow-sea neighbour checks needed —
+	# the box blur below spreads the boundary into a smooth gradient that the shader
+	# thresholds into deep / shallow / land zones automatically.
+	for y in range(H):
+		for x in range(W):
+			var u: float      = (float(x) + 0.5) / float(W)
+			var v: float      = (float(y) + 0.5) / float(H)
+			var lon_r: float  = (u - 0.5) * TAU
+			var sin_lat: float = sin((v - 0.5) * PI)
+			var cos_lat: float = sqrt(maxf(0.0, 1.0 - sin_lat * sin_lat))
+			var pos3d: Vector3 = Vector3(sin(lon_r) * cos_lat, sin_lat, cos(lon_r) * cos_lat)
+			var ll: Vector2    = _tile_lat_lon(pos3d)
+
+			var is_sea_ov := false
+			for sp in c.sea_polygons:
+				if _point_in_polygon(ll.x, ll.y, sp.poly):
+					is_sea_ov = true; break
+
+			var is_land := false
+			if not is_sea_ov:
+				for poly in inflated_land:
+					if _point_in_polygon(ll.x, ll.y, poly):
+						is_land = true; break
+
+			data[y * W + x] = 255 if is_land else 0
+
+	# Snapshot the binary classification before blurring — used for land/sea
+	# queries so they match the hard land polygon boundary, not the blurred edge.
+	_terrain_binary = Image.create_from_data(W, H, false, Image.FORMAT_R8, data.duplicate())
+
+	# Box blur — number of passes controls shallow-sea ring width.
+	# More passes = wider gradient = wider shallow strip visible in shader.
+	for _b in range(c.get("blur_passes", 1)):
+		var blurred := data.duplicate()
+		for y in range(H):
+			for x in range(W):
+				var sum := 0
+				for dy in range(-1, 2):
+					for dx in range(-1, 2):
+						sum += data[clampi(y + dy, 0, H - 1) * W + ((x + dx + W) % W)]
+				blurred[y * W + x] = sum / 9
+		data = blurred
+
+	var img := Image.create_from_data(W, H, false, Image.FORMAT_R8, data)
+	_terrain_image = img
+	return ImageTexture.create_from_image(img)
+
+
+func _update_putty_craters() -> void:
+	if _putty_mat == null:
+		return
+	const MAX: int = 256
+	var pos_arr: Array[Vector4]  = []
+	var dmg_arr: Array[float]    = []
+	pos_arr.resize(MAX)
+	dmg_arr.resize(MAX)
+	for i in range(MAX):
+		if i < _putty_craters.size():
+			var cr = _putty_craters[i]
+			var p: Vector3 = cr.pos
+			pos_arr[i] = Vector4(p.x, p.y, p.z, cr.radius)
+			dmg_arr[i] = cr.damage
+		else:
+			pos_arr[i] = Vector4(0.0, 0.0, 0.0, 0.0)
+			dmg_arr[i] = 0.0
+	_putty_mat.set_shader_parameter("craters",    pos_arr)
+	_putty_mat.set_shader_parameter("crater_dmg", dmg_arr)
+
+
+# Sync tile.is_land with the baked terrain texture so both systems agree.
+func _sync_tile_land_flags() -> void:
+	for tile in _geo_tiles:
+		var t := tile as PlanetTile
+		t.is_land = not is_position_sea(t.center_position)
+
+
+# Returns true if the position is over sea, using the pre-blur binary map.
+# The binary is exact: land=1.0, sea=0.0 — no blurred transition zone to misclassify.
+func is_position_sea(dir: Vector3) -> bool:
+	var img := _terrain_binary if _terrain_binary != null else _terrain_image
+	if img == null:
+		return false
+	var n := dir.normalized()
+	var u := atan2(n.x, n.z) / TAU + 0.5
+	var v := asin(clamp(n.y, -1.0, 1.0)) / PI + 0.5
+	var px := clampi(int(u * img.get_width()),  0, img.get_width()  - 1)
+	var py := clampi(int(v * img.get_height()), 0, img.get_height() - 1)
+	return img.get_pixel(px, py).r < 0.5
+
+
+func _bake_terrain_texture_UNUSED(
+		vis: GeodesicSphere,
+		col_r: PackedFloat32Array,
+		col_g: PackedFloat32Array,
+		col_b: PackedFloat32Array,
+		palette: Dictionary,
+		c: Dictionary,
+		inflated_land: Array,
+		noise: FastNoiseLite) -> ImageTexture:
+
+	const W: int = 1024
+	const H: int = 512
+	var data := PackedByteArray()
+	data.resize(W * H * 3)
+
+	var ocean: Color = palette.get("DEEP_OCEAN", Color(0.05, 0.15, 0.35))
+	var or_b: int = int(ocean.r * 255); var og_b: int = int(ocean.g * 255); var ob_b: int = int(ocean.b * 255)
+	for i in range(W * H):
+		var ofs: int = i * 3
+		data[ofs] = or_b; data[ofs + 1] = og_b; data[ofs + 2] = ob_b
+
+	# ── Phase 1: triangle rasterisation ──────────────────────────────────────
+	var eu := PackedFloat32Array(); eu.resize(vis.vertices.size())
+	var ev := PackedFloat32Array(); ev.resize(vis.vertices.size())
+	for i in range(vis.vertices.size()):
+		var sn: Vector3 = vis.vertices[i]
+		eu[i] = atan2(sn.x, sn.z) / TAU + 0.5
+		ev[i] = asin(clampf(sn.y, -1.0, 1.0)) / PI + 0.5
+
+	for tri in vis.triangles:
+		var a: int = tri[0]; var b: int = tri[1]; var ci: int = tri[2]
+		var u0: float = eu[a];  var v0: float = ev[a]
+		var u1: float = eu[b];  var v1: float = ev[b]
+		var u2: float = eu[ci]; var v2: float = ev[ci]
+		if maxf(u0, maxf(u1, u2)) - minf(u0, minf(u1, u2)) > 0.5:
+			continue
+		var rb: int = int(clampf((col_r[a] + col_r[b] + col_r[ci]) / 3.0, 0.0, 1.0) * 255)
+		var gb: int = int(clampf((col_g[a] + col_g[b] + col_g[ci]) / 3.0, 0.0, 1.0) * 255)
+		var bb: int = int(clampf((col_b[a] + col_b[b] + col_b[ci]) / 3.0, 0.0, 1.0) * 255)
+		var px0: int = int(u0 * W); var py0: int = int(v0 * H)
+		var px1: int = int(u1 * W); var py1: int = int(v1 * H)
+		var px2: int = int(u2 * W); var py2: int = int(v2 * H)
+		var bx0: int = maxi(0,     mini(px0, mini(px1, px2)))
+		var bx1: int = mini(W - 1, maxi(px0, maxi(px1, px2)))
+		var by0: int = maxi(0,     mini(py0, mini(py1, py2)))
+		var by1: int = mini(H - 1, maxi(py0, maxi(py1, py2)))
+		var dx01: int = px1 - px0; var dy01: int = py1 - py0
+		var dx02: int = px2 - px0; var dy02: int = py2 - py0
+		var denom: int = dx01 * dy02 - dx02 * dy01
+		if denom == 0: continue
+		for py in range(by0, by1 + 1):
+			for px in range(bx0, bx1 + 1):
+				var dx: int = px - px0; var dy: int = py - py0
+				var s_n: int = dx * dy02 - dx02 * dy
+				var t_n: int = dx01 * dy - dx * dy01
+				if denom > 0:
+					if s_n < 0 or t_n < 0 or s_n + t_n > denom: continue
+				else:
+					if s_n > 0 or t_n > 0 or s_n + t_n < denom: continue
+				var ofs: int = (py * W + px) * 3
+				data[ofs] = rb; data[ofs + 1] = gb; data[ofs + 2] = bb
+
+	# ── Phase 2: polygon-accurate coast refinement ────────────────────────────
+	# Find pixels sitting on a terrain boundary (adjacent pixels differ in colour).
+	# Expand that set outward by EXPAND_R pixels using fast 1D scanning.
+	# Re-classify every pixel in the expanded zone with the exact polygon tests —
+	# same logic as the game tile pass — giving sub-pixel-accurate coastlines.
+	const EXPAND_R: int = 8
+
+	var zone := PackedByteArray(); zone.resize(W * H); zone.fill(0)
+	for y in range(1, H - 1):
+		for x in range(1, W - 1):
+			var ofs: int = (y * W + x) * 3
+			var cr: int = data[ofs]; var cg: int = data[ofs + 1]; var cb: int = data[ofs + 2]
+			if data[(y * W + x - 1) * 3] != cr or data[(y * W + x + 1) * 3] != cr or \
+			   data[((y - 1) * W + x) * 3] != cr or data[((y + 1) * W + x) * 3] != cr or \
+			   data[(y * W + x - 1) * 3 + 1] != cg or data[(y * W + x + 1) * 3 + 1] != cg or \
+			   data[((y - 1) * W + x) * 3 + 1] != cg or data[((y + 1) * W + x) * 3 + 1] != cg:
+				zone[y * W + x] = 1
+
+	# Two-pass separable dilation: O(W×H) regardless of EXPAND_R
+	var zh := PackedByteArray(); zh.resize(W * H); zh.fill(0)
+	for y in range(H):
+		var cd: int = 0
+		for x in range(W):
+			if zone[y * W + x]: cd = EXPAND_R + 1
+			if cd > 0: zh[y * W + x] = 1; cd -= 1
+		cd = 0
+		for x in range(W - 1, -1, -1):
+			if zone[y * W + x]: cd = EXPAND_R + 1
+			if cd > 0: zh[y * W + x] = 1; cd -= 1
+	var zone2 := PackedByteArray(); zone2.resize(W * H); zone2.fill(0)
+	for x in range(W):
+		var cd: int = 0
+		for y in range(H):
+			if zh[y * W + x]: cd = EXPAND_R + 1
+			if cd > 0: zone2[y * W + x] = 1; cd -= 1
+		cd = 0
+		for y in range(H - 1, -1, -1):
+			if zh[y * W + x]: cd = EXPAND_R + 1
+			if cd > 0: zone2[y * W + x] = 1; cd -= 1
+
+	# Chaikin-smooth the polygons for the refinement phase only (few thousand pixels,
+	# so the extra vertex cost is fast). This rounds sharp polygon corners into
+	# smooth organic curves — the main fix for rectangular continent outlines.
+	var ref_land: Array = []
+	for poly in inflated_land:
+		ref_land.append(_chaikin(poly, 2))
+	var ref_sea: Array = []
+	for sp in c.sea_polygons:
+		ref_sea.append({"type": sp.type, "poly": _chaikin(sp.poly, 2)})
+
+	var shallow_deg: float = c.get("shallow_sea_depth", 2) * 2.25
+
+	for y in range(H):
+		for x in range(W):
+			if not zone2[y * W + x]: continue
+
+			# Pixel centre → unit sphere position using the inverse of the UV formula
+			var u: float  = (float(x) + 0.5) / float(W)
+			var vc: float = (float(y) + 0.5) / float(H)
+			var lon_r: float  = (u - 0.5) * TAU
+			var sin_lat: float = sin((vc - 0.5) * PI)
+			var cos_lat: float = sqrt(maxf(0.0, 1.0 - sin_lat * sin_lat))
+			var pos3d: Vector3 = Vector3(sin(lon_r) * cos_lat, sin_lat, cos(lon_r) * cos_lat)
+
+			# Same jittered lat/lon used in the vis-sphere classification
+			var ll: Vector2   = _tile_lat_lon(pos3d)
+			var nv: float     = noise.get_noise_3dv(pos3d)
+			var clat: float   = ll.x + nv * c.coast_roughness
+			var clon: float   = ll.y + nv * c.coast_roughness * 1.5
+
+			var terrain: String = "DEEP_OCEAN"
+			for sp in ref_sea:
+				if _point_in_polygon(clat, clon, sp.poly):
+					terrain = sp.type; break
+
+			if terrain == "DEEP_OCEAN":
+				var on_land: bool = false
+				for poly in ref_land:
+					if _point_in_polygon(clat, clon, poly):
+						on_land = true; break
+				if on_land:
+					# Coastal if any 4-neighbour pixel in data (already refined or rasterised)
+					# tests as ocean under the polygon check — fast 2px probe in each direction
+					var is_coastal: bool = false
+					for probe in [Vector2i(-3, 0), Vector2i(3, 0), Vector2i(0, -3), Vector2i(0, 3)]:
+						var nx: int = clampi(x + probe.x, 0, W - 1)
+						var ny: int = clampi(y + probe.y, 0, H - 1)
+						var pu: float  = (float(nx) + 0.5) / float(W)
+						var pvc: float = (float(ny) + 0.5) / float(H)
+						var plon: float   = (pu - 0.5) * TAU
+						var psin: float   = sin((pvc - 0.5) * PI)
+						var pcos: float   = sqrt(maxf(0.0, 1.0 - psin * psin))
+						var ppos: Vector3 = Vector3(sin(plon) * pcos, psin, cos(plon) * pcos)
+						var pll: Vector2  = _tile_lat_lon(ppos)
+						var pnv: float    = noise.get_noise_3dv(ppos)
+						var pclat: float  = pll.x + pnv * c.coast_roughness
+						var pclon: float  = pll.y + pnv * c.coast_roughness * 1.5
+						var probe_land: bool = false
+						for poly in ref_land:
+							if _point_in_polygon(pclat, pclon, poly):
+								probe_land = true; break
+						if not probe_land: is_coastal = true; break
+					terrain = _apply_land_rules(clat, clon, c.land_rules, nv, is_coastal)
+				else:
+					# Shallow sea: probe 4 cardinal points at shallow_deg offset
+					for dlat in [-shallow_deg, shallow_deg]:
+						for poly in ref_land:
+							if _point_in_polygon(clat + dlat, clon, poly):
+								terrain = "SHALLOW_SEA"; break
+						if terrain == "SHALLOW_SEA": break
+					if terrain == "DEEP_OCEAN":
+						for dlon in [-shallow_deg, shallow_deg]:
+							for poly in ref_land:
+								if _point_in_polygon(clat, clon + dlon, poly):
+									terrain = "SHALLOW_SEA"; break
+							if terrain == "SHALLOW_SEA": break
+
+			var col: Color = palette.get(terrain, Color(0.5, 0.5, 0.5))
+			var ofs: int = (y * W + x) * 3
+			data[ofs] = int(col.r * 255); data[ofs + 1] = int(col.g * 255); data[ofs + 2] = int(col.b * 255)
+
+	var img := Image.create_from_data(W, H, false, Image.FORMAT_RGB8, data)
+	return ImageTexture.create_from_image(img)
 
 
 func _build_tile_mesh(tile: PlanetTile, palette: Dictionary) -> ArrayMesh:
