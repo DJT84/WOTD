@@ -70,9 +70,14 @@ void fragment() {
 		// ── Face ─────────────────────────────────────────────────────────────
 		vec3 col = COLOR.rgb * (1.0 - pow(UV.x, 12.0) * 0.15);
 
-		float dist_raw = length(v_local_pos - tile_center);
-		float cr       = crater_radius;
-		float ds1      = clamp(ds, 0.0, 1.0);
+		float dist_raw_base = length(v_local_pos - tile_center);
+		float cr            = crater_radius;
+		float ds1           = clamp(ds, 0.0, 1.0);
+
+		// Angular irregularity — wobbles crater boundary so it's not a perfect circle
+		float angle     = atan(v_local_pos.z - tile_center.z, v_local_pos.x - tile_center.x);
+		float ang_noise = sin(angle * 3.0) * 0.03 + sin(angle * 7.0 + 1.7) * 0.012;
+		float dist_raw  = dist_raw_base * (1.0 + ang_noise * ds1);
 
 		// Hex-pixelated distance — snaps the crater rings to coarse bands
 		float dist = mix(dist_raw, hex_step(dist_raw, cr), ds1);
@@ -80,22 +85,26 @@ void fragment() {
 		// ── Bowl ─────────────────────────────────────────────────────────────
 		float bowl_mask = 1.0 - smoothstep(0.0, cr * 0.85, dist);
 		float bowl_t    = dist / (cr * 0.85);
-		vec3  floor_col = vec3(0.05, 0.04, 0.03);
-		vec3  wall_col2 = col * 0.38;
-		vec3  bowl_col  = mix(floor_col, wall_col2, pow(bowl_t, 0.6));
+		vec3  floor_col = vec3(0.04, 0.03, 0.02);
+		vec3  wall_col2 = col * 0.42;
+		vec3  bowl_col  = mix(floor_col, wall_col2, pow(bowl_t, 0.5));
 
-		// ── Highlight ring ───────────────────────────────────────────────────
+		// ── Inner wall highlight ring — brightens as floor rises to rim ──────
 		float highlight = smoothstep(cr * 0.60, cr * 0.80, dist)
 		                * (1.0 - smoothstep(cr * 0.80, cr * 0.90, dist));
-		vec3  hi_col    = col * 0.75;
+		vec3  hi_col    = col * 1.30;
 
 		// ── Ejecta rim ───────────────────────────────────────────────────────
 		float rim     = smoothstep(cr * 0.85, cr, dist)
 		              * (1.0 - smoothstep(cr, cr * 1.10, dist));
 
+		// ── Outer terrace ring — second rise-and-fall beyond the main rim ────
+		float terrace = smoothstep(cr * 1.12, cr * 1.22, dist)
+		              * (1.0 - smoothstep(cr * 1.22, cr * 1.38, dist));
+
 		// ── Scorch halo ──────────────────────────────────────────────────────
-		float scorch_f = smoothstep(cr * 1.05, cr * 1.15, dist)
-		               * (1.0 - smoothstep(cr * 1.15, cr * 1.55, dist));
+		float scorch_f = smoothstep(cr * 1.35, cr * 1.45, dist)
+		               * (1.0 - smoothstep(cr * 1.45, cr * 1.75, dist));
 
 		// ── Land vs Sea diverge here ─────────────────────────────────────────
 		vec3 rim_col;
@@ -130,10 +139,11 @@ void fragment() {
 			sc_col = mix(col, vec3(0.04, 0.06, 0.10), 0.80);
 		}
 
-		col = mix(col,    bowl_col, bowl_mask * ds1);
-		col = mix(col,    hi_col,   highlight * ds1);
-		col = mix(col,    rim_col,  rim       * ds1);
-		col = mix(col,    sc_col,   scorch_f  * ds1);
+		col = mix(col,    bowl_col,    bowl_mask * ds1);
+		col = mix(col,    hi_col,      highlight * ds1);
+		col = mix(col,    rim_col,     rim       * ds1);
+		col = mix(col,    col * 1.18,  terrace   * ds1);  // outer terrace brightens
+		col = mix(col,    sc_col,      scorch_f  * ds1);
 		col = clamp(col, 0.0, 1.5);
 
 		if (ds > 1.0) {

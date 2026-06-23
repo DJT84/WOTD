@@ -6,6 +6,7 @@ const ROTATION_SPEED: float = TAU / 90.0
 const AXIAL_TILT:     float = deg_to_rad(23.5)
 const MAX_IMPACTS:    int   = 8
 
+const TERRAIN_CACHE_DIR: String = "user://terrain_cache/"
 const CLAY_NORMAL:    String = "res://assets/Clay001_1K-PNG/Clay001_1K-PNG_NormalGL.png"
 const CLAY_ROUGHNESS: String = "res://assets/Clay001_1K-PNG/Clay001_1K-PNG_Roughness.png"
 const CLAY_COLOR:     String = "res://assets/Clay001_1K-PNG/Clay001_1K-PNG_Color.png"
@@ -130,6 +131,12 @@ var _crater_tex:     ImageTexture  = null
 const CRATER_W: int = 512
 const CRATER_H: int = 256
 
+const MAX_SHADER_CRATERS := 64
+var _shader_crater_normals   := PackedVector3Array()
+var _shader_crater_r         := PackedFloat32Array()
+var _shader_crater_intensity := PackedFloat32Array()
+var _shader_crater_count     := 0
+
 var _hovered_tile_id:    int   = -1
 var _selected_tile_id:   int   = -1
 var _feature_icons:      Array      = []
@@ -219,6 +226,7 @@ var _age_cfg: Array = [
 		"IRON_MUDFLAT": Color("#8B3A2A"),
 		"SWAMP":        Color("#1A3A15"),
 		"FOREST_DENSE": Color("#2D5E20"),
+		"ICE_SHEET":    Color("#D8EEF5"),
 	},
 	"land_polygons": [
 		# Laurussia — N America + Europe merged at equator. Coal swamps at 0°–15°N.
@@ -232,9 +240,15 @@ var _age_cfg: Array = [
 	],
 	"sea_polygons": [
 		# Narrow Rheic Ocean remnant between the two supercontinents (~equatorial)
-		{"type": "SHALLOW_SEA", "poly": [[10,10],[10,-20],[-10,-40],[-10,-20],[5,0],[10,10]]},
+		# Irregular elongated seaway — NE-SW trending, jagged margins
+		{"type": "SHALLOW_SEA", "poly": [
+			[12,8],[8,-3],[10,-14],[6,-24],[2,-33],[-4,-40],[-9,-38],
+			[-12,-28],[-10,-18],[-13,-8],[-7,0],[2,5],[8,6],[12,8]
+		]},
 	],
 	"land_rules": [
+		# Gondwana glaciation — southern polar ice cap
+		{"type": "ICE_SHEET",    "lat_south_of": -55},
 		{"type": "IRON_MUDFLAT", "noise_above": 0.82},
 		{"type": "FOREST_DENSE", "coast": true, "lat_abs_below": 48},
 		{"type": "SWAMP",        "lat_abs_below": 35},
@@ -283,9 +297,11 @@ var _age_cfg: Array = [
 		# Pangaea — single C-shaped supercontinent, pole to pole.
 		# Concavity faces east where the Tethys Sea indents.
 		# Panthalassa (proto-Pacific) covers the rest of the globe.
-		[[-70,-60],[-60,-40],[-40,-30],[-20,-10],[0,0],[20,10],
-		 [40,20],[60,30],[70,40],[65,60],[50,50],[30,45],
-		 [10,50],[-10,40],[-30,30],[-50,20],[-65,0],[-70,-60]],
+		# More vertices give an organic, irregular coastline after Chaikin smoothing.
+		[[-70,-60],[-67,-52],[-62,-44],[-55,-36],[-45,-28],[-34,-20],[-24,-13],[-14,-6],[-4,-1],[0,0],
+		 [8,4],[18,9],[28,14],[36,18],[42,22],[50,26],[56,28],[62,30],[68,35],[70,40],[69,47],[66,58],
+		 [60,56],[54,54],[50,50],[43,48],[36,47],[28,47],[20,49],[12,50],[4,48],
+		 [-4,44],[-12,40],[-20,36],[-30,31],[-40,26],[-50,20],[-58,12],[-64,4],[-68,-4],[-70,-60]],
 	],
 	"sea_polygons": [
 		# Tethys Sea — wedge-shaped embayment, widest at 20°N 90°E, tip at 15°N 20°E
@@ -557,11 +573,13 @@ var _age_cfg: Array = [
 	"name": "Pleistocene", "ma": 1,
 	"noise_seed": 700, "coast_roughness": 2.5, "shallow_sea_depth": 2, "land_expand_deg": 7.0,
 	"blur_passes": 2, "thresh_shallow": 0.45,
-	"shader_land":      Color("#A8C8D8"),  # pale blue-grey tundra fringe
-	"shader_highlands": Color("#DFF0F7"),  # bright ice — dominates non-polar land
-	"shader_midland":   Color("#B8D9EC"),  # deep ice variation
+	"shader_land":      Color("#C8E4F0"),  # pale ice fringe
+	"shader_highlands": Color("#EAF5FB"),  # bright glacial ice
+	"shader_midland":   Color("#B8D9EC"),  # blue-shadow ice
+	"shader_tundra":    Color("#7A5C38"),  # brown tundra belt
 	"midland_mix":      0.22,
-	"ice_y_abs": 0.38,
+	"ice_y_abs":    0.42,
+	"tundra_y_abs": 0.24,   # equatorial belt 0°–14° — narrow ring
 	"atmosphere_color": Color(0.78, 0.91, 0.96, 0.50),
 	"palette": {
 		"DEEP_OCEAN":  Color("#3A6B8A"),
@@ -617,7 +635,7 @@ var _age_cfg: Array = [
 	"shader_highlands": Color("#3A7825"),  # mid temperate green — dominant
 	"shader_midland":   Color("#265518"),  # dark canopy — interior patches
 	"midland_mix":      0.22,
-	"ice_y_abs": 0.93,   # polar caps — Greenland and Antarctica via lat override
+	"ice_y_abs": 0.75,   # ~49° from equator — larger solid caps
 	"atmosphere_color": Color(0.15, 0.55, 1.00, 0.72),  # vivid Earth blue
 	"palette": {
 		"DEEP_OCEAN":   Color("#1E5A8A"),
@@ -641,39 +659,49 @@ var _age_cfg: Array = [
 		[[76,-65],[84,-35],[76,-18],[62,-42],[76,-65]],
 		# South America
 		[[8,-77],[8,-62],[5,-52],[-25,-42],[-55,-65],[-55,-75],[-25,-80],[8,-77]],
-		# Europe
-		[[35,-8],[58,5],[70,28],[62,30],[55,22],[48,2],[36,-8],[35,-8]],
-		# Africa + Arabia
-		[[35,-5],[22,-17],[12,-18],[-5,-8],[-35,18],[-35,28],
-		 [-10,42],[12,50],[30,45],[38,45],[30,30],[35,-5]],
-		# Central + West Asia
-		[[25,55],[62,55],[75,92],[55,60],[25,55]],
-		# East Asia + China
-		[[22,100],[42,138],[22,122],[5,102],[22,100]],
-		# SE Asia + Indonesia
-		[[-5,98],[18,98],[22,122],[8,120],[2,108],[-8,118],[-8,100],[-5,98]],
-		# India
-		[[22,68],[8,78],[8,92],[22,92],[35,72],[22,68]],
+		# Eurasia — single unified polygon: W Europe → N Russia → Far East → SE Asia → India → Arabia → back
+		[[36,-9],[44,-8],[48,-5],[51,2],[58,5],[71,28],
+		 [72,55],[73,100],[68,175],
+		 [55,162],[48,142],[42,135],
+		 [32,122],[22,120],[18,110],[10,105],[5,103],
+		 [8,78],[22,68],
+		 [22,59],[12,44],[22,38],[30,34],
+		 [36,36],[42,28],[41,22],
+		 [36,-9]],
+		# Africa — standalone clean polygon
+		[[37,-5],[37,10],[30,32],[12,50],
+		 [-35,30],[-35,18],[-18,12],[-5,10],
+		 [5,-5],[14,-18],[37,-5]],
+		# British Isles
+		[[50,-5],[58,-3],[58,0],[51,2],[50,-5]],
+		# Scandinavia
+		[[58,5],[71,28],[70,18],[58,5]],
 		# Australia
 		[[-15,128],[-15,155],[-38,150],[-38,128],[-28,114],[-15,128]],
 		# New Zealand
 		[[-35,172],[-35,178],[-46,168],[-46,162],[-35,172]],
-		# Antarctica
-		[[-62,-80],[-60,22],[-62,102],[-62,162],[-80,162],[-85,50],[-85,-60],[-62,-80]],
+		# Antarctica — extended northward so the ice cap reads from equatorial views
+		[[-48,-80],[-46,0],[-48,80],[-50,160],[-65,160],[-80,100],[-85,0],[-80,-80],[-48,-80]],
+		# Arctic land mass (Franz Josef, Svalbard, Arctic islands) — anchors the north cap
+		[[76,-80],[83,0],[76,80],[76,-80]],
 		# Japan
 		[[30,130],[42,142],[45,142],[42,130],[30,130]],
+		# Iceland
+		[[63,-24],[66,-14],[65,-18],[63,-24]],
 	],
 	"sea_polygons": [
-		# Mediterranean / inland seas
+		# Mediterranean + Black Sea cut-out so they read as sea
 		{"type": "INLAND_SEA", "poly": [
-			[30,5],[38,5],[42,30],[38,38],[30,36],[28,12],[30,5]
+			[30,5],[38,5],[42,30],[42,42],[36,36],[30,34],[28,12],[30,5]
 		]},
 	],
 	"land_rules": [
-		# Greenland ice — handled by ice_y_abs but explicit rule reinforces it
+		# Greenland + Arctic ice
 		{"type": "ICE_SHEET",    "lat_north_of": 64, "lon_between": [-58, -18]},
 		# Tundra fringe at high latitudes
 		{"type": "TUNDRA",       "lat_north_of": 62},
+		# Antarctic tundra fringe
+		{"type": "TUNDRA",       "lat_south_of": -55},
 		# Tropical/equatorial forests — Amazon, Congo, SE Asia
 		{"type": "FOREST_DENSE", "lat_abs_below": 12},
 		# Desert bands — Sahara, Arabia, Australia interior, Atacama
@@ -683,7 +711,6 @@ var _age_cfg: Array = [
 		{"type": "FOREST_LIGHT", "lat_abs_below": 62},
 		# Grassland savanna
 		{"type": "GRASSLAND",    "lat_abs_below": 20, "noise_above": 0.35},
-		{"type": "TUNDRA",       "lat_south_of": -55},
 		{"type": "GRASSLAND",    "default": true},
 	],
 	"life": {
@@ -708,6 +735,103 @@ func _ready() -> void:
 	else:
 		rotation.z = -AXIAL_TILT
 	rebuild()
+
+
+func _prebake_all_epochs() -> void:
+	_ensure_cache_dir()
+	for age in _age_cfg.size():
+		var key         := "age%d_s%d" % [age, subdivision_depth]
+		var tex_path    := TERRAIN_CACHE_DIR + "terrain_" + key + ".png"
+		var binary_path := TERRAIN_CACHE_DIR + "binary_"  + key + ".png"
+		var tile_path   := TERRAIN_CACHE_DIR + "tiles_"   + key + ".json"
+		var needs_tex   := not (FileAccess.file_exists(tex_path) and FileAccess.file_exists(binary_path))
+		var needs_tiles := not FileAccess.file_exists(tile_path)
+		if not needs_tex and not needs_tiles:
+			continue
+
+		print("Baking epoch %d cache..." % age)
+		var c: Dictionary = _age_cfg[age]
+
+		if needs_tex:
+			var saved_age := current_age
+			current_age = age
+			_bake_layer_texture(c)   # saves tex + binary PNGs internally
+			current_age = saved_age
+
+		if needs_tiles:
+			var geo := GeodesicSphere.new()
+			geo.generate(subdivision_depth)
+
+			var noise := FastNoiseLite.new()
+			noise.noise_type      = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+			noise.fractal_type    = FastNoiseLite.FRACTAL_FBM
+			noise.fractal_octaves = 2
+			noise.frequency       = 0.55
+			noise.seed            = c.noise_seed
+
+			var tile_map: Dictionary = {}
+			for tile in geo.tiles:
+				tile_map[tile.tile_id] = tile
+
+			var land_set: Dictionary = {}
+			var expand_deg: float = c.get("land_expand_deg", 0.0)
+			var inflated_land: Array = []
+			for poly in c.land_polygons:
+				inflated_land.append(_inflate_polygon(poly, expand_deg) if expand_deg > 0.0 else poly)
+
+			for tile in geo.tiles:
+				var ll: Vector2      = _tile_lat_lon(tile.center_position)
+				var n_val: float     = noise.get_noise_3dv(tile.center_position)
+				var coast_lat: float = ll.x + n_val * c.coast_roughness
+				var coast_lon: float = ll.y + n_val * c.coast_roughness * 1.5
+				var sea_override := ""
+				for sp in c.sea_polygons:
+					if _point_in_polygon(coast_lat, coast_lon, sp.poly):
+						sea_override = sp.type; break
+				if sea_override != "":
+					tile.terrain_type = sea_override
+					tile.is_land      = false
+				else:
+					var on_land := false
+					for poly in inflated_land:
+						if _point_in_polygon(coast_lat, coast_lon, poly):
+							on_land = true; break
+					tile.is_land      = on_land
+					tile.terrain_type = "LAND_PENDING" if on_land else "DEEP_OCEAN"
+					if on_land:
+						land_set[tile.tile_id] = true
+
+			var depth: int = c.get("shallow_sea_depth", 2)
+			for _i in range(depth):
+				var upgrades: Array = []
+				for tile in geo.tiles:
+					if tile.terrain_type != "DEEP_OCEAN":
+						continue
+					for nbr_id in tile.neighbours:
+						if (tile_map[nbr_id] as PlanetTile).terrain_type != "DEEP_OCEAN":
+							upgrades.append(tile.tile_id); break
+				for tid in upgrades:
+					tile_map[tid].terrain_type = "SHALLOW_SEA"
+
+			for tile in geo.tiles:
+				if tile.terrain_type != "LAND_PENDING":
+					continue
+				var is_coastal := false
+				for nbr_id in tile.neighbours:
+					if not land_set.has(nbr_id):
+						is_coastal = true; break
+				var ll: Vector2  = _tile_lat_lon(tile.center_position)
+				var n_val: float = noise.get_noise_3dv(tile.center_position)
+				tile.terrain_type = _apply_land_rules(ll.x, ll.y, c.land_rules, n_val, is_coastal)
+
+			var types_out: Array = []
+			for t in geo.tiles:
+				types_out.append((t as PlanetTile).terrain_type)
+			var fw := FileAccess.open(tile_path, FileAccess.WRITE)
+			fw.store_string(JSON.stringify(types_out))
+			fw.close()
+
+	print("Epoch cache ready.")
 
 
 func _setup_editor_lighting() -> void:
@@ -747,9 +871,15 @@ func rebuild() -> void:
 		_mesh_root = null
 	_tile_nodes.clear()
 	_shared_mat = null
+	var _tr := Time.get_ticks_msec()
 	_build_planet()
+	print("_build_planet: %d ms total" % (Time.get_ticks_msec() - _tr))
+	_tr = Time.get_ticks_msec()
 	_assign_features()
+	print("_assign_features: %d ms" % (Time.get_ticks_msec() - _tr))
+	_tr = Time.get_ticks_msec()
 	_build_feature_icons()
+	print("_build_feature_icons: %d ms" % (Time.get_ticks_msec() - _tr))
 	_tint_assets()
 
 
@@ -967,7 +1097,7 @@ func trigger_impact_with_rock(tile_id: int, intensity: float,
 	effect.setup_with_rock(self, tile, intensity, tile_col, rock, done_cb)
 
 
-func apply_impact(tile_id: int, impact_pos: Vector3 = Vector3.ZERO, intensity: float = 1.0) -> void:
+func apply_impact(tile_id: int, impact_pos: Vector3 = Vector3.ZERO, intensity: float = 1.0, irregular_core: bool = false) -> void:
 	# If no explicit impact pos supplied, default to the target tile's centre
 	if impact_pos == Vector3.ZERO:
 		for t in _geo_tiles:
@@ -978,12 +1108,12 @@ func apply_impact(tile_id: int, impact_pos: Vector3 = Vector3.ZERO, intensity: f
 				break
 
 	# Crater world-space radius scales with asteroid size
-	var crater_r: float = 0.30 + intensity * 0.22
+	var crater_r: float = 0.40 + intensity * 0.25
 
 	if use_putty_style:
 		var crater_pos := impact_pos.normalized() * planet_radius
 		_putty_craters.append({"pos": crater_pos, "radius": crater_r, "damage": clamp(intensity, 0.3, 1.0)})
-		_paint_crater(impact_pos.normalized(), intensity)
+		_paint_crater(impact_pos.normalized(), intensity, irregular_core)
 		impact_landed.emit(tile_id, intensity)
 		return
 
@@ -1181,14 +1311,22 @@ func _get_mesh_instances(node: Node) -> Array:
 	return result
 
 
+func _cache_key() -> String:
+	return "age%d_s%d" % [current_age, subdivision_depth]
+
+func _ensure_cache_dir() -> void:
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(TERRAIN_CACHE_DIR))
+
 func _build_planet() -> void:
 	_mesh_root      = Node3D.new()
 	_mesh_root.name = "_MeshRoot"
 	add_child(_mesh_root)
 
+	var _t0 := Time.get_ticks_msec()
 	var geo := GeodesicSphere.new()
 	geo.generate(subdivision_depth)
 	_geo_tiles = geo.tiles
+	print("GeodesicSphere.generate: %d ms" % (Time.get_ticks_msec() - _t0))
 
 	_shared_mat        = ShaderMaterial.new()
 	_shared_mat.shader = load("res://shaders/tile.gdshader") as Shader
@@ -1206,73 +1344,101 @@ func _build_planet() -> void:
 	for tile in geo.tiles:
 		tile_map[tile.tile_id] = tile
 
-	# ── Pass 1: binary land / sea using polygons ───────────────────────────
-	# Pre-inflate land polygons once — cheaper than inflating per tile.
-	var expand_deg: float = c.get("land_expand_deg", 0.0)
-	var inflated_land: Array = []
-	for poly in c.land_polygons:
-		inflated_land.append(_inflate_polygon(poly, expand_deg) if expand_deg > 0.0 else poly)
-
+	# ── Passes 1-3: tile terrain classification (cached to disk) ──────────
+	var tile_cache_path: String = TERRAIN_CACHE_DIR + "tiles_" + _cache_key() + ".json"
+	var _t1 := Time.get_ticks_msec()
 	var land_set: Dictionary = {}
+	var loaded_from_cache := false
 
-	for tile in geo.tiles:
-		var ll: Vector2 = _tile_lat_lon(tile.center_position)
-		var lat: float  = ll.x
-		var lon: float  = ll.y
-		var n_val: float = noise.get_noise_3dv(tile.center_position)
-		var coast_lat: float = lat + n_val * c.coast_roughness
-		var coast_lon: float = lon + n_val * c.coast_roughness * 1.5
+	if FileAccess.file_exists(tile_cache_path):
+		var f := FileAccess.open(tile_cache_path, FileAccess.READ)
+		var types: Variant = JSON.parse_string(f.get_as_text())
+		f.close()
+		if types is Array and (types as Array).size() == geo.tiles.size():
+			for i in geo.tiles.size():
+				var tile := geo.tiles[i] as PlanetTile
+				tile.terrain_type = (types as Array)[i]
+				tile.is_land      = tile.terrain_type not in SEA_TYPES
+				if tile.is_land:
+					land_set[tile.tile_id] = true
+			loaded_from_cache = true
 
-		# Sea override polygons take priority (Tethys, seaways, etc.)
-		var sea_override: String = ""
-		for sp in c.sea_polygons:
-			if _point_in_polygon(coast_lat, coast_lon, sp.poly):
-				sea_override = sp.type
-				break
+	if not loaded_from_cache:
+		# ── Pass 1: binary land / sea using polygons ─────────────────────────
+		var expand_deg: float = c.get("land_expand_deg", 0.0)
+		var inflated_land: Array = []
+		for poly in c.land_polygons:
+			inflated_land.append(_inflate_polygon(poly, expand_deg) if expand_deg > 0.0 else poly)
 
-		if sea_override != "":
-			tile.terrain_type = sea_override
-			tile.is_land      = false
-		else:
-			var on_land := false
-			for poly in inflated_land:
-				if _point_in_polygon(coast_lat, coast_lon, poly):
-					on_land = true
-					break
-			tile.is_land      = on_land
-			tile.terrain_type = "LAND_PENDING" if on_land else "DEEP_OCEAN"
-			if on_land:
-				land_set[tile.tile_id] = true
-
-	# ── Pass 2: shallow sea expansion ─────────────────────────────────────
-	var depth: int = c.get("shallow_sea_depth", 2)
-	for _i in range(depth):
-		var upgrades: Array = []
 		for tile in geo.tiles:
-			if tile.terrain_type != "DEEP_OCEAN":
-				continue
-			for nbr_id in tile.neighbours:
-				var nbr: PlanetTile = tile_map[nbr_id]
-				if nbr.terrain_type != "DEEP_OCEAN":
-					upgrades.append(tile.tile_id)
+			var ll: Vector2 = _tile_lat_lon(tile.center_position)
+			var lat: float  = ll.x
+			var lon: float  = ll.y
+			var n_val: float = noise.get_noise_3dv(tile.center_position)
+			var coast_lat: float = lat + n_val * c.coast_roughness
+			var coast_lon: float = lon + n_val * c.coast_roughness * 1.5
+
+			# Sea override polygons take priority (Tethys, seaways, etc.)
+			var sea_override: String = ""
+			for sp in c.sea_polygons:
+				if _point_in_polygon(coast_lat, coast_lon, sp.poly):
+					sea_override = sp.type
 					break
-		for tid in upgrades:
-			tile_map[tid].terrain_type = "SHALLOW_SEA"
 
-	# ── Pass 3: classify land tile types ──────────────────────────────────
-	for tile in geo.tiles:
-		if tile.terrain_type != "LAND_PENDING":
-			continue
-		var is_coastal := false
-		for nbr_id in tile.neighbours:
-			if not land_set.has(nbr_id):
-				is_coastal = true
-				break
+			if sea_override != "":
+				tile.terrain_type = sea_override
+				tile.is_land      = false
+			else:
+				var on_land := false
+				for poly in inflated_land:
+					if _point_in_polygon(coast_lat, coast_lon, poly):
+						on_land = true
+						break
+				tile.is_land      = on_land
+				tile.terrain_type = "LAND_PENDING" if on_land else "DEEP_OCEAN"
+				if on_land:
+					land_set[tile.tile_id] = true
 
-		var ll: Vector2  = _tile_lat_lon(tile.center_position)
-		var n_val: float = noise.get_noise_3dv(tile.center_position)
-		tile.terrain_type = _apply_land_rules(
-			ll.x, ll.y, c.land_rules, n_val, is_coastal)
+		# ── Pass 2: shallow sea expansion ─────────────────────────────────────
+		var depth: int = c.get("shallow_sea_depth", 2)
+		for _i in range(depth):
+			var upgrades: Array = []
+			for tile in geo.tiles:
+				if tile.terrain_type != "DEEP_OCEAN":
+					continue
+				for nbr_id in tile.neighbours:
+					var nbr: PlanetTile = tile_map[nbr_id]
+					if nbr.terrain_type != "DEEP_OCEAN":
+						upgrades.append(tile.tile_id)
+						break
+			for tid in upgrades:
+				tile_map[tid].terrain_type = "SHALLOW_SEA"
+
+		# ── Pass 3: classify land tile types ──────────────────────────────────
+		for tile in geo.tiles:
+			if tile.terrain_type != "LAND_PENDING":
+				continue
+			var is_coastal := false
+			for nbr_id in tile.neighbours:
+				if not land_set.has(nbr_id):
+					is_coastal = true
+					break
+
+			var ll: Vector2  = _tile_lat_lon(tile.center_position)
+			var n_val: float = noise.get_noise_3dv(tile.center_position)
+			tile.terrain_type = _apply_land_rules(
+				ll.x, ll.y, c.land_rules, n_val, is_coastal)
+
+		# Cache tile terrain types to disk so next load skips polygon tests.
+		_ensure_cache_dir()
+		var types_out: Array = []
+		for t in geo.tiles:
+			types_out.append((t as PlanetTile).terrain_type)
+		var fw := FileAccess.open(tile_cache_path, FileAccess.WRITE)
+		fw.store_string(JSON.stringify(types_out))
+		fw.close()
+
+	print("Tile classification (%s): %d ms" % ["cached" if loaded_from_cache else "computed", Time.get_ticks_msec() - _t1])
 
 	# ── Apply manual tile overrides on top ────────────────────────────────
 	for tile_id in tile_overrides:
@@ -1329,8 +1495,8 @@ func _build_atmosphere(c: Dictionary) -> void:
 	var atmos_col: Color = c.get("atmosphere_color", Color(0.25, 0.65, 1.0, 0.7))
 
 	var quad := QuadMesh.new()
-	# Quad is 2.8× the planet diameter so the halo extends ~40% beyond the planet edge.
-	var sz: float = planet_radius * 2.75
+	# Quad is 3.2× the planet diameter so the halo extends ~60% beyond the planet edge.
+	var sz: float = planet_radius * 3.2
 	quad.size = Vector2(sz, sz)
 
 	_atmos_mi = MeshInstance3D.new()
@@ -1341,8 +1507,8 @@ func _build_atmosphere(c: Dictionary) -> void:
 	var mat := ShaderMaterial.new()
 	mat.shader = load("res://shaders/atmosphere.gdshader") as Shader
 	mat.set_shader_parameter("atmos_color", atmos_col)
-	# planet fills 80% of quad half-size (quad = 2.5× planet diameter)
-	mat.set_shader_parameter("planet_edge", 1.0 / 1.375)
+	# planet fills quad half-size ratio: planet_r / (quad_sz/2)
+	mat.set_shader_parameter("planet_edge", 1.0 / 1.6)
 	_atmos_mi.set_surface_override_material(0, mat)
 
 	add_child(_atmos_mi)
@@ -1357,7 +1523,9 @@ func _build_putty_meshes(_geo: GeodesicSphere, palette: Dictionary) -> void:
 
 	# Bake a small single-channel height texture — fast polygon tests at low res.
 	# The GPU bilinear filter turns low-res zone transitions into smooth organic curves.
+	var _t2 := Time.get_ticks_msec()
 	var terrain_tex: ImageTexture = _bake_layer_texture(c)
+	print("_bake_layer_texture: %d ms" % (Time.get_ticks_msec() - _t2))
 
 	# Godot generates the sphere mesh instantly — no custom icosphere needed.
 	var sphere := SphereMesh.new()
@@ -1386,6 +1554,8 @@ func _build_putty_meshes(_geo: GeodesicSphere, palette: Dictionary) -> void:
 			Color(0.52, 0.44, 0.28))))
 	_putty_mat.set_shader_parameter("color_ice",       palette.get("ICE_SHEET", Color(0.90, 0.95, 1.00)))
 	_putty_mat.set_shader_parameter("ice_y_abs",       c.get("ice_y_abs", 1.01))
+	_putty_mat.set_shader_parameter("color_tundra",    c.get("shader_tundra", Color(0.54, 0.42, 0.28)))
+	_putty_mat.set_shader_parameter("tundra_y_abs",    c.get("tundra_y_abs", 0.0))
 	if FileAccess.file_exists(CLAY_NORMAL):
 		_putty_mat.set_shader_parameter("clay_normal_tex",    load(CLAY_NORMAL))
 	if FileAccess.file_exists(CLAY_ROUGHNESS):
@@ -1409,6 +1579,19 @@ func _build_putty_meshes(_geo: GeodesicSphere, palette: Dictionary) -> void:
 func _bake_layer_texture(c: Dictionary) -> ImageTexture:
 	const W: int = 256
 	const H: int = 128
+
+	# Check cache — skips 32,768 point-in-polygon tests on subsequent loads.
+	var key         := _cache_key()
+	var tex_path    := TERRAIN_CACHE_DIR + "terrain_" + key + ".png"
+	var binary_path := TERRAIN_CACHE_DIR + "binary_"  + key + ".png"
+	if FileAccess.file_exists(tex_path) and FileAccess.file_exists(binary_path):
+		var cached_img    := Image.load_from_file(tex_path)
+		var cached_binary := Image.load_from_file(binary_path)
+		if cached_img and cached_binary:
+			_terrain_image  = cached_img
+			_terrain_binary = cached_binary
+			return ImageTexture.create_from_image(cached_img)
+
 	var data := PackedByteArray(); data.resize(W * H)
 
 	var expand_deg: float = c.get("land_expand_deg", 0.0)
@@ -1462,6 +1645,12 @@ func _bake_layer_texture(c: Dictionary) -> ImageTexture:
 
 	var img := Image.create_from_data(W, H, false, Image.FORMAT_R8, data)
 	_terrain_image = img
+
+	# Save to cache so future loads skip the polygon tests.
+	_ensure_cache_dir()
+	img.save_png(tex_path)
+	_terrain_binary.save_png(binary_path)
+
 	return ImageTexture.create_from_image(img)
 
 
@@ -1469,8 +1658,20 @@ func _init_crater_texture() -> void:
 	_crater_image = Image.create(CRATER_W, CRATER_H, false, Image.FORMAT_R8)
 	_crater_image.fill(Color(1.0, 1.0, 1.0))
 	_crater_tex = ImageTexture.create_from_image(_crater_image)
+	_shader_crater_normals.resize(MAX_SHADER_CRATERS)
+	_shader_crater_r.resize(MAX_SHADER_CRATERS)
+	_shader_crater_intensity.resize(MAX_SHADER_CRATERS)
+	for i in range(MAX_SHADER_CRATERS):
+		_shader_crater_normals[i]   = Vector3.ZERO
+		_shader_crater_r[i]         = 0.0
+		_shader_crater_intensity[i] = 0.0
+	_shader_crater_count = 0
 	if _putty_mat:
 		_putty_mat.set_shader_parameter("crater_tex", _crater_tex)
+		_putty_mat.set_shader_parameter("crater_count", 0)
+		_putty_mat.set_shader_parameter("crater_normals", _shader_crater_normals)
+		_putty_mat.set_shader_parameter("crater_r", _shader_crater_r)
+		_putty_mat.set_shader_parameter("crater_intensity", _shader_crater_intensity)
 
 
 func _crater_pos_to_uv(n: Vector3) -> Vector2:
@@ -1485,51 +1686,73 @@ func _crater_uv_to_normal(u: float, v: float) -> Vector3:
 	return Vector3(-sin(lon) * cos(lat), sin(lat), -cos(lon) * cos(lat))
 
 
-func _paint_crater(n_impact: Vector3, intensity: float) -> void:
+func _paint_crater(n_impact: Vector3, intensity: float, irregular_core: bool = false) -> void:
 	if _crater_image == null or _crater_tex == null:
 		push_error("_paint_crater: crater image/tex is null")
 		return
-	var crater_r := 0.30 + intensity * 0.22
+
+	var crater_r  := 0.40 + intensity * 0.25
 	var angular_r := asin(clamp(crater_r / planet_radius, 0.0, 1.0))
-	var rim_angular_r := angular_r * 1.17
-	var uv_margin := rim_angular_r / PI
+	var uv_margin := angular_r / PI
 	var impact_uv := _crater_pos_to_uv(n_impact)
+
+	# Per-crater seed from impact position — same formula as shader, varies shape uniquely.
+	var seed  := fmod(absf(n_impact.x * 127.3 + n_impact.y * 311.7 + n_impact.z * 74.1),  1.0)
+	var seed2 := fmod(absf(n_impact.x * 269.5 + n_impact.y * 183.3 + n_impact.z * 421.7), 1.0)
+	var seed3 := fmod(absf(n_impact.x * 419.2 + n_impact.y * 371.9 + n_impact.z * 154.3), 1.0)
 
 	# Paint, wrapping at the longitude seam if needed.
 	for pass_n in range(2):
 		var u_offset := 0.0 if pass_n == 0 else (1.0 if impact_uv.x < 0.5 else -1.0)
-		if pass_n == 1 and abs(impact_uv.x - 0.5) > 0.5 - uv_margin * 2.0:
-			break  # not near seam, skip second pass
+		if pass_n == 1 and abs(impact_uv.x - 0.5) < 0.5 - uv_margin * 2.0:
+			break
 		var x_min: int = max(0, int((impact_uv.x + u_offset - uv_margin * 2.0) * CRATER_W))
 		var x_max: int = min(CRATER_W - 1, int((impact_uv.x + u_offset + uv_margin * 2.0) * CRATER_W))
-		var y_min: int = max(0, int((impact_uv.y - uv_margin) * CRATER_H))
-		var y_max: int = min(CRATER_H - 1, int((impact_uv.y + uv_margin) * CRATER_H))
+		var y_min: int = max(0, int((impact_uv.y - uv_margin * 2.0) * CRATER_H))
+		var y_max: int = min(CRATER_H - 1, int((impact_uv.y + uv_margin * 2.0) * CRATER_H))
 		for py in range(y_min, y_max + 1):
 			for px in range(x_min, x_max + 1):
-				var u: float = (float(px) + 0.5) / CRATER_W
-				var v: float = (float(py) + 0.5) / CRATER_H
-				var n_px: Vector3 = _crater_uv_to_normal(u, v)
+				var u    := (float(px) + 0.5) / CRATER_W
+				var v    := (float(py) + 0.5) / CRATER_H
+				var n_px := _crater_uv_to_normal(u, v)
 				var cos_d: float = clamp(n_impact.dot(n_px), -1.0, 1.0)
 				var angular_d := acos(cos_d)
-				if angular_d > rim_angular_r:
+				# Build local frame for angle — same as shader
+				var tang_v := n_px - n_impact * cos_d
+				var bx_l   := (Vector3.UP if abs(n_impact.dot(Vector3.UP)) < 0.9 else Vector3.RIGHT)
+				bx_l = n_impact.cross(bx_l).normalized()
+				var bz_l   := bx_l.cross(n_impact).normalized()
+				var ang    := atan2(tang_v.dot(bz_l), tang_v.dot(bx_l))
+				var wobbled_r := angular_r * (1.0 + sin(ang * 11.0 + seed  * TAU)  * 0.025
+											+ sin(ang * 17.0 + seed2 * 9.42) * 0.018
+											+ sin(ang * 23.0 + seed3 * 4.15) * 0.012)
+				if angular_d >= wobbled_r:
 					continue
+				var t := angular_d / wobbled_r
+
+				var fade_m  := smoothstep(0.80, 1.0, t)
+
 				var existing := _crater_image.get_pixel(px, py).r
-				var new_val: float
-				if angular_d > angular_r:
-					# Bright ejecta rim — fixed brightness so small craters still show a ring
-					new_val = min(1.0, existing * (1.0 + 0.22 + intensity * 0.18))
-				else:
-					var t := angular_d / angular_r
-					var depth := 1.0 - t
-					# Base floor ensures small craters are always visible
-					var darken := 0.10 + intensity * (0.10 + 0.32 * depth * depth)
-					new_val = existing * (1.0 - darken)
-				_crater_image.set_pixel(px, py, Color(new_val, new_val, new_val))
+				var c: float = existing * lerpf(0.14, 1.0, pow(t, 0.6))
+				c = lerp(c, existing, fade_m)
+				_crater_image.set_pixel(px, py, Color(c, c, c))
 
 	_crater_tex = ImageTexture.create_from_image(_crater_image)
+
+	# Register crater in shader array — shader renders floor, walls, rim, ejecta.
+	var idx := _shader_crater_count % MAX_SHADER_CRATERS
+	_shader_crater_normals[idx]   = n_impact
+	_shader_crater_r[idx]         = angular_r
+	_shader_crater_intensity[idx] = clamp(intensity, 0.0, 1.0)
+	_shader_crater_count += 1
+
 	var mat := _putty_mi.material_override as ShaderMaterial
 	if mat:
 		mat.set_shader_parameter("crater_tex", _crater_tex)
+		mat.set_shader_parameter("crater_count", min(_shader_crater_count, MAX_SHADER_CRATERS))
+		mat.set_shader_parameter("crater_normals", _shader_crater_normals)
+		mat.set_shader_parameter("crater_r", _shader_crater_r)
+		mat.set_shader_parameter("crater_intensity", _shader_crater_intensity)
 	else:
 		push_error("_paint_crater: no material on _putty_mi")
 

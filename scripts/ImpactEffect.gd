@@ -1,6 +1,6 @@
 extends Node3D
 
-const DEBRIS_PER_INTENSITY := 45
+const DEBRIS_PER_INTENSITY := 120
 const FALL_BASE_DURATION   := 1.2
 const TRAIL_SEGMENTS       := 20
 
@@ -36,8 +36,9 @@ var _trail_mats:  Array = []
 var _trail_hist:  Array = []
 var _trail_write: int   = 0
 
-var _fire_pixels: Array = []  # [{mi, mat, vel, life, max_life}]
-var _fire_accum:  float = 0.0
+var _fire_pixels:     Array = []  # [{mi, mat, vel, life, max_life}]
+var _fire_accum:      float = 0.0
+var _irregular_core:  bool  = false  # true for player impacts, false for bombardment
 
 
 func _offscreen_start(surf_normal: Vector3) -> Vector3:
@@ -82,6 +83,7 @@ func setup(planet: Node3D, tile: Object, intensity: float = 1.0, tile_col: Color
 
 func setup_with_rock(planet: Node3D, tile: Object, intensity: float,
 		tile_col: Color, rock: Node3D, cb: Callable) -> void:
+	_irregular_core = true  # player-aimed rock → irregular black center
 	_ext_rock    = rock
 	_rock_cb     = cb
 	_intensity   = clamp(intensity, 0.1, 5.0)
@@ -312,16 +314,24 @@ func _make_ring(color: Color, start_r: float, delay: float, max_life: float, exp
 
 
 func _spawn_rings() -> void:
-	var cr: float = 0.45 + _intensity * 0.35
+	var cr: float = 0.45 + _intensity * 0.55
 	if _is_sea:
-		var ripple_col := Color(0.65, 0.85, 1.0, 0.85)
-		_make_ring(ripple_col, cr * 1.1, 0.00, 1.4, cr * 3.5)
-		_make_ring(ripple_col, cr * 1.1, 0.22, 1.3, cr * 3.0)
-		_make_ring(ripple_col, cr * 1.1, 0.44, 1.2, cr * 2.5)
+		# Tidal waves — multiple concentric ripples, each delayed
+		var ripple_col := Color(0.65, 0.85, 1.0, 0.90)
+		_make_ring(ripple_col, cr * 1.1, 0.00, 1.6, cr * 5.5)
+		_make_ring(ripple_col, cr * 1.0, 0.28, 1.5, cr * 4.8)
+		_make_ring(ripple_col, cr * 0.9, 0.55, 1.4, cr * 4.0)
+		_make_ring(ripple_col, cr * 0.8, 0.80, 1.3, cr * 3.2)
 	else:
-		# Fire blast ring — orange, then a cooling red aftershock
-		_make_ring(Color(1.0, 0.55, 0.05, 1.0), cr * 1.0, 0.00, 0.70, cr * 4.0)
-		_make_ring(Color(0.8, 0.20, 0.02, 0.8), cr * 0.8, 0.15, 0.90, cr * 3.2)
+		# Brown dust shockwave — main wave, then two aftershocks; small fire accent
+		var dust   := Color(0.76, 0.55, 0.28, 1.00)
+		var dust2  := Color(0.62, 0.44, 0.22, 0.85)
+		var dust3  := Color(0.52, 0.36, 0.18, 0.65)
+		var fire   := Color(1.00, 0.45, 0.05, 0.70)
+		_make_ring(dust,  cr * 1.0, 0.00, 1.10, cr * 5.5)
+		_make_ring(fire,  cr * 0.7, 0.06, 0.65, cr * 3.0)  # small inner fire burst
+		_make_ring(dust2, cr * 0.9, 0.22, 1.30, cr * 4.5)
+		_make_ring(dust3, cr * 0.8, 0.45, 1.50, cr * 3.8)
 
 
 func _update_rings(delta: float) -> void:
@@ -352,7 +362,15 @@ func _spawn_debris() -> void:
 	var ref:       Vector3 = Vector3.UP if abs(_surf_normal.dot(Vector3.UP)) < 0.9 else Vector3.RIGHT
 	var tangent:   Vector3 = _surf_normal.cross(ref).normalized()
 	var bitangent: Vector3 = _surf_normal.cross(tangent).normalized()
-	var count: int = clamp(int(DEBRIS_PER_INTENSITY * _intensity), 18, 70)
+	var count: int = clamp(int(DEBRIS_PER_INTENSITY * _intensity), 40, 200)
+
+	const ROCK_COLS := [
+		Color(0.36, 0.28, 0.20),
+		Color(0.50, 0.40, 0.28),
+		Color(0.62, 0.52, 0.36),
+		Color(0.28, 0.24, 0.18),
+		Color(0.45, 0.35, 0.22),
+	]
 
 	for i in range(count):
 		var angle: float   = (float(i) / count) * TAU + randf() * 1.2
@@ -361,49 +379,63 @@ func _spawn_debris() -> void:
 		var lift: float    = randf_range(2.5, 7.0 * _intensity)
 		var vel: Vector3   = t_dir * speed + _surf_normal * lift
 
-		var mi   := MeshInstance3D.new()
-		var mesh := QuadMesh.new()
-		var w: float = randf_range(0.06, 0.18) * (0.7 + _intensity * 0.3)
-		var h: float = randf_range(0.04, 0.14) * (0.7 + _intensity * 0.3)
-		mesh.size = Vector2(w, h)
-		mi.mesh   = mesh
-
-		# 35% chance of fire debris, rest terrain-coloured
-		var piece_col: Color
-		if randf() < 0.35:
-			piece_col = FIRE_COLORS[randi() % FIRE_COLORS.size()]
-		else:
-			var vary: float = randf_range(-0.12, 0.12)
-			piece_col = Color(
-				clamp(_tile_col.r + vary, 0.0, 1.0),
-				clamp(_tile_col.g + vary, 0.0, 1.0),
-				clamp(_tile_col.b + vary, 0.0, 1.0)
-			)
-
-		var mat := StandardMaterial3D.new()
-		mat.albedo_color = piece_col
-		mat.emission_enabled = piece_col.r > 0.7  # fire pieces glow
-		if mat.emission_enabled:
-			mat.emission = piece_col
-			mat.emission_energy_multiplier = 1.0
-		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		mat.cull_mode    = BaseMaterial3D.CULL_DISABLED
-		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		mi.set_surface_override_material(0, mat)
-		mi.position = _end_pos
-		mi.rotation = Vector3(randf() * TAU, randf() * TAU, randf() * TAU)
-		add_child(mi)
-
 		var return_time: float = 2.0 * lift / 6.5
 		var piece_life: float  = return_time + randf_range(0.4, 0.9)
-		_debris.append({
-			"mi":       mi,
-			"vel":      vel,
-			"spin":     Vector3(randf_range(-4.0, 4.0), randf_range(-4.0, 4.0), randf_range(-4.0, 4.0)),
-			"life":     0.0,
-			"max_life": piece_life,
-			"mat":      mat,
-		})
+		var spin: Vector3      = Vector3(randf_range(-4.0, 4.0), randf_range(-4.0, 4.0), randf_range(-4.0, 4.0))
+
+		# Cluster base colour
+		var base_col: Color
+		if randf() < 0.12:
+			base_col = FIRE_COLORS[randi() % 2]
+		elif randf() < 0.5:
+			base_col = ROCK_COLS[randi() % ROCK_COLS.size()]
+		else:
+			var vary: float = randf_range(-0.08, 0.08)
+			base_col = Color(clamp(_tile_col.r + vary, 0.0, 1.0),
+			                 clamp(_tile_col.g + vary, 0.0, 1.0),
+			                 clamp(_tile_col.b + vary, 0.0, 1.0))
+
+		# 2-4 quads per cluster, each tracked independently with shared velocity
+		var cluster_size: int = 2 + randi() % 3
+		for _c in range(cluster_size):
+			var mi   := MeshInstance3D.new()
+			var mesh := QuadMesh.new()
+			var sz: float = randf_range(0.03, 0.07) * (0.7 + _intensity * 0.3)
+			mesh.size = Vector2(sz, sz)
+			mi.mesh   = mesh
+
+			var vary2: float = randf_range(-0.06, 0.06)
+			var piece_col := Color(clamp(base_col.r + vary2, 0.0, 1.0),
+			                       clamp(base_col.g + vary2, 0.0, 1.0),
+			                       clamp(base_col.b + vary2, 0.0, 1.0))
+			var mat := StandardMaterial3D.new()
+			mat.albedo_color = piece_col
+			mat.emission_enabled = piece_col.r > 0.7
+			if mat.emission_enabled:
+				mat.emission = piece_col
+				mat.emission_energy_multiplier = 1.0
+			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			mat.cull_mode    = BaseMaterial3D.CULL_DISABLED
+			mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+			mi.set_surface_override_material(0, mat)
+
+			# Tight positional offset so pieces read as one chunk
+			var spread: Vector3 = (tangent * randf_range(-1.0, 1.0)
+			                     + bitangent * randf_range(-1.0, 1.0)).normalized()
+			mi.position = _end_pos + spread * randf_range(0.0, 0.05)
+			mi.rotation = Vector3(randf() * TAU, randf() * TAU, randf() * TAU)
+			add_child(mi)
+
+			# Slight per-piece velocity variation to make cluster drift apart over time
+			var piece_vel: Vector3 = vel + spread * randf_range(0.0, 0.4)
+			_debris.append({
+				"mi":       mi,
+				"vel":      piece_vel,
+				"spin":     spin,
+				"life":     0.0,
+				"max_life": piece_life,
+				"mat":      mat,
+			})
 
 
 # ── Main loop ─────────────────────────────────────────────────────────────────
@@ -474,4 +506,4 @@ func _on_impact() -> void:
 	_spawn_rings()
 	_spawn_debris()
 	if _planet.has_method("apply_impact"):
-		_planet.apply_impact((_tile as RefCounted).tile_id, _end_pos, _intensity)
+		_planet.apply_impact((_tile as RefCounted).tile_id, _end_pos, _intensity, _irregular_core)
