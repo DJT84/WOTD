@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://bsmoothcompare01"]
+
+[ext_resource type="Script" path="res://planet_smooth/compare.gd" id="1"]
+
+[sub_resource type="Environment" id="Env_1"]
+background_mode = 1
+background_color = Color(0.02, 0.02, 0.045, 1)
+ambient_light_source = 0
+
+[node name="Compare" type="Node3D"]
+script = ExtResource("1")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env_1")

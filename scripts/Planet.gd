@@ -1066,7 +1066,8 @@ func get_tile_at_screen_pos(screen_pos: Vector2, cam: Camera3D) -> PlanetTile:
 
 # ── Impact ─────────────────────────────────────────────────────────────────────
 
-func trigger_impact(tile_id: int, intensity: float = 1.0) -> void:
+func trigger_impact(tile_id: int, intensity: float = 1.0,
+		asteroid_type: String = "c_type") -> void:
 	var tile: PlanetTile = null
 	for t in _geo_tiles:
 		if (t as PlanetTile).tile_id == tile_id:
@@ -1077,12 +1078,15 @@ func trigger_impact(tile_id: int, intensity: float = 1.0) -> void:
 	var palette: Dictionary = _age_cfg[current_age].get("palette", {})
 	var tile_col: Color     = palette.get(tile.terrain_type, Color(0.5, 0.5, 0.5))
 	var effect := preload("res://scripts/ImpactEffect.gd").new()
-	add_child(effect)
-	effect.setup(self, tile, intensity, tile_col)
+	# Add to scene root — planet.visible is false so any Planet child would be invisible
+	get_tree().current_scene.add_child(effect)
+	effect.global_position = global_position  # origin at planet centre for local-space maths
+	effect.setup(self, tile, intensity, tile_col, asteroid_type)
 
 
 func trigger_impact_with_rock(tile_id: int, intensity: float,
-		rock: Node3D, done_cb: Callable) -> void:
+		rock: Node3D, done_cb: Callable,
+		asteroid_type: String = "c_type") -> void:
 	var tile: PlanetTile = null
 	for t in _geo_tiles:
 		if (t as PlanetTile).tile_id == tile_id:
@@ -1093,8 +1097,9 @@ func trigger_impact_with_rock(tile_id: int, intensity: float,
 	var palette: Dictionary = _age_cfg[current_age].get("palette", {})
 	var tile_col: Color     = palette.get(tile.terrain_type, Color(0.5, 0.5, 0.5))
 	var effect := preload("res://scripts/ImpactEffect.gd").new()
-	add_child(effect)
-	effect.setup_with_rock(self, tile, intensity, tile_col, rock, done_cb)
+	get_tree().current_scene.add_child(effect)
+	effect.global_position = global_position  # origin at planet centre for local-space maths
+	effect.setup_with_rock(self, tile, intensity, tile_col, rock, done_cb, asteroid_type)
 
 
 func apply_impact(tile_id: int, impact_pos: Vector3 = Vector3.ZERO, intensity: float = 1.0, irregular_core: bool = false) -> void:

@@ -1,0 +1,704 @@
+{
+  "_comment": "Earth across 8 geological epochs. Keys match EarthSphere.gdshader uniforms. Colors [r,g,b] 0..1. Natural palette (epoch-mood, gentler than the over-saturated pass). earth_sea_level per-epoch travels with the EarthPlanet component.",
+  "_order": [
+    "cambrian",
+    "carboniferous",
+    "permian",
+    "jurassic",
+    "cretaceous",
+    "eocene",
+    "pleistocene",
+    "holocene"
+  ],
+  "cambrian": {
+    "atmo_gradient_strength": 0.4,
+    "atmo_ring_falloff": 5.7,
+    "atmo_ring_size": 1.2,
+    "atmo_ring_strength": 0.65,
+    "atmosphere_color": [
+      0.3,
+      0.58,
+      0.68
+    ],
+    "atmosphere_strength": 0.0,
+    "band_smoothness": 0.02,
+    "cloud_color": [
+      0.93,
+      0.94,
+      0.95
+    ],
+    "cloud_cover": 0.62,
+    "cloud_shadow_color": [
+      0.46,
+      0.5,
+      0.56
+    ],
+    "cloud_size": 5.5,
+    "cloud_wispy": 0.0,
+    "coast_strength": 0.0,
+    "color1": [
+      0.4,
+      0.66,
+      0.58
+    ],
+    "color2": [
+      0.16,
+      0.45,
+      0.46
+    ],
+    "color3": [
+      0.04,
+      0.16,
+      0.22
+    ],
+    "continent_mix": 0.45,
+    "continent_scale": 2.8,
+    "earth_sea_level": 0.06,
+    "edge_softness": 0.0,
+    "ice_color": [
+      0.9,
+      0.93,
+      0.95
+    ],
+    "ice_color2": [
+      0.74,
+      0.82,
+      0.88
+    ],
+    "ice_north": 0.0,
+    "ice_seed": 1.0,
+    "ice_south": 0.05,
+    "landColor1": [
+      0.68,
+      0.58,
+      0.42
+    ],
+    "landColor2": [
+      0.58,
+      0.46,
+      0.32
+    ],
+    "landColor3": [
+      0.46,
+      0.34,
+      0.26
+    ],
+    "landColor4": [
+      0.34,
+      0.26,
+      0.22
+    ],
+    "land_cutoff": 0.48,
+    "land_seed": 2.4,
+    "ocean_depth": 1.0,
+    "ocean_shallow_amt": 0.78,
+    "outline_strength": 1.0,
+    "outline_width": 1.0,
+    "seed": 3.0,
+    "seedClouds": 5.0,
+    "spin_speed": 0.65,
+    "wave_flecks": 0.0
+  },
+  "carboniferous": {
+    "atmo_gradient_strength": 0.4,
+    "atmo_ring_falloff": 5.8,
+    "atmo_ring_size": 1.2,
+    "atmo_ring_strength": 0.95,
+    "atmosphere_color": [
+      0.1,
+      0.42,
+      0.35
+    ],
+    "atmosphere_strength": 0.74,
+    "band_smoothness": 0.02,
+    "cloud_color": [
+      0.95,
+      0.96,
+      0.97
+    ],
+    "cloud_cover": 0.58,
+    "cloud_shadow_color": [
+      0.44,
+      0.48,
+      0.58
+    ],
+    "cloud_size": 5.5,
+    "cloud_wispy": 0.0,
+    "coast_strength": 0.0,
+    "color1": [
+      0.16,
+      0.34,
+      0.38
+    ],
+    "color2": [
+      0.08,
+      0.22,
+      0.28
+    ],
+    "color3": [
+      0.03,
+      0.1,
+      0.16
+    ],
+    "continent_mix": 0.64,
+    "continent_scale": 2.4,
+    "earth_sea_level": 0.0,
+    "edge_softness": 0.0,
+    "ice_color": [
+      0.92,
+      0.95,
+      0.98
+    ],
+    "ice_color2": [
+      0.72,
+      0.82,
+      0.92
+    ],
+    "ice_north": 0.02,
+    "ice_seed": 2.0,
+    "ice_south": 0.22,
+    "landColor1": [
+      0.38,
+      0.32,
+      0.16
+    ],
+    "landColor2": [
+      0.26,
+      0.44,
+      0.18
+    ],
+    "landColor3": [
+      0.14,
+      0.26,
+      0.1
+    ],
+    "landColor4": [
+      0.07,
+      0.14,
+      0.07
+    ],
+    "land_cutoff": 0.4,
+    "land_seed": 7.1,
+    "ocean_depth": 1.0,
+    "ocean_shallow_amt": 0.78,
+    "outline_strength": 1.0,
+    "outline_width": 1.0,
+    "seed": 6.0,
+    "seedClouds": 4.0,
+    "spin_speed": 0.06,
+    "wave_flecks": 0.0
+  },
+  "cretaceous": {
+    "atmo_gradient_strength": 0.4,
+    "atmo_ring_falloff": 5.7,
+    "atmo_ring_size": 1.2,
+    "atmo_ring_strength": 0.65,
+    "atmosphere_color": [
+      0.15,
+      0.72,
+      0.8
+    ],
+    "atmosphere_strength": 0.0,
+    "band_smoothness": 0.02,
+    "cloud_color": [
+      0.96,
+      0.97,
+      0.98
+    ],
+    "cloud_cover": 0.62,
+    "cloud_shadow_color": [
+      0.43,
+      0.5,
+      0.6
+    ],
+    "cloud_size": 5.5,
+    "cloud_wispy": 0.0,
+    "coast_strength": 0.0,
+    "color1": [
+      0.28,
+      0.65,
+      0.74
+    ],
+    "color2": [
+      0.14,
+      0.48,
+      0.62
+    ],
+    "color3": [
+      0.05,
+      0.22,
+      0.4
+    ],
+    "continent_mix": 0.52,
+    "continent_scale": 2.4,
+    "earth_sea_level": 0.1,
+    "edge_softness": 0.0,
+    "ice_color": [
+      0.92,
+      0.95,
+      0.98
+    ],
+    "ice_color2": [
+      0.74,
+      0.82,
+      0.92
+    ],
+    "ice_north": 0.0,
+    "ice_seed": 5.0,
+    "ice_south": 0.0,
+    "landColor1": [
+      0.48,
+      0.7,
+      0.3
+    ],
+    "landColor2": [
+      0.72,
+      0.62,
+      0.28
+    ],
+    "landColor3": [
+      0.6,
+      0.46,
+      0.22
+    ],
+    "landColor4": [
+      0.28,
+      0.42,
+      0.18
+    ],
+    "land_cutoff": 0.46,
+    "land_seed": 4.3,
+    "ocean_depth": 1.0,
+    "ocean_shallow_amt": 0.78,
+    "outline_strength": 1.0,
+    "outline_width": 1.0,
+    "seed": 7.0,
+    "seedClouds": 8.0,
+    "spin_speed": 0.65,
+    "wave_flecks": 0.02
+  },
+  "eocene": {
+    "atmo_gradient_strength": 0.4,
+    "atmo_ring_falloff": 5.7,
+    "atmo_ring_size": 1.2,
+    "atmo_ring_strength": 0.65,
+    "atmosphere_color": [
+      0.62,
+      0.82,
+      0.18
+    ],
+    "atmosphere_strength": 0.0,
+    "cloud_color": [
+      0.95,
+      0.96,
+      0.97
+    ],
+    "cloud_cover": 0.58,
+    "cloud_shadow_color": [
+      0.44,
+      0.48,
+      0.58
+    ],
+    "coast_strength": 0.0,
+    "color1": [
+      0.12,
+      0.48,
+      0.72
+    ],
+    "color2": [
+      0.06,
+      0.3,
+      0.58
+    ],
+    "color3": [
+      0.03,
+      0.14,
+      0.36
+    ],
+    "continent_mix": 0.52,
+    "continent_scale": 2.5,
+    "earth_sea_level": 0.0,
+    "ice_color": [
+      0.92,
+      0.95,
+      0.98
+    ],
+    "ice_color2": [
+      0.74,
+      0.82,
+      0.92
+    ],
+    "ice_north": 0.0,
+    "ice_seed": 6.0,
+    "ice_south": 0.04,
+    "landColor1": [
+      0.28,
+      0.62,
+      0.24
+    ],
+    "landColor2": [
+      0.18,
+      0.48,
+      0.18
+    ],
+    "landColor3": [
+      0.12,
+      0.34,
+      0.14
+    ],
+    "landColor4": [
+      0.08,
+      0.22,
+      0.1
+    ],
+    "land_cutoff": 0.5,
+    "land_seed": 6.2,
+    "seed": 4.0,
+    "seedClouds": 2.0,
+    "spin_speed": 0.65
+  },
+  "holocene": {
+    "atmo_gradient_strength": 0.4,
+    "atmo_ring_falloff": 5.7,
+    "atmo_ring_size": 1.2,
+    "atmo_ring_strength": 0.65,
+    "atmosphere_color": [
+      0.15,
+      0.55,
+      1.0
+    ],
+    "atmosphere_strength": 0.0,
+    "cloud_color": [
+      0.96,
+      0.97,
+      0.98
+    ],
+    "cloud_cover": 0.58,
+    "cloud_shadow_color": [
+      0.45,
+      0.48,
+      0.6
+    ],
+    "coast_strength": 0.0,
+    "color1": [
+      0.18,
+      0.48,
+      0.72
+    ],
+    "color2": [
+      0.08,
+      0.3,
+      0.58
+    ],
+    "color3": [
+      0.03,
+      0.13,
+      0.33
+    ],
+    "continent_mix": 0.5,
+    "continent_scale": 2.6,
+    "earth_sea_level": -0.02,
+    "ice_color": [
+      0.93,
+      0.96,
+      0.99
+    ],
+    "ice_color2": [
+      0.72,
+      0.82,
+      0.93
+    ],
+    "ice_north": 0.12,
+    "ice_seed": 8.0,
+    "ice_south": 0.17,
+    "landColor1": [
+      0.62,
+      0.62,
+      0.34
+    ],
+    "landColor2": [
+      0.34,
+      0.52,
+      0.24
+    ],
+    "landColor3": [
+      0.22,
+      0.4,
+      0.22
+    ],
+    "landColor4": [
+      0.46,
+      0.4,
+      0.28
+    ],
+    "land_cutoff": 0.52,
+    "land_seed": 5.5,
+    "seed": 1.0,
+    "seedClouds": 9.0,
+    "spin_speed": 0.65
+  },
+  "jurassic": {
+    "atmo_gradient_strength": 0.4,
+    "atmo_ring_falloff": 5.7,
+    "atmo_ring_size": 1.2,
+    "atmo_ring_strength": 0.65,
+    "atmosphere_color": [
+      0.3,
+      0.65,
+      0.2
+    ],
+    "atmosphere_strength": 0.0,
+    "cloud_color": [
+      0.95,
+      0.96,
+      0.97
+    ],
+    "cloud_cover": 0.6,
+    "cloud_shadow_color": [
+      0.44,
+      0.48,
+      0.58
+    ],
+    "coast_strength": 0.0,
+    "color1": [
+      0.24,
+      0.58,
+      0.66
+    ],
+    "color2": [
+      0.12,
+      0.42,
+      0.54
+    ],
+    "color3": [
+      0.05,
+      0.2,
+      0.38
+    ],
+    "continent_mix": 0.6,
+    "continent_scale": 2.1,
+    "earth_sea_level": 0.0,
+    "ice_color": [
+      0.92,
+      0.95,
+      0.98
+    ],
+    "ice_color2": [
+      0.74,
+      0.82,
+      0.92
+    ],
+    "ice_north": 0.0,
+    "ice_seed": 4.0,
+    "ice_south": 0.0,
+    "landColor1": [
+      0.7,
+      0.82,
+      0.2
+    ],
+    "landColor2": [
+      0.52,
+      0.7,
+      0.16
+    ],
+    "landColor3": [
+      0.36,
+      0.56,
+      0.14
+    ],
+    "landColor4": [
+      0.22,
+      0.42,
+      0.12
+    ],
+    "land_cutoff": 0.46,
+    "land_seed": 8.6,
+    "seed": 5.0,
+    "seedClouds": 3.0,
+    "spin_speed": 0.65
+  },
+  "permian": {
+    "atmo_gradient_strength": 0.15,
+    "atmo_ring_falloff": 6.7,
+    "atmo_ring_size": 1.185,
+    "atmo_ring_strength": 0.65,
+    "atmosphere_color": [
+      0.92,
+      0.6,
+      0.18
+    ],
+    "atmosphere_strength": 0.0,
+    "band_smoothness": 0.02,
+    "cloud_color": [
+      0.95,
+      0.92,
+      0.86
+    ],
+    "cloud_cover": 0.59,
+    "cloud_shadow_color": [
+      0.5,
+      0.44,
+      0.42
+    ],
+    "cloud_size": 5.5,
+    "cloud_wispy": 0.0,
+    "coast_color": [
+      0.4,
+      0.46,
+      0.22
+    ],
+    "coast_strength": 0.0,
+    "coast_width": 0.05,
+    "color1": [
+      0.2,
+      0.46,
+      0.6
+    ],
+    "color2": [
+      0.1,
+      0.3,
+      0.5
+    ],
+    "color3": [
+      0.04,
+      0.12,
+      0.26
+    ],
+    "continent_mix": 1.0,
+    "continent_scale": 1.75,
+    "earth_sea_level": -0.04,
+    "edge_softness": 0.0,
+    "ice_color": [
+      0.9,
+      0.92,
+      0.94
+    ],
+    "ice_color2": [
+      0.74,
+      0.8,
+      0.88
+    ],
+    "ice_north": 0.0,
+    "ice_seed": 3.0,
+    "ice_south": 0.05,
+    "landColor1": [
+      0.82,
+      0.56,
+      0.34
+    ],
+    "landColor2": [
+      0.7,
+      0.42,
+      0.25
+    ],
+    "landColor3": [
+      0.54,
+      0.3,
+      0.2
+    ],
+    "landColor4": [
+      0.38,
+      0.22,
+      0.17
+    ],
+    "land_cutoff": 0.4,
+    "land_seed": 1.5,
+    "ocean_depth": 1.0,
+    "ocean_shallow_amt": 0.78,
+    "outline_strength": 1.0,
+    "outline_width": 1.0,
+    "seed": 2.0,
+    "seedClouds": 6.0,
+    "spin_speed": 0.65,
+    "wave_flecks": 0.0
+  },
+  "pleistocene": {
+    "atmo_gradient_strength": 0.5,
+    "atmo_ring_falloff": 5.9,
+    "atmo_ring_size": 1.16,
+    "atmo_ring_strength": 0.75,
+    "atmosphere_color": [
+      0.78,
+      0.91,
+      0.96
+    ],
+    "atmosphere_strength": 0.0,
+    "band_smoothness": 0.02,
+    "cloud_color": [
+      0.95,
+      0.97,
+      0.99
+    ],
+    "cloud_cover": 0.55,
+    "cloud_shadow_color": [
+      0.46,
+      0.5,
+      0.62
+    ],
+    "cloud_size": 5.5,
+    "cloud_wispy": 0.0,
+    "coast_strength": 0.0,
+    "color1": [
+      0.24,
+      0.48,
+      0.6
+    ],
+    "color2": [
+      0.12,
+      0.3,
+      0.49
+    ],
+    "color3": [
+      0.04,
+      0.13,
+      0.28
+    ],
+    "continent_mix": 0.52,
+    "continent_scale": 2.5,
+    "earth_sea_level": -0.04,
+    "edge_softness": 0.0,
+    "ice_color": [
+      0.93,
+      0.96,
+      0.99
+    ],
+    "ice_color2": [
+      0.7,
+      0.8,
+      0.92
+    ],
+    "ice_north": 0.42,
+    "ice_seed": 7.0,
+    "ice_south": 0.3,
+    "landColor1": [
+      0.72,
+      0.67,
+      0.5
+    ],
+    "landColor2": [
+      0.58,
+      0.54,
+      0.42
+    ],
+    "landColor3": [
+      0.47,
+      0.46,
+      0.4
+    ],
+    "landColor4": [
+      0.4,
+      0.4,
+      0.38
+    ],
+    "land_cutoff": 0.45,
+    "land_seed": 3.7,
+    "ocean_depth": 1.0,
+    "ocean_shallow_amt": 0.78,
+    "outline_strength": 1.0,
+    "outline_width": 1.0,
+    "seed": 8.0,
+    "seedClouds": 7.0,
+    "spin_speed": 0.65,
+    "wave_flecks": 0.0
+  }
+}

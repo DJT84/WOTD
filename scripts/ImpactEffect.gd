@@ -12,6 +12,20 @@ const FIRE_COLORS := [
 	Color(0.90, 0.20, 0.02),  # red
 	Color(0.55, 0.08, 0.01),  # dark red ember
 ]
+const ICE_COLORS := [
+	Color(1.00, 1.00, 1.00),  # white ice core
+	Color(0.82, 0.96, 1.00),  # light cyan
+	Color(0.55, 0.82, 1.00),  # ice blue
+	Color(0.35, 0.65, 0.95),  # deep blue
+	Color(0.22, 0.48, 0.82),  # dark ice
+]
+const METAL_COLORS := [
+	Color(1.00, 1.00, 0.95),  # white-hot
+	Color(1.00, 0.98, 0.60),  # searing yellow
+	Color(1.00, 0.72, 0.10),  # bright orange
+	Color(0.90, 0.40, 0.05),  # orange-red
+	Color(0.60, 0.20, 0.02),  # cooling red
+]
 
 var _planet:      Node3D
 var _tile:        Object
@@ -21,6 +35,7 @@ var _rock_cb:     Callable
 var _intensity:   float  = 1.0
 var _tile_col:    Color  = Color(0.5, 0.5, 0.5)
 var _is_sea:      bool   = false
+var _ast_type:    String = "c_type"
 var _debris:      Array  = []
 var _rings:       Array  = []
 var _surf_normal: Vector3
@@ -42,25 +57,34 @@ var _irregular_core:  bool  = false  # true for player impacts, false for bombar
 
 
 func _offscreen_start(surf_normal: Vector3) -> Vector3:
-	# Start from far off-screen: 20 units from planet centre, in a direction
-	# that is offset from the surface normal so the asteroid flies in diagonally.
+	# Start from off-screen in a diagonal direction relative to the surface normal.
+	# Distance is capped so the Z component stays below 12: camera is at world Z=17,
+	# ImpactEffect origin is at planet Z=0, so Z>12 would put the start near/behind camera.
 	var ref:    Vector3 = Vector3.UP if abs(surf_normal.dot(Vector3.UP)) < 0.9 else Vector3.RIGHT
 	var tang:   Vector3 = surf_normal.cross(ref).normalized()
 	var bitang: Vector3 = tang.cross(surf_normal).normalized()
-	# Random diagonal approach — lateral offset 0.6-1.4 × normal
 	var lat:  float = randf_range(0.6, 1.4)
 	var vert: float = randf_range(0.2, 0.7)
 	var side: Vector3 = (tang * randf_range(-1.0, 1.0) + bitang * randf_range(-1.0, 1.0)).normalized()
 	var approach: Vector3 = (surf_normal + side * lat + Vector3.UP * vert).normalized()
-	return approach * 20.0
+	# Clamp distance so approach.z * dist <= 12 (keeps start in front of camera)
+	var max_z_contrib := 12.0
+	var dist := minf(18.0, max_z_contrib / maxf(approach.z, 0.25))
+	return approach * dist
 
 
-func setup(planet: Node3D, tile: Object, intensity: float = 1.0, tile_col: Color = Color(0.5, 0.5, 0.5)) -> void:
+func setup(planet: Node3D, tile: Object, intensity: float = 1.0,
+		tile_col: Color = Color(0.5, 0.5, 0.5), asteroid_type: String = "c_type") -> void:
+	print("[ImpactEffect] setup() type=", asteroid_type, " intensity=", intensity)
+	_ast_type    = asteroid_type
 	_intensity   = clamp(intensity, 0.1, 3.0)
 	_planet      = planet
 	_tile        = tile
 	_tile_col    = tile_col
-	_surf_normal = (tile as RefCounted).center_position.normalized()
+	# Apply planet's current rotation so normals/positions are in ImpactEffect's world-oriented space.
+	# (ImpactEffect is parented to the scene root at planet.global_position with identity rotation.)
+	var local_normal: Vector3 = (tile as RefCounted).center_position.normalized()
+	_surf_normal = (planet as Node3D).global_transform.basis * local_normal
 	_is_sea      = not (tile as PlanetTile).is_land
 
 	var land_add: float = 0.0 if _is_sea else planet.land_height
@@ -82,7 +106,9 @@ func setup(planet: Node3D, tile: Object, intensity: float = 1.0, tile_col: Color
 
 
 func setup_with_rock(planet: Node3D, tile: Object, intensity: float,
-		tile_col: Color, rock: Node3D, cb: Callable) -> void:
+		tile_col: Color, rock: Node3D, cb: Callable,
+		asteroid_type: String = "c_type") -> void:
+	_ast_type       = asteroid_type
 	_irregular_core = true  # player-aimed rock → irregular black center
 	_ext_rock    = rock
 	_rock_cb     = cb
@@ -90,7 +116,8 @@ func setup_with_rock(planet: Node3D, tile: Object, intensity: float,
 	_planet      = planet
 	_tile        = tile
 	_tile_col    = tile_col
-	_surf_normal = (tile as RefCounted).center_position.normalized()
+	var local_normal: Vector3 = (tile as RefCounted).center_position.normalized()
+	_surf_normal = (planet as Node3D).global_transform.basis * local_normal
 	_is_sea      = not (tile as PlanetTile).is_land
 
 	var land_add: float = 0.0 if _is_sea else planet.land_height
@@ -104,7 +131,8 @@ func setup_with_rock(planet: Node3D, tile: Object, intensity: float,
 	                         * randf_range(0.0, max_off)
 
 	_end_pos    = _surf_normal * surf_r + offset
-	_start_pos  = rock.position
+	# rock.position is in camera-local space; convert to ImpactEffect-local (world - planet_pos)
+	_start_pos  = rock.global_position - (planet as Node3D).global_position
 	_flight_dir = (_end_pos - _start_pos).normalized()
 
 	_build_trail()
@@ -113,18 +141,34 @@ func setup_with_rock(planet: Node3D, tile: Object, intensity: float,
 func _build_meteor() -> void:
 	_meteor      = MeshInstance3D.new()
 	var mesh     := SphereMesh.new()
-	mesh.radius          = 0.12 + _intensity * 0.12
-	mesh.height          = mesh.radius * 2.2
-	mesh.radial_segments = 12
-	mesh.rings           = 6
+	mesh.radius          = 0.24 + _intensity * 0.24  # large enough to see
+	mesh.height          = mesh.radius * 2.0
+	mesh.radial_segments = 8
+	mesh.rings           = 4
 	_meteor.mesh = mesh
 
-	var mat := ShaderMaterial.new()
-	mat.shader = load("res://shaders/pixel_rock.gdshader") as Shader
-	mat.set_shader_parameter("pixel_size", 0.05)
+	# Bright fireball — visible from any camera distance
+	var hot: Color = _trail_palette()[0] as Color
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color              = hot
+	mat.emission_enabled          = true
+	mat.emission                  = hot
+	mat.emission_energy_multiplier = 5.0
+	mat.shading_mode  = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.cull_mode     = BaseMaterial3D.CULL_DISABLED
+	mat.transparency  = BaseMaterial3D.TRANSPARENCY_DISABLED
 	_meteor.set_surface_override_material(0, mat)
 	_meteor.position = _start_pos
 	add_child(_meteor)
+
+
+func _trail_palette() -> Array:
+	match _ast_type:
+		"comet":   return ICE_COLORS.duplicate()
+		"m_type":  return METAL_COLORS.duplicate()
+		"s_type":  return [Color(1.00,0.97,0.70), Color(1.00,0.78,0.15),
+		                   Color(1.00,0.50,0.05), Color(0.88,0.22,0.02), Color(0.50,0.08,0.01)]
+		_:         return FIRE_COLORS.duplicate()
 
 
 func _build_trail() -> void:
@@ -132,7 +176,8 @@ func _build_trail() -> void:
 	for i in range(TRAIL_SEGMENTS):
 		_trail_hist[i] = _start_pos
 
-	var base_radius: float = 0.07 + _intensity * 0.07
+	var base_radius: float = 0.16 + _intensity * 0.12
+	var palette: Array = _trail_palette()
 
 	for i in range(TRAIL_SEGMENTS):
 		var mi   := MeshInstance3D.new()
@@ -145,17 +190,16 @@ func _build_trail() -> void:
 		mesh.rings               = 3
 		mi.mesh                  = mesh
 
-		# Colour: hot yellow-white near head, deep red at tail
-		var fire_idx: int = int(frac * (FIRE_COLORS.size() - 1))
-		var fire_t:   float = frac * (FIRE_COLORS.size() - 1) - fire_idx
-		var fire_col: Color = FIRE_COLORS[fire_idx].lerp(
-			FIRE_COLORS[mini(fire_idx + 1, FIRE_COLORS.size() - 1)], fire_t)
+		var fire_idx: int   = int(frac * (palette.size() - 1))
+		var fire_t:   float = frac * (palette.size() - 1) - fire_idx
+		var fire_col: Color = (palette[fire_idx] as Color).lerp(
+			palette[mini(fire_idx + 1, palette.size() - 1)] as Color, fire_t)
 
 		var mat := StandardMaterial3D.new()
 		mat.albedo_color = fire_col
 		mat.emission_enabled = true
 		mat.emission         = fire_col
-		mat.emission_energy_multiplier = 1.2 * frac
+		mat.emission_energy_multiplier = 3.0 * frac
 		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		mat.albedo_color.a = frac * 0.9
@@ -169,7 +213,8 @@ func _build_trail() -> void:
 
 func _active_pos() -> Vector3:
 	if _ext_rock:
-		return _ext_rock.position
+		# ext_rock is a camera child; convert its world position to ImpactEffect-local
+		return _ext_rock.global_position - (_planet as Node3D).global_position
 	return _meteor.position if _meteor else _end_pos
 
 
@@ -191,18 +236,18 @@ func _hide_trail() -> void:
 func _spawn_fire_pixel(origin: Vector3) -> void:
 	var mi   := MeshInstance3D.new()
 	var mesh := QuadMesh.new()
-	var sz: float = randf_range(0.04, 0.13)
+	var sz: float = randf_range(0.09, 0.26)
 	mesh.size = Vector2(sz, sz)
 	mi.mesh   = mesh
 
-	# Random fire colour — hotter near the asteroid, cooler drifting back
-	var col: Color = FIRE_COLORS[randi() % FIRE_COLORS.size()]
+	var _pal: Array = _trail_palette()
+	var col: Color = _pal[randi() % _pal.size()]
 
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color             = col
 	mat.emission_enabled         = true
 	mat.emission                 = col
-	mat.emission_energy_multiplier = 1.5
+	mat.emission_energy_multiplier = 4.0
 	mat.shading_mode  = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.transparency  = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.cull_mode     = BaseMaterial3D.CULL_DISABLED
@@ -282,9 +327,12 @@ func _build_sphere_cap_disk(mesh: ArrayMesh, max_r: float, planet_r: float) -> v
 func _make_ring(color: Color, start_r: float, delay: float, max_life: float, expand_to: float) -> void:
 	var mi      := MeshInstance3D.new()
 	var mesh    := ArrayMesh.new()
-	var planet_r: float = (_planet as Planet).planet_radius
-	var center: Vector3 = _surf_normal * planet_r
-	_build_sphere_cap_disk(mesh, expand_to * 1.15, planet_r)
+	var pln     := _planet as Planet
+	# Use actual rendered surface radius so rings appear ON the surface, not inside it
+	var land_add: float = 0.0 if _is_sea else pln.land_height
+	var surf_r:  float  = pln.planet_radius + pln.tile_raise + land_add + 0.02
+	var center: Vector3 = _surf_normal * surf_r
+	_build_sphere_cap_disk(mesh, expand_to * 1.15, surf_r)
 	mi.mesh     = mesh
 	mi.position = Vector3.ZERO
 	mi.scale    = Vector3.ONE
@@ -315,23 +363,76 @@ func _make_ring(color: Color, start_r: float, delay: float, max_life: float, exp
 
 func _spawn_rings() -> void:
 	var cr: float = 0.45 + _intensity * 0.55
-	if _is_sea:
-		# Tidal waves — multiple concentric ripples, each delayed
-		var ripple_col := Color(0.65, 0.85, 1.0, 0.90)
-		_make_ring(ripple_col, cr * 1.1, 0.00, 1.6, cr * 5.5)
-		_make_ring(ripple_col, cr * 1.0, 0.28, 1.5, cr * 4.8)
-		_make_ring(ripple_col, cr * 0.9, 0.55, 1.4, cr * 4.0)
-		_make_ring(ripple_col, cr * 0.8, 0.80, 1.3, cr * 3.2)
-	else:
-		# Brown dust shockwave — main wave, then two aftershocks; small fire accent
-		var dust   := Color(0.76, 0.55, 0.28, 1.00)
-		var dust2  := Color(0.62, 0.44, 0.22, 0.85)
-		var dust3  := Color(0.52, 0.36, 0.18, 0.65)
-		var fire   := Color(1.00, 0.45, 0.05, 0.70)
-		_make_ring(dust,  cr * 1.0, 0.00, 1.10, cr * 5.5)
-		_make_ring(fire,  cr * 0.7, 0.06, 0.65, cr * 3.0)  # small inner fire burst
-		_make_ring(dust2, cr * 0.9, 0.22, 1.30, cr * 4.5)
-		_make_ring(dust3, cr * 0.8, 0.45, 1.50, cr * 3.8)
+	match _ast_type:
+		"comet":
+			if _is_sea:
+				# Comet ocean hit — 5 massive ice-blue tidal waves + trailing steam
+				var ice1  := Color(0.60, 0.92, 1.00, 0.95)
+				var ice2  := Color(0.45, 0.78, 0.98, 0.85)
+				var steam := Color(0.88, 0.96, 1.00, 0.55)
+				_make_ring(ice1,  cr * 1.3, 0.00, 2.4, cr * 8.0)
+				_make_ring(ice2,  cr * 1.1, 0.22, 2.1, cr * 6.8)
+				_make_ring(ice1,  cr * 1.0, 0.44, 1.9, cr * 5.8)
+				_make_ring(ice2,  cr * 0.9, 0.65, 1.7, cr * 4.8)
+				_make_ring(steam, cr * 0.7, 0.90, 2.0, cr * 7.0)
+			else:
+				# Comet land — pale ice burst then slow steam spread
+				var burst := Color(0.78, 0.94, 1.00, 0.92)
+				var steam2 := Color(0.92, 0.97, 1.00, 0.60)
+				_make_ring(burst,  cr * 1.0, 0.00, 0.70, cr * 5.0)
+				_make_ring(steam2, cr * 0.8, 0.10, 2.20, cr * 7.5)
+				_make_ring(burst,  cr * 0.6, 0.38, 1.10, cr * 3.5)
+		"m_type":
+			if _is_sea:
+				# Metallic ocean — violent, fast, near-white then steel
+				var white := Color(0.94, 0.97, 1.00, 0.96)
+				var steel := Color(0.68, 0.80, 0.92, 0.80)
+				var grey  := Color(0.52, 0.64, 0.78, 0.55)
+				_make_ring(white, cr * 1.4, 0.00, 0.80, cr * 9.0)  # explosive leading wave
+				_make_ring(steel, cr * 1.1, 0.14, 1.50, cr * 7.0)
+				_make_ring(grey,  cr * 0.8, 0.50, 2.00, cr * 5.0)
+			else:
+				# Metallic land — massive yellow-white shockwave + molten splatter
+				var shock  := Color(1.00, 0.94, 0.55, 1.00)
+				var molten := Color(1.00, 0.55, 0.08, 0.92)
+				var settle := Color(0.46, 0.38, 0.28, 0.70)
+				_make_ring(shock,  cr * 1.3, 0.00, 0.55, cr * 8.0)  # ultra-fast shockwave
+				_make_ring(molten, cr * 1.0, 0.04, 0.85, cr * 4.5)
+				_make_ring(settle, cr * 0.9, 0.22, 2.10, cr * 6.0)
+				_make_ring(molten, cr * 0.6, 0.45, 1.30, cr * 3.2)
+		"s_type":
+			if _is_sea:
+				# Stony ocean — 3 waves + mud ring
+				var ripple := Color(0.70, 0.88, 1.00, 0.90)
+				var mud    := Color(0.58, 0.66, 0.52, 0.65)
+				_make_ring(ripple, cr * 1.2, 0.00, 1.5, cr * 5.5)
+				_make_ring(ripple, cr * 1.0, 0.28, 1.4, cr * 4.5)
+				_make_ring(mud,    cr * 0.8, 0.55, 1.6, cr * 3.8)
+			else:
+				# Stony land — bigger shockwave + stronger fire accent
+				var dust  := Color(0.72, 0.52, 0.26, 1.00)
+				var fire  := Color(1.00, 0.55, 0.05, 0.82)
+				var dust2 := Color(0.58, 0.42, 0.20, 0.78)
+				_make_ring(dust,  cr * 1.1, 0.00, 1.00, cr * 6.0)
+				_make_ring(fire,  cr * 0.8, 0.05, 0.72, cr * 3.8)
+				_make_ring(dust2, cr * 0.9, 0.25, 1.40, cr * 5.2)
+				_make_ring(dust2, cr * 0.7, 0.52, 1.60, cr * 4.0)
+		_:  # c_type and default
+			if _is_sea:
+				var ripple_col := Color(0.65, 0.85, 1.0, 0.90)
+				_make_ring(ripple_col, cr * 1.1, 0.00, 1.6, cr * 5.5)
+				_make_ring(ripple_col, cr * 1.0, 0.28, 1.5, cr * 4.8)
+				_make_ring(ripple_col, cr * 0.9, 0.55, 1.4, cr * 4.0)
+				_make_ring(ripple_col, cr * 0.8, 0.80, 1.3, cr * 3.2)
+			else:
+				var dust  := Color(0.76, 0.55, 0.28, 1.00)
+				var dust2 := Color(0.62, 0.44, 0.22, 0.85)
+				var dust3 := Color(0.52, 0.36, 0.18, 0.65)
+				var fire  := Color(1.00, 0.45, 0.05, 0.70)
+				_make_ring(dust,  cr * 1.0, 0.00, 1.10, cr * 5.5)
+				_make_ring(fire,  cr * 0.7, 0.06, 0.65, cr * 3.0)
+				_make_ring(dust2, cr * 0.9, 0.22, 1.30, cr * 4.5)
+				_make_ring(dust3, cr * 0.8, 0.45, 1.50, cr * 3.8)
 
 
 func _update_rings(delta: float) -> void:
@@ -364,13 +465,30 @@ func _spawn_debris() -> void:
 	var bitangent: Vector3 = _surf_normal.cross(tangent).normalized()
 	var count: int = clamp(int(DEBRIS_PER_INTENSITY * _intensity), 40, 200)
 
-	const ROCK_COLS := [
-		Color(0.36, 0.28, 0.20),
-		Color(0.50, 0.40, 0.28),
-		Color(0.62, 0.52, 0.36),
-		Color(0.28, 0.24, 0.18),
-		Color(0.45, 0.35, 0.22),
-	]
+	var rock_cols: Array
+	var emit_palette: Array
+	var emit_threshold: float
+	match _ast_type:
+		"comet":
+			rock_cols = [Color(0.90,0.95,1.00), Color(0.75,0.88,0.98),
+			             Color(0.85,0.90,0.96), Color(0.65,0.80,0.95), Color(0.95,0.97,1.00)]
+			emit_palette = [ICE_COLORS[0], ICE_COLORS[1]]
+			emit_threshold = 0.18
+		"m_type":
+			rock_cols = [Color(0.72,0.72,0.76), Color(0.82,0.82,0.86),
+			             Color(0.88,0.84,0.70), Color(0.65,0.65,0.68), Color(0.55,0.55,0.60)]
+			emit_palette = [METAL_COLORS[0], METAL_COLORS[1]]
+			emit_threshold = 0.28
+		"s_type":
+			rock_cols = [Color(0.60,0.48,0.30), Color(0.72,0.58,0.36),
+			             Color(0.80,0.65,0.42), Color(0.48,0.38,0.22), Color(0.66,0.52,0.32)]
+			emit_palette = [FIRE_COLORS[0], FIRE_COLORS[1]]
+			emit_threshold = 0.18
+		_:  # c_type
+			rock_cols = [Color(0.36,0.28,0.20), Color(0.50,0.40,0.28),
+			             Color(0.62,0.52,0.36), Color(0.28,0.24,0.18), Color(0.45,0.35,0.22)]
+			emit_palette = [FIRE_COLORS[0], FIRE_COLORS[1]]
+			emit_threshold = 0.12
 
 	for i in range(count):
 		var angle: float   = (float(i) / count) * TAU + randf() * 1.2
@@ -383,12 +501,11 @@ func _spawn_debris() -> void:
 		var piece_life: float  = return_time + randf_range(0.4, 0.9)
 		var spin: Vector3      = Vector3(randf_range(-4.0, 4.0), randf_range(-4.0, 4.0), randf_range(-4.0, 4.0))
 
-		# Cluster base colour
 		var base_col: Color
-		if randf() < 0.12:
-			base_col = FIRE_COLORS[randi() % 2]
+		if randf() < emit_threshold:
+			base_col = emit_palette[randi() % emit_palette.size()]
 		elif randf() < 0.5:
-			base_col = ROCK_COLS[randi() % ROCK_COLS.size()]
+			base_col = rock_cols[randi() % rock_cols.size()]
 		else:
 			var vary: float = randf_range(-0.08, 0.08)
 			base_col = Color(clamp(_tile_col.r + vary, 0.0, 1.0),
@@ -410,10 +527,12 @@ func _spawn_debris() -> void:
 			                       clamp(base_col.b + vary2, 0.0, 1.0))
 			var mat := StandardMaterial3D.new()
 			mat.albedo_color = piece_col
-			mat.emission_enabled = piece_col.r > 0.7
+			var is_hot: bool = _ast_type == "comet" \
+					and piece_col.b > 0.85 and piece_col.r > 0.75
+			mat.emission_enabled = piece_col.r > 0.7 or is_hot
 			if mat.emission_enabled:
 				mat.emission = piece_col
-				mat.emission_energy_multiplier = 1.0
+				mat.emission_energy_multiplier = 1.2 if _ast_type == "m_type" else 1.0
 			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 			mat.cull_mode    = BaseMaterial3D.CULL_DISABLED
 			mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -445,12 +564,14 @@ func _process(delta: float) -> void:
 		_t = move_toward(_t, 1.0, delta / (FALL_BASE_DURATION + _intensity * 0.1))
 		var new_pos: Vector3 = _start_pos.lerp(_end_pos, _t * _t)
 		if _ext_rock:
-			_ext_rock.position = new_pos
+			# Drive the camera-child rock via world position so it tracks the arc correctly
+			_ext_rock.global_position = new_pos + (_planet as Node3D).global_position
 		else:
 			_meteor.position = new_pos
 			var dir: Vector3 = (_end_pos - _meteor.position).normalized()
 			if dir.length_squared() > 0.001:
-				_meteor.look_at(_meteor.global_position + dir, Vector3.UP)
+				var up: Vector3 = Vector3.RIGHT if abs(dir.dot(Vector3.UP)) > 0.95 else Vector3.UP
+				_meteor.look_at(_meteor.global_position + dir, up)
 		_update_trail()
 
 		# Spawn fire pixels — more frequent as asteroid gets closer
@@ -505,5 +626,24 @@ func _on_impact() -> void:
 		_meteor.queue_free()
 	_spawn_rings()
 	_spawn_debris()
+	print("[ImpactEffect] _on_impact() rings=", _rings.size(), " debris=", _debris.size(),
+		" is_sea=", _is_sea, " type=", _ast_type, " end_pos=", _end_pos)
+
+	# DIAGNOSTIC: big glowing sphere at impact point so we know Child meshes CAN render
+	var dbg := MeshInstance3D.new()
+	var dbg_m := SphereMesh.new()
+	dbg_m.radius = 0.5
+	dbg.mesh = dbg_m
+	var dbg_mat := StandardMaterial3D.new()
+	dbg_mat.albedo_color = Color(1.0, 0.0, 1.0)
+	dbg_mat.emission_enabled = true
+	dbg_mat.emission = Color(1.0, 0.0, 1.0)
+	dbg_mat.emission_energy_multiplier = 12.0
+	dbg_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	dbg_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	dbg.set_surface_override_material(0, dbg_mat)
+	dbg.position = _end_pos + _surf_normal * 0.5
+	add_child(dbg)
+
 	if _planet.has_method("apply_impact"):
 		_planet.apply_impact((_tile as RefCounted).tile_id, _end_pos, _intensity, _irregular_core)

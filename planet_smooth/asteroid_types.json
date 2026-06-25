@@ -1,0 +1,260 @@
+{
+	"_comment": "Asteroid type presets. Keys match AsteroidSphere.gdshader uniforms. Colors [r,g,b] 0..1.",
+	"_order": [
+		"c_type",
+		"s_type",
+		"m_type",
+		"comet",
+		"volcanic"
+	],
+	"c_type": {
+		"_name": "C-type (Carbonaceous)",
+		"band_smoothness": 0.08,
+		"crater_density": 0.65,
+		"crater_depth": 0.55,
+		"crater_scale": 4.0,
+		"crater_seed": 7.0,
+		"displacement": 0.24,
+		"edge_softness": 0.3,
+		"metallic": 0.0,
+		"outline_color": [
+			0.086,
+			0.086,
+			0.086
+		],
+		"outline_strength": 0.9,
+		"outline_width": 5.5,
+		"rim_color": [
+			0.0,
+			0.0,
+			0.0
+		],
+		"rim_falloff": 4.5,
+		"rim_strength": 0.12,
+		"rock_color1": [
+			0.1,
+			0.09,
+			0.09
+		],
+		"rock_color2": [
+			0.164,
+			0.164,
+			0.164
+		],
+		"rock_color3": [
+			0.04,
+			0.04,
+			0.04
+		],
+		"rock_color4": [
+			0.152,
+			0.152,
+			0.152
+		],
+		"shape_scale": 2.4,
+		"shape_seed": 1.0,
+		"specular_color": [
+			0.12,
+			0.12,
+			0.11
+		],
+		"surface_scale": 5.0,
+		"surface_seed": 3.0
+	},
+	"comet": {
+		"_name": "Comet (Icy Nucleus)",
+		"band_smoothness": 0.1,
+		"crater_density": 0.28,
+		"crater_depth": 0.45,
+		"crater_scale": 3.0,
+		"crater_seed": 9.0,
+		"displacement": 0.32,
+		"edge_softness": 0.45,
+		"metallic": 0.0,
+		"outline_strength": 0.7,
+		"outline_width": 4.5,
+		"rim_color": [
+			0.52,
+			0.64,
+			0.8
+		],
+		"rim_falloff": 3.5,
+		"rim_strength": 0.65,
+		"rock_color1": [
+			0.35,
+			0.38,
+			0.44
+		],
+		"rock_color2": [
+			0.2,
+			0.22,
+			0.28
+		],
+		"rock_color3": [
+			0.1,
+			0.12,
+			0.16
+		],
+		"rock_color4": [
+			0.05,
+			0.06,
+			0.09
+		],
+		"shape_scale": 2.8,
+		"shape_seed": 6.0,
+		"specular_color": [
+			0.6,
+			0.68,
+			0.78
+		],
+		"surface_scale": 5.5,
+		"surface_seed": 2.0
+	},
+	"m_type": {
+		"_name": "M-type (Metallic)",
+		"band_smoothness": 0.04,
+		"crater_density": 0.35,
+		"crater_depth": 0.32,
+		"crater_scale": 3.2,
+		"crater_seed": 5.0,
+		"displacement": 0.28,
+		"edge_softness": 0.25,
+		"metallic": 0.75,
+		"outline_strength": 0.85,
+		"outline_width": 5.0,
+		"rim_color": [
+			0.55,
+			0.54,
+			0.5
+		],
+		"rim_falloff": 3.5,
+		"rim_strength": 0.38,
+		"rock_color1": [
+			0.58,
+			0.57,
+			0.52
+		],
+		"rock_color2": [
+			0.4,
+			0.39,
+			0.36
+		],
+		"rock_color3": [
+			0.24,
+			0.23,
+			0.21
+		],
+		"rock_color4": [
+			0.1,
+			0.1,
+			0.09
+		],
+		"shape_scale": 1.8,
+		"shape_seed": 8.0,
+		"specular_color": [
+			0.85,
+			0.85,
+			0.78
+		],
+		"surface_scale": 2.9,
+		"surface_seed": 9.0
+	},
+	"s_type": {
+		"_name": "S-type (Silicate)",
+		"band_smoothness": 0.0,
+		"crater_density": 0.6,
+		"crater_depth": 0.54,
+		"crater_scale": 1.0,
+		"crater_seed": 2.0,
+		"displacement": 0.245,
+		"edge_softness": 0.15,
+		"metallic": 0.0,
+		"outline_strength": 0.88,
+		"outline_width": 2.75,
+		"rim_color": [
+			0.38,
+			0.3,
+			0.22
+		],
+		"rim_falloff": 3.0,
+		"rim_strength": 0.76,
+		"rock_color1": [
+			0.42,
+			0.35,
+			0.26
+		],
+		"rock_color2": [
+			0.28,
+			0.23,
+			0.17
+		],
+		"rock_color3": [
+			0.16,
+			0.13,
+			0.1
+		],
+		"rock_color4": [
+			0.08,
+			0.07,
+			0.05
+		],
+		"shape_scale": 2.7,
+		"shape_seed": 4.0,
+		"specular_color": [
+			0.5,
+			0.42,
+			0.32
+		],
+		"surface_scale": 2.5,
+		"surface_seed": 6.0
+	},
+	"volcanic": {
+		"_name": "Volcanic (Active Remnant)",
+		"band_smoothness": 0.07,
+		"crater_density": 0.45,
+		"crater_depth": 0.65,
+		"crater_scale": 4.2,
+		"crater_seed": 4.0,
+		"displacement": 0.22,
+		"edge_softness": 0.4,
+		"metallic": 0.0,
+		"outline_strength": 0.9,
+		"outline_width": 5.5,
+		"rim_color": [
+			0.6,
+			0.28,
+			0.08
+		],
+		"rim_falloff": 3.8,
+		"rim_strength": 0.35,
+		"rock_color1": [
+			0.3,
+			0.16,
+			0.1
+		],
+		"rock_color2": [
+			0.18,
+			0.1,
+			0.06
+		],
+		"rock_color3": [
+			0.1,
+			0.06,
+			0.04
+		],
+		"rock_color4": [
+			0.04,
+			0.02,
+			0.02
+		],
+		"shape_scale": 2.5,
+		"shape_seed": 3.0,
+		"specular_color": [
+			0.55,
+			0.25,
+			0.1
+		],
+		"surface_scale": 4.8,
+		"surface_seed": 5.0
+	}
+}

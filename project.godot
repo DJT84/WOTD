@@ -16,6 +16,10 @@ run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+GameState="*res://scripts/GameState.gd"
+
 [display]
 
 window/size/viewport_width=1920
@@ -27,6 +31,4 @@ enabled=PackedStringArray("res://addons/planet_editor/plugin.cfg")
 
 [rendering]
 
-renderer/rendering_method="gl_compatibility"
-renderer/rendering_method.mobile="gl_compatibility"
 anti_aliasing/quality/msaa_3d=2

@@ -1,0 +1,30 @@
+[gd_scene load_steps=4 format=3 uid="uid://bsmoothtest01"]
+
+[ext_resource type="Script" path="res://planet_smooth/test.gd" id="1"]
+[ext_resource type="Script" path="res://planet_smooth/earth_planet.gd" id="2"]
+
+[sub_resource type="Environment" id="Env_1"]
+background_mode = 1
+background_color = Color(0.02, 0.02, 0.045, 1)
+ambient_light_source = 0
+glow_enabled = true
+glow_intensity = 1.1
+glow_strength = 1.0
+glow_bloom = 0.15
+glow_blend_mode = 0
+glow_hdr_threshold = 0.85
+
+[node name="Test" type="Node3D"]
+script = ExtResource("1")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env_1")
+
+[node name="Planet" type="MeshInstance3D" parent="."]
+script = ExtResource("2")
+epoch = "holocene"
+show_clouds = true
+show_shadow = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.6)
